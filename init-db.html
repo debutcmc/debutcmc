@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Inisialisasi Database DebutCMC</title>
+    <style>
+        body { background: #0b0e14; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: #161a21; padding: 30px; border-radius: 12px; text-align: center; border: 1px solid #00ff88; box-shadow: 0 0 20px rgba(0,255,136,0.2); }
+        button { background: #00ff88; color: #0b0e14; border: none; padding: 15px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { transform: scale(1.05); background: #00cc6e; }
+        #status { margin-top: 20px; font-size: 14px; color: #8b949e; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h1>🚀 Setup Database</h1>
+        <p>Klik tombol di bawah untuk membuat struktur <br> koleksi <b>"comics"</b> secara otomatis.</p>
+        
+        <button id="btn-gas">SINKRONKAN SEKARANG</button>
+        
+        <div id="status">Status: Menunggu instruksi...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // CONFIG FIREBASE KAMU
+        const firebaseConfig = {
+            apiKey: "AIzaSyCt2j9hATOmWYqdknCi05j8zIO59SaF578",
+            authDomain: "debutcmc-ec2ad.firebaseapp.com",
+            projectId: "debutcmc-ec2ad",
+            storageBucket: "debutcmc-ec2ad.firebasestorage.app",
+            messagingSenderId: "283108871954",
+            appId: "1:283108871954:web:5900298201e74ce83d2dcb"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const statusText = document.getElementById('status');
+        const btn = document.getElementById('btn-gas');
+
+        btn.addEventListener('click', async () => {
+            statusText.innerText = "⏳ Sedang memproses...";
+            btn.disabled = true;
+
+            try {
+                // Membuat dokumen pancingan agar collection "comics" tercipta
+                await addDoc(collection(db, "comics"), {
+                    title: "System Initialization",
+                    genre: "System",
+                    coverUrl: "https://via.placeholder.com/300x400?text=DebutCMC+Ready",
+                    createdAt: serverTimestamp()
+                });
+
+                statusText.innerHTML = "<b style='color:#00ff88'>✅ BERHASIL!</b><br>Koleksi 'comics' sudah ada di Firebase.<br>Silakan hapus file ini dan balik ke Admin Panel.";
+                statusText.style.color = "#00ff88";
+            } catch (error) {
+                statusText.innerText = "❌ Gagal: " + error.message;
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
