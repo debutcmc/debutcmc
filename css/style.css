@@ -1,12 +1,21 @@
-/* Base Style */
-body {
+/* =========================================
+   1. BASE STYLE (Unsur Asli Kamu)
+   ========================================= */
+* { box-sizing: border-box; } /* Penting agar padding tidak merusak lebar */
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden; /* Anti-Scroll Horizontal */
+    position: relative;
     background-color: #0b0e14;
     color: white;
     font-family: 'Segoe UI', sans-serif;
     margin: 0;
 }
 
-/* Navbar & Logo */
+/* =========================================
+   2. NAVBAR & LOGO (Unsur Asli Kamu)
+   ========================================= */
 .navbar { 
     background: #161a21; 
     padding: 10px 5%; 
@@ -15,64 +24,53 @@ body {
     top: 0;
     z-index: 1000;
 }
-.nav-content { display: flex; justify-content: space-between; align-items: center; }
+
+.nav-content { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 10px 20px; /* Gabungan unsur asli */
+}
+
 .logo-area { display: flex; align-items: center; gap: 10px; }
-.nav-logo { width: 40px; height: 40px; border-radius: 8px; } /* UKURAN LOGO NAV */
+.nav-logo { width: 40px; height: 40px; border-radius: 8px; } /* Ukuran logo asli */
 .logo-text { font-size: 20px; color: #00ff88; margin: 0; }
 .logo-text span { color: white; }
 
-.navbar ul { display: flex; list-style: none; gap: 20px; }
-.navbar a { text-decoration: none; color: #8b949e; font-weight: 600; font-size: 14px; }
-.navbar a:hover { color: #00ff88; }
-
-/* Promo Banner (Bukan gambar logo, tapi section warna) */
-.promo-banner {
-    background: linear-gradient(90deg, #1e293b, #00ff8844);
-    height: 200px;
-    border-radius: 12px;
-    margin: 20px 5%;
-    display: flex;
-    align-items: center;
-    padding: 0 40px;
+/* Link Navigasi (Perbaikan Struktur agar sinkron) */
+.nav-links { 
+    display: flex; 
+    list-style: none; 
+    gap: 20px; 
+    margin: 0; 
+    padding: 0; 
 }
 
-/* Comic Grid */
-.home-container { padding: 10px 5%; }
-.section-title { font-size: 18px; margin: 20px 0; border-left: 4px solid #00ff88; padding-left: 10px; }
-.comic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
-.comic-card { text-decoration: none; color: white; }
-.thumbnail img { width: 100%; border-radius: 6px; aspect-ratio: 3/4; object-fit: cover; }
-
-/* Footer */
-.footer-pro { background: #161a21; padding: 40px 0; text-align: center; border-top: 1px solid #2d333b; }
-.footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 15px; } /* UKURAN LOGO FOOTER */
-.social-icons { margin-bottom: 20px; color: #8b949e; display: flex; justify-content: center; gap: 20px; }
-.footer-links a { color: #8b949e; text-decoration: none; margin: 0 10px; font-size: 13px; }
-
-/* Anti-Scroll Horizontal */
-html, body {
-    max-width: 100%;
-    overflow-x: hidden;
-    position: relative;
+.nav-links a { 
+    text-decoration: none; 
+    color: #8b949e; 
+    font-weight: 600; 
+    font-size: 14px; 
 }
 
-/* Navbar & Hamburger */
-.nav-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
+.nav-links a:hover { color: #00ff88; }
+
+/* Hamburger Icon (Fitur Baru) */
+.hamburger {
+    display: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
 }
 
-.nav-links {
-    display: flex;
-    gap: 20px;
-}
-
-/* Sembunyikan menu di mobile */
+/* =========================================
+   3. MOBILE MENU (Logic Perbaikan)
+   ========================================= */
 @media (max-width: 768px) {
+    .hamburger { display: block; }
+
     .nav-links {
-        display: none; /* Kita akan pakai JS untuk toggle */
+        display: none; /* Sembunyi sebelum diklik */
         flex-direction: column;
         position: absolute;
         top: 60px;
@@ -82,20 +80,71 @@ html, body {
         padding: 20px;
         border-bottom: 2px solid #00ff88;
         z-index: 1000;
+        text-align: center;
     }
+
     .nav-links.active {
-        display: flex;
+        display: flex; /* Dipicu oleh JS */
     }
 }
 
-/* Icon Hamburger */
-.hamburger {
-    display: none;
-    cursor: pointer;
-    font-size: 24px;
-    color: white;
+/* =========================================
+   4. CONTENT & GRID (Unsur Desain Asli Kamu)
+   ========================================= */
+.promo-banner {
+    background: linear-gradient(90deg, #1e293b, #00ff8844); /* Gradasi asli */
+    height: 200px;
+    border-radius: 12px;
+    margin: 20px 5%;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
 }
 
-@media (max-width: 768px) {
-    .hamburger { display: block; }
+.home-container { padding: 10px 5%; }
+.section-title { 
+    font-size: 18px; 
+    margin: 20px 0; 
+    border-left: 4px solid #00ff88; 
+    padding-left: 10px; 
+}
+
+.comic-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    gap: 20px; 
+}
+
+.comic-card { text-decoration: none; color: white; }
+.thumbnail img { 
+    width: 100%; 
+    border-radius: 6px; 
+    aspect-ratio: 3/4; 
+    object-fit: cover; 
+}
+
+/* =========================================
+   5. FOOTER (Unsur Asli Kamu)
+   ========================================= */
+.footer-pro { 
+    background: #161a21; 
+    padding: 40px 0; 
+    text-align: center; 
+    border-top: 1px solid #2d333b; 
+}
+
+.footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 15px; }
+.social-icons { 
+    margin-bottom: 20px; 
+    color: #8b949e; 
+    display: flex; 
+    justify-content: center; 
+    gap: 20px; 
+}
+
+.footer-links a { 
+    color: #8b949e; 
+    text-decoration: none; 
+    margin: 0 10px; 
+    font-size: 13px; 
 }
