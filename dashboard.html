@@ -2,54 +2,110 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Dashboard CEO | DebutCMC</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
+        /* Layout Dasar */
         .admin-layout { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
-        .sidebar { background: #161a21; padding: 20px; border-right: 1px solid #2d333b; }
+        .sidebar { background: #161a21; padding: 20px; border-right: 1px solid #2d333b; transition: 0.3s; }
         .main-content { padding: 40px; background: #0b0e14; }
+        
+        /* Hamburger untuk Dashboard Mobile */
+        .dash-hamburger { 
+            display: none; 
+            padding: 15px; 
+            background: #161a21; 
+            color: #00ff88; 
+            cursor: pointer; 
+            font-weight: bold;
+            border-bottom: 1px solid #2d333b;
+        }
+
         .stat-card { background: #1c2128; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #00ff88; }
         .nav-link { display: block; padding: 10px; color: #8b949e; text-decoration: none; border-radius: 5px; margin-bottom: 5px; }
         .nav-link.active { background: #00ff88; color: #0b0e14; font-weight: bold; }
+
+        /* Responsif Mobile */
+        @media (max-width: 768px) {
+            .admin-layout { grid-template-columns: 1fr; }
+            .sidebar { 
+                position: fixed; 
+                left: -250px; /* Sembunyi ke kiri */
+                top: 0; 
+                height: 100%; 
+                width: 250px; 
+                z-index: 2000; 
+            }
+            .sidebar.active { left: 0; } /* Muncul saat diklik */
+            .dash-hamburger { display: block; }
+            .main-content { padding: 20px; }
+        }
     </style>
 </head>
 <body>
 
+    <div class="dash-hamburger" id="dash-hamburger">☰ MENU DASHBOARD</div>
+
     <div class="admin-layout">
-        <aside class="sidebar">
+        <aside class="sidebar" id="dash-sidebar">
             <h2 style="color: #00ff88;">Debut<span>CMC</span></h2>
-            <p style="font-size: 12px; color: #8b949e; margin-bottom: 20px;">Admin: officialdebutcmc@gmail.com</p>
+            <p id="admin-email" style="font-size: 11px; color: #8b949e; margin-bottom: 20px;">Memuat data...</p>
             <nav>
-                <a href="#" class="nav-link active">🏠 Dashboard</a>
+                <a href="index.html" class="nav-link">🏠 Ke Home Site</a>
+                <a href="#" class="nav-link active">📊 Dashboard</a>
                 <a href="#" class="nav-link">📚 Kelola Series</a>
-                <a href="#" class="nav-link">➕ Tambah Chapter</a>
-                <a href="#" id="btn-logout" class="nav-link" style="color: #ff4444; margin-top: 50px;">🚪 Keluar</a>
+                <a href="#" id="btn-logout" class="nav-link" style="color: #ff4444; margin-top: 50px; cursor: pointer;">🚪 Keluar</a>
             </nav>
         </aside>
 
         <main class="main-content">
-            <div class="stat-card">
-                <h3>Selamat Datang, CEO!</h3>
-                <p>Siap merilis maha karya hari ini?</p>
+            <div id="auth-overlay" style="display:none; text-align:center; padding:50px;">
+                <h2>Akses Ditolak! 🛑</h2>
+                <p>Silakan login terlebih dahulu untuk mengakses Dashboard.</p>
+                <button onclick="loginGoogle()" style="background:#00ff88; padding:10px 20px; border:none; cursor:pointer; font-weight:bold; border-radius:5px;">LOGIN SEKARANG</button>
             </div>
 
-            <section id="form-upload-komik">
-                <h2>Tambah Series Baru</h2>
-                <div style="max-width: 500px; background: #161a21; padding: 20px; border-radius: 10px;">
-                    <label>Judul</label><br>
-                    <input type="text" id="comic-title" style="width:100%; margin-bottom:15px; background:#0b0e14; color:white; border:1px solid #333; padding:10px;"><br>
-                    <label>Genre</label><br>
-                    <select id="comic-genre" style="width:100%; margin-bottom:15px; background:#0b0e14; color:white; border:1px solid #333; padding:10px;">
-                        <option>Fantasy</option><option>Action</option><option>Horror</option>
-                    </select><br>
-                    <input type="file" id="file-input" style="margin-bottom:15px;"><br>
-                    <button id="upload-trigger" style="background:#00ff88; width:100%; padding:12px; border:none; font-weight:bold; cursor:pointer;">PUBLISH</button>
-                    <p id="upload-status"></p>
+            <div id="dashboard-ui">
+                <div class="stat-card">
+                    <h3 id="welcome-msg">Selamat Datang!</h3>
+                    <p>Siap merilis maha karya hari ini?</p>
                 </div>
-            </section>
+
+                <section id="form-upload-komik">
+                    <h2>Tambah Series Baru</h2>
+                    <div style="max-width: 500px; background: #161a21; padding: 20px; border-radius: 10px;">
+                        <label>Judul</label><br>
+                        <input type="text" id="comic-title" placeholder="Contoh: Petualangan Si Ceo" style="width:100%; margin-bottom:15px; background:#0b0e14; color:white; border:1px solid #333; padding:10px;"><br>
+                        
+                        <label>Genre</label><br>
+                        <select id="comic-genre" style="width:100%; margin-bottom:15px; background:#0b0e14; color:white; border:1px solid #333; padding:10px;">
+                            <option>Fantasy</option><option>Action</option><option>Horror</option><option>Romance</option>
+                        </select><br>
+
+                        <label>Upload Cover (300x400 recommended)</label><br>
+                        <input type="file" id="file-input" accept="image/*" style="margin-bottom:15px;"><br>
+                        
+                        <button id="upload-trigger" style="background:#00ff88; width:100%; padding:12px; border:none; font-weight:bold; cursor:pointer; border-radius:5px;">PUBLISH SEKARANG</button>
+                        <p id="upload-status" style="font-size: 13px; margin-top: 10px; color: #00ff88;"></p>
+                        <img id="image-preview" src="" style="display:none; width:100px; margin-top:10px; border-radius:5px;">
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
     <script type="module" src="js/script.js"></script>
+    <script>
+        // Tambahan JS singkat khusus UI Sidebar Dashboard
+        const dashBtn = document.getElementById('dash-hamburger');
+        const dashSidebar = document.getElementById('dash-sidebar');
+        
+        if(dashBtn) {
+            dashBtn.addEventListener('click', () => {
+                dashSidebar.classList.toggle('active');
+            });
+        }
+    </script>
 </body>
 </html>
