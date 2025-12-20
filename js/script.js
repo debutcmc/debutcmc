@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
-    getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, getDoc, getDocs, query, orderBy 
+    getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, getDoc, getDocs, query, orderBy, where, deleteDoc 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
     getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut 
@@ -20,10 +20,14 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// Parameter URL (untuk Manage Chapter)
+const urlParams = new URLSearchParams(window.location.search);
+const comicId = urlParams.get('id');
+
 // --- A. AUTH & OBSERVER ---
 window.loginGoogle = async () => {
     try {
-        const result = await signInWithPopup(auth, provider);
+        await signInWithPopup(auth, provider);
         if (window.location.pathname.includes('index.html')) {
             window.location.href = "index.html";
         }
@@ -36,6 +40,7 @@ onAuthStateChanged(auth, async (user) => {
     const authOverlay = document.getElementById('auth-overlay');
 
     if (user) {
+        // --- LOGIKA USER DATA ---
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         let userData = userSnap.data();
@@ -53,6 +58,7 @@ onAuthStateChanged(auth, async (user) => {
             await setDoc(userRef, userData);
         }
 
+        // Tampilkan Info User di Header
         if (authSection) {
             const userPhoto = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=00ff88&color=0b0e14`;
             authSection.innerHTML = `
@@ -65,6 +71,13 @@ onAuthStateChanged(auth, async (user) => {
                 </div>`;
         }
 
+        // --- CEK HALAMAN MANAGE (Baru) ---
+        if (comicId) {
+            muatDataSeries();
+            muatDaftarChapter();
+        }
+
+        // --- CEK DASHBOARD ---
         if (window.location.pathname.includes('dashboard.html')) {
             if (userData.isAuthor) {
                 if(dashboardUI) dashboardUI.style.display = 'block';
@@ -78,17 +91,94 @@ onAuthStateChanged(auth, async (user) => {
         muatProfil();
     } else {
         if (authSection) authSection.innerHTML = `<button onclick="loginGoogle()" style="background:#00ff88; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>`;
-        if (window.location.pathname.includes('dashboard.html')) {
-            if(dashboardUI) dashboardUI.style.display = 'none';
-            if(authOverlay) authOverlay.style.display = 'block';
-        }
+        if (comicId) window.location.href = 'index.html'; // Tendang jika akses manage tanpa login
     }
 });
 
-// --- B. LOGIKA PROFIL ---
+// --- B. LOGIKA MANAGE CHAPTER (FUNGSI BARU) ---
+async function muatDataSeries() {
+    const docRef = doc(db, "comics", comicId);
+    const snap = await getDoc(docRef);
+    if (snap.exists() && document.getElementById('manage-title')) {
+        const data = snap.data();
+        document.getElementById('manage-title').innerText = "Manage: " + data.title;
+        document.getElementById('info-title').innerText = data.title;
+        document.getElementById('info-genre').innerText = data.genre;
+        document.getElementById('info-summary').innerText = data.summary;
+        document.getElementById('series-cover').src = data.coverUrl;
+    }
+}
+
+async function muatDaftarChapter() {
+    const list = document.getElementById('chapter-list');
+    if (!list) return;
+    const q = query(collection(db, "chapters"), where("comicId", "==", comicId), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    list.innerHTML = "";
+    snap.forEach(d => {
+        const data = d.data();
+        list.innerHTML += `
+            <div style="background:#161a21; border:1px solid #333; padding:15px; border-radius:10px; display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <div>
+                    <strong style="display:block; color:white;">${data.chapterTitle}</strong>
+                    <small style="color:#8b949e;">${data.images.length} Halaman</small>
+                </div>
+                <button onclick="hapusChapter('${d.id}')" style="background:none; border:none; color:#ff4444; cursor:pointer; font-weight:bold;">Hapus</button>
+            </div>`;
+    });
+}
+
+window.hapusChapter = async (id) => {
+    if(confirm("Hapus chapter ini?")) {
+        await deleteDoc(doc(db, "chapters", id));
+        muatDaftarChapter();
+    }
+};
+
+// Logika Upload Chapter
+const btnUploadChap = document.getElementById('btn-upload-chapter');
+const chapFiles = document.getElementById('chapter-files');
+if (btnUploadChap) {
+    btnUploadChap.onclick = async () => {
+        const title = document.getElementById('chapter-title').value;
+        const files = chapFiles.files;
+        if (!title || files.length === 0) return alert("Isi judul dan pilih gambar!");
+
+        btnUploadChap.disabled = true;
+        btnUploadChap.innerText = "Processing...";
+        let uploadedUrls = [];
+
+        try {
+            for (let i = 0; i < files.length; i++) {
+                btnUploadChap.innerText = `Uploading (${i + 1}/${files.length})...`;
+                const formData = new FormData();
+                formData.append('image', files[i]);
+                const res = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', {
+                    method: 'POST',
+                    body: formData
+                });
+                const imgData = await res.json();
+                uploadedUrls.push(imgData.data.url);
+            }
+            await addDoc(collection(db, "chapters"), {
+                comicId: comicId,
+                chapterTitle: title,
+                images: uploadedUrls,
+                createdAt: serverTimestamp()
+            });
+            alert("Chapter dipublish!");
+            location.reload();
+        } catch (e) {
+            alert("Gagal upload.");
+            btnUploadChap.disabled = false;
+        }
+    };
+}
+
+// --- C. LOGIKA PROFIL & DASHBOARD ---
 async function muatProfil() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('uid');
+    const urlParamsProfile = new URLSearchParams(window.location.search);
+    const userId = urlParamsProfile.get('uid');
     const profileDiv = document.getElementById('profile-content');
     if (!profileDiv || !userId) return;
 
@@ -96,160 +186,37 @@ async function muatProfil() {
     if (userSnap.exists()) {
         const data = userSnap.data();
         const isOwner = auth.currentUser && auth.currentUser.uid === userId;
-
         profileDiv.innerHTML = `
-            <div style="text-align:center; color:white; font-family:sans-serif;">
+            <div style="text-align:center; color:white;">
                 <img src="${data.photoURL}" style="width:100px; border-radius:50%; border:3px solid #00ff88;">
                 <h2>${data.displayName}</h2>
-                <p style="color:#8b949e;">@${data.username}</p>
-                <p id="bio-text" style="background:#161a21; padding:15px; border-radius:10px;">${data.bio}</p>
-                ${isOwner ? `
-                    <button onclick="editBio()" style="background:none; border:1px solid #333; color:#8b949e; padding:5px 10px; cursor:pointer; margin-bottom:20px;">Edit Bio</button>
-                    <hr style="border:0; border-top:1px solid #222; margin:20px 0;">
-                    ${!data.isAuthor ? `
-                        <div style="background:#00ff8811; border:1px solid #00ff88; padding:20px; border-radius:10px;">
-                            <p>Ingin membuat komik sendiri?</p>
-                            <button onclick="aktifkanDev()" style="background:#00ff88; color:black; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; border-radius:5px;">AKTIFKAN MODE AUTHOR</button>
-                        </div>
-                    ` : `
-                        <button onclick="window.location.href='dashboard.html'" style="background:#00ff88; color:black; border:none; width:100%; padding:15px; font-weight:bold; cursor:pointer; border-radius:5px;">MASUK DASHBOARD CREATOR 🚀</button>
-                    `}
-                ` : ""}
+                <p id="bio-text">${data.bio}</p>
+                ${isOwner ? `<button onclick="editBio()">Edit Bio</button>` : ""}
             </div>`;
     }
 }
 
-window.editBio = async () => {
-    const newBio = prompt("Tulis bio baru kamu:");
-    if (newBio) {
-        await setDoc(doc(db, "users", auth.currentUser.uid), { bio: newBio }, { merge: true });
-        location.reload();
-    }
-};
-
-window.aktifkanDev = async () => {
-    if (confirm("Aktifkan Mode Author untuk mulai mengunggah komik?")) {
-        await setDoc(doc(db, "users", auth.currentUser.uid), { isAuthor: true }, { merge: true });
-        alert("Selamat! Mode Author Aktif.");
-        location.reload();
-    }
-};
-
-// --- C. LOGIKA DASHBOARD ---
-const btnCreate = document.getElementById('btn-create-series');
-const fileInput = document.getElementById('file-input');
-const uploadTrigger = document.getElementById('upload-trigger');
-
-if (uploadTrigger && fileInput) {
-    uploadTrigger.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', () => {
-        if(fileInput.files[0]) {
-            const statusText = document.getElementById('upload-status');
-            if(statusText) statusText.innerText = `📸 ${fileInput.files[0].name} terpilih!`;
-        }
-    });
-}
-
-if (btnCreate) {
-    btnCreate.addEventListener('click', async () => {
-        const title = document.getElementById('comic-title').value;
-        const genre = document.getElementById('comic-genre').value;
-        const summary = document.getElementById('comic-summary').value;
-        const file = fileInput.files[0];
-        const statusText = document.getElementById('upload-status');
-
-        if (!file || !title || !summary) {
-            alert("Harap lengkapi semua data!");
-            return;
-        }
-
-        btnCreate.disabled = true;
-        btnCreate.innerText = "Processing...";
-        statusText.innerText = "🚀 Mengirim ke ImgBB...";
-
-        const formData = new FormData();
-        formData.append('image', file);
-
-        try {
-            const res = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', {
-                method: 'POST',
-                body: formData
-            });
-            const dataImg = await res.json();
-
-            if (dataImg.status === 200) {
-                statusText.innerText = "✅ Cover terupload! Menyimpan data...";
-
-                await addDoc(collection(db, "comics"), {
-                    title: title,
-                    genre: genre,
-                    summary: summary,
-                    coverUrl: dataImg.data.url,
-                    authorId: auth.currentUser.uid,
-                    authorName: auth.currentUser.displayName,
-                    createdAt: serverTimestamp(),
-                    viewCount: 0,
-                    rating: 0
-                });
-
-                alert("BERHASIL! Seri komik kamu resmi terbit.");
-                location.reload(); 
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Gagal mengunggah.");
-        } finally {
-            btnCreate.disabled = false;
-            btnCreate.innerText = "Create Series >";
-        }
-    });
-}
-
-// INI FUNGSI BARU YANG KAMU MINTA
 async function muatKomikSaya() {
     const list = document.getElementById('my-comic-list');
     if (!list) return;
-    
     const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
-    
     list.innerHTML = "";
-    let punyaKomik = false;
-
     snap.forEach(d => {
         const data = d.data();
         if (data.authorId === auth.currentUser.uid) {
-            punyaKomik = true;
             list.innerHTML += `
-                <div style="background:#161a21; border:1px solid #333; border-radius:10px; overflow:hidden; display:flex; gap:15px; align-items:center; padding:10px; margin-bottom:10px;">
+                <div style="background:#161a21; border:1px solid #333; border-radius:10px; display:flex; gap:15px; align-items:center; padding:10px; margin-bottom:10px;">
                     <img src="${data.coverUrl}" style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
                     <div style="flex-grow:1;">
                         <h4 style="margin:0; color:white;">${data.title}</h4>
-                        <span style="font-size:11px; color:#00ff88;">${data.genre}</span>
                     </div>
-                    <div style="display:flex; gap:5px;">
-                        <button onclick="window.location.href='manage.html?id=${d.id}'" style="background:#333; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Edit</button>
-                        <button onclick="hapusKomik('${d.id}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Hapus</button>
-                    </div>
+                    <button onclick="window.location.href='manage.html?id=${d.id}'" style="background:#333; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Edit</button>
+                    <button onclick="hapusKomik('${d.id}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Hapus</button>
                 </div>`;
         }
     });
-
-    if (!punyaKomik) {
-        list.innerHTML = `<div style="text-align:center; padding:40px; border:2px dashed #222; border-radius:10px;">
-            <p style="color:#444;">Kamu belum punya karya. Mulai buat sekarang!</p>
-            <button onclick="openTab(event, 'tab-buat')" style="color:#00ff88; background:none; border:none; cursor:pointer; font-weight:bold;">+ Tambah Series</button>
-        </div>`;
-    }
 }
-
-window.hapusKomik = async (id) => {
-    if (confirm("Hapus seri ini secara permanen?")) {
-        const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-        await deleteDoc(doc(db, "comics", id));
-        muatKomikSaya();
-    }
-};
 
 // --- D. LOGIKA BERANDA ---
 async function loadHome() {
@@ -262,11 +229,8 @@ async function loadHome() {
         const data = d.data();
         grid.innerHTML += `
             <a href="detail.html?id=${d.id}" class="comic-card">
-                <div class="thumbnail">
-                    <img src="${data.coverUrl}" style="width:100%; border-radius:10px;">
-                </div>
-                <h4 style="color:white; margin:10px 0 0 0;">${data.title}</h4>
-                <p style="font-size:12px; color:#00ff88;">${data.genre}</p>
+                <img src="${data.coverUrl}" style="width:100%; border-radius:10px;">
+                <h4 style="color:white; margin-top:10px;">${data.title}</h4>
             </a>`;
     });
 }
