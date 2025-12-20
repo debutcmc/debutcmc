@@ -6,39 +6,65 @@
     <title>Dashboard Creator | DebutCMC</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
-<body style="background: #0b0e14; color: white; font-family: sans-serif;">
+<body style="background: #0b0e14; color: white; font-family: sans-serif; margin: 0;">
 
     <div id="auth-overlay" style="display: none; text-align: center; padding: 100px 20px;">
-        <h1 style="color: #ff4444;">AKSES DITOLAK 🚫</h1>
-        <p>Kamu harus login dan mengaktifkan Mode Author di profil.</p>
-        <button onclick="window.location.href='index.html'" style="background: #00ff88; border:none; padding: 10px 20px; cursor:pointer; font-weight:bold; border-radius:5px;">Balik ke Beranda</button>
+        <h1 style="color: #ff4444; font-size: 40px;">AKSES DITOLAK 🚫</h1>
+        <p style="color: #8b949e; margin-bottom: 30px;">Kamu harus login dan mengaktifkan Mode Author di profil untuk mengakses halaman ini.</p>
+        <button onclick="window.location.href='index.html'" style="background: #00ff88; border:none; padding: 15px 30px; cursor:pointer; font-weight:bold; border-radius:50px; color: #0b0e14;">Balik ke Beranda</button>
     </div>
 
     <div id="dashboard-ui" style="display: none; max-width: 800px; margin: 0 auto; padding: 20px;">
         
-        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 20px;">
+        <header style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 20px; margin-bottom: 30px;">
             <div>
                 <h1 id="welcome-msg" style="margin: 0; color: #00ff88;">Dashboard Creator</h1>
-                <p id="admin-email" style="font-size: 12px; color: #8b949e;"></p>
+                <p style="font-size: 14px; color: #8b949e;">Kelola karya dan rilis series baru kamu di sini.</p>
             </div>
-            <button id="btn-logout" style="background: #ff4444; border:none; color:white; padding: 8px 15px; border-radius: 5px; cursor:pointer;">Logout</button>
+            <button id="btn-logout" style="background: #ff4444; border:none; color:white; padding: 10px 20px; border-radius: 8px; cursor:pointer; font-weight: bold;">Logout</button>
         </header>
 
-        <section style="background: #161a21; padding: 20px; border-radius: 15px; margin-top: 30px; border: 1px solid #2d333b;">
-            <h3>Rilis Komik Baru 🔥</h3>
-            <input type="text" id="comic-title" placeholder="Judul Komik..." style="width: 100%; padding: 12px; margin-bottom: 15px; background: #0b0e14; border: 1px solid #333; color: white; border-radius: 5px;">
+        <section style="background: #161a21; padding: 30px; border-radius: 15px; border: 1px solid #2d333b; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+            <h3 style="color: #00ff88; margin-top: 0; margin-bottom: 25px; display: flex; align-items: center; gap: 10px;">
+                PARTICIPATE - CREATE SERIES 🖋️
+            </h3>
             
-            <div style="border: 2px dashed #333; padding: 30px; text-align: center; border-radius: 10px; cursor: pointer;" id="upload-trigger">
-                <p style="margin: 0;">📸 Klik untuk Pilih Sampul Komik</p>
+            <label style="display:block; margin-bottom:8px; font-size:12px; color:#8b949e; text-transform: uppercase; letter-spacing: 1px;">Series Title</label>
+            <input type="text" id="comic-title" placeholder="Masukkan judul komik kamu..." style="width: 100%; padding: 14px; margin-bottom: 20px; background: #0b0e14; border: 1px solid #333; color: white; border-radius: 8px; outline: none;">
+            
+            <label style="display:block; margin-bottom:8px; font-size:12px; color:#8b949e; text-transform: uppercase; letter-spacing: 1px;">Category/Genre</label>
+            <select id="comic-genre" style="width: 100%; padding: 14px; margin-bottom: 20px; background: #0b0e14; border: 1px solid #333; color: white; border-radius: 8px; cursor: pointer; outline: none;">
+                <option value="COMEDY">COMEDY</option>
+                <option value="FANTASY">FANTASY</option>
+                <option value="ROMANCE">ROMANCE</option>
+                <option value="SLICE OF LIFE">SLICE OF LIFE</option>
+                <option value="SCI-FI">SCI-FI</option>
+                <option value="DRAMA">DRAMA</option>
+                <option value="THRILLER">THRILLER</option>
+                <option value="HORROR">HORROR</option>
+                <option value="SUPERHERO">SUPERHERO</option>
+                <option value="ACTION">ACTION</option>
+            </select>
+
+            <label style="display:block; margin-bottom:8px; font-size:12px; color:#8b949e; text-transform: uppercase; letter-spacing: 1px;">Summary</label>
+            <textarea id="comic-summary" placeholder="Tulis sinopsis singkat komik kamu..." style="width: 100%; height: 120px; padding: 14px; margin-bottom: 20px; background: #0b0e14; border: 1px solid #333; color: white; border-radius: 8px; resize: none; outline: none; font-family: sans-serif;"></textarea>
+
+            <label style="display:block; margin-bottom:8px; font-size:12px; color:#8b949e; text-transform: uppercase; letter-spacing: 1px;">Thumbnail (Square)</label>
+            <div style="border: 2px dashed #333; padding: 40px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; background: #0b0e14;" id="upload-trigger" onmouseover="this.style.borderColor='#00ff88'" onmouseout="this.style.borderColor='#333'">
+                <p id="upload-status" style="margin: 0; font-weight: bold; color: #8b949e;">➕ KLIK UNTUK UPLOAD COVER</p>
                 <input type="file" id="file-input" accept="image/*" style="display: none;">
-                <p id="upload-status" style="font-size: 12px; color: #00ff88; margin-top: 10px;"></p>
             </div>
+
+            <button id="btn-create-series" style="width: 100%; margin-top: 25px; background: #00ff88; color: #0b0e14; border: none; padding: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; font-size: 16px; transition: 0.2s;">
+                Create Series >
+            </button>
         </section>
 
-        <section style="margin-top: 40px;">
-            <h3 style="border-left: 4px solid #00ff88; padding-left: 10px;">Series Milik Kamu</h3>
-            <div id="my-comic-list" style="margin-top: 15px;">
-                </div>
+        <section style="margin-top: 50px; margin-bottom: 50px;">
+            <h3 style="border-left: 4px solid #00ff88; padding-left: 15px; margin-bottom: 20px;">Series Milik Kamu</h3>
+            <div id="my-comic-list" style="display: flex; flex-direction: column; gap: 10px;">
+                <p style="color: #444; font-style: italic;">Memuat daftar komik...</p>
+            </div>
         </section>
 
     </div>
