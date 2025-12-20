@@ -1,10 +1,18 @@
-// Mengambil elemen tombol dan teks
-const tombol = document.getElementById('btn-cek');
-const teksStatus = document.getElementById('status-text');
+// Fungsi untuk Upload Gambar ke ImgBB
+async function uploadKeImgBB(fileGambar) {
+    const apiKey = 'daa2bcb021279c96cebd854f8650d77e'; // Sementara di sini, tapi nanti kita amankan
+    const formData = new FormData();
+    formData.append('image', fileGambar);
 
-// Fungsi saat tombol diklik
-tombol.addEventListener('click', () => {
-    teksStatus.innerText = "Website ini sedang dipantau oleh CEO DebutCMC!";
-    teksStatus.style.color = "#fbbf24";
-    alert("Semangat Membangun DebutCMC!");
-});
+    try {
+        const response = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+            method: 'POST',
+            body: formData
+        });
+        const data = await response.json();
+        console.log("Link Gambar Kamu:", data.data.url);
+        return data.data.url;
+    } catch (error) {
+        console.error("Upload Gagal!", error);
+    }
+}
