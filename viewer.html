@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Mode | DebutCMC</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Style khusus halaman baca agar mulus tanpa celah */
+        body { background-color: #000; margin: 0; }
+        .reader-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .manga-page {
+            width: 100%;
+            max-width: 800px; /* Standar Webtoon */
+            display: block;
+            line-height: 0;
+        }
+        .manga-page img {
+            width: 100%;
+            display: block;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+        .reader-nav {
+            position: fixed;
+            bottom: 20px;
+            background: rgba(22, 26, 33, 0.9);
+            padding: 10px 25px;
+            border-radius: 50px;
+            border: 1px solid #00ff88;
+            color: white;
+            z-index: 100;
+        }
+        .info-header {
+            padding: 20px;
+            text-align: center;
+            color: #00ff88;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="info-header">
+        <h2 id="comic-title">Memuat Komik...</h2>
+        <p id="chapter-info">Chapter 1</p>
+    </div>
+
+    <div class="reader-container" id="manga-viewer">
+        </div>
+
+    <div class="reader-nav">
+        <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">⬅ KEMBALI</a>
+    </div>
+
+    <script src="js/script.js"></script>
+    <script>
+        // Logika otomatis untuk membaca ?id=1
+        const urlParams = new URLSearchParams(window.location.search);
+        const comicId = urlParams.get('id');
+        const titleElement = document.getElementById('comic-title');
+        const viewer = document.getElementById('manga-viewer');
+
+        if (comicId === '1') {
+            titleElement.innerText = "A Spell for a Smith";
+            // Simulasi gambar halaman 1, 2, 3
+            viewer.innerHTML = `
+                <img src="https://picsum.photos/seed/comic1page1/800/1200" class="manga-page">
+                <img src="https://picsum.photos/seed/comic1page2/800/1200" class="manga-page">
+            `;
+        } else if (comicId === '2') {
+            titleElement.innerText = "Cyber Code";
+            viewer.innerHTML = `
+                <img src="https://picsum.photos/seed/comic2page1/800/1200" class="manga-page">
+                <img src="https://picsum.photos/seed/comic2page2/800/1200" class="manga-page">
+            `;
+        } else {
+            titleElement.innerText = "Komik Tidak Ditemukan";
+        }
+    </script>
+</body>
+</html>
