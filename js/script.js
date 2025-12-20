@@ -1,6 +1,21 @@
 // 1. IMPORT FIREBASE (Versi CDN Module)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    getFirestore, 
+    collection, 
+    addDoc, 
+    serverTimestamp, 
+    doc, 
+    setDoc, 
+    getDoc 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { 
+    getAuth, 
+    onAuthStateChanged,
+    GoogleAuthProvider,
+    signInWithPopup,
+    signOut
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 // 2. CONFIG FIREBASE DEBUTCMC
 const firebaseConfig = {
@@ -15,14 +30,46 @@ const firebaseConfig = {
 // 3. INISIALISASI FIREBASE
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-// 4. LOGIKA UPLOAD (IMGBB + FIREBASE)
+// --- A. LOGIKA AUTH (LOGIN & OBSERVER) ---
+
+// Fungsi Login (Gunakan ini di login.html)
+window.loginGoogle = async () => {
+    try {
+        const result = await signInWithPopup(auth, provider);
+        console.log("User Logged In:", result.user);
+    } catch (error) {
+        console.error("Login Error:", error);
+    }
+};
+
+// Simpan data user ke Database saat login
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        const userRef = doc(db, "users", user.uid);
+        await setDoc(userRef, {
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            email: user.email,
+            uid: user.uid,
+            username: user.email.split('@')[0],
+            bio: "Member DebutCMC"
+        }, { merge: true });
+        
+        // Jika sedang di halaman profil, muat datanya
+        muatProfil();
+    }
+});
+
+// --- B. LOGIKA UPLOAD (IMGBB + FIREBASE) ---
+
 const fileInput = document.getElementById('file-input');
 const uploadBtn = document.getElementById('upload-trigger');
 const statusText = document.getElementById('upload-status');
 const previewImg = document.getElementById('image-preview');
 
-// Pastikan elemen ada sebelum menjalankan event listener (mencegah error di halaman non-admin)
 if (uploadBtn && fileInput) {
     uploadBtn.addEventListener('click', () => fileInput.click());
 
@@ -31,23 +78,23 @@ if (uploadBtn && fileInput) {
         const judulInput = document.getElementById('comic-title');
         const genreInput = document.getElementById('comic-genre');
 
-        if (!file) return;
+        if (!file || !auth.currentUser) {
+            if (!auth.currentUser) alert("Silakan login terlebih dahulu!");
+            return;
+        }
 
-        // Validasi: Pastikan judul sudah diisi sebelum upload
         if (judulInput && !judulInput.value) {
             alert("Harap isi Judul Komik terlebih dahulu!");
-            this.value = ""; // Reset file input
+            this.value = ""; 
             return;
         }
 
         const formData = new FormData();
         formData.append('image', file);
-
         statusText.innerText = "🚀 Mengunggah gambar ke ImgBB...";
         uploadBtn.disabled = true;
 
         try {
-            // STEP 1: UPLOAD KE IMGBB
             const response = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', {
                 method: 'POST',
                 body: formData
@@ -56,33 +103,74 @@ if (uploadBtn && fileInput) {
 
             if (hasil.status === 200) {
                 const linkGambar = hasil.data.url;
-                const judul = judulInput ? judulInput.value : "Tanpa Judul";
-                const genre = genreInput ? genreInput.value : "Umum";
-
                 statusText.innerText = "✅ Gambar aman! Mendaftarkan ke Database...";
 
-                // STEP 2: SIMPAN DATA LENGKAP KE FIREBASE FIRESTORE
                 await addDoc(collection(db, "comics"), {
-                    title: judul,
-                    genre: genre,
+                    title: judulInput ? judulInput.value : "Tanpa Judul",
+                    genre: genreInput ? genreInput.value : "Umum",
                     coverUrl: linkGambar,
+                    authorId: auth.currentUser.uid, // Simpan ID pembuat
                     createdAt: serverTimestamp()
                 });
 
-                statusText.innerHTML = `🔥 BERHASIL DIRILIS! <br> Komik "${judul}" sudah tayang di Database.`;
+                statusText.innerHTML = `🔥 BERHASIL DIRILIS!`;
                 previewImg.src = hasil.data.display_url;
                 previewImg.style.display = 'block';
-                
-                // Reset form setelah sukses
                 if(judulInput) judulInput.value = "";
-            } else {
-                statusText.innerText = "❌ Gagal Upload: " + hasil.error.message;
             }
         } catch (error) {
-            statusText.innerText = "❌ Terjadi kesalahan koneksi!";
+            statusText.innerText = "❌ Kesalahan sistem!";
             console.error(error);
         } finally {
             uploadBtn.disabled = false;
         }
     });
 }
+
+// --- C. FUNGSI TAMPIL PROFIL (DINAMIS) ---
+
+async function muatProfil() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('uid'); 
+    const profileDiv = document.getElementById('profile-content');
+    
+    if (!profileDiv || !userId) return;
+
+    try {
+        const userSnap = await getDoc(doc(db, "users", userId));
+        const currentUser = auth.currentUser;
+
+        if (userSnap.exists()) {
+            const data = userSnap.data();
+            const isOwner = currentUser && currentUser.uid === userId;
+
+            profileDiv.innerHTML = `
+                <div class="profile-header" style="text-align:center; padding: 20px;">
+                    <img src="${data.photoURL}" class="avatar" style="border-radius:50%; width:100px;">
+                    <h2>${data.displayName} (@${data.username})</h2>
+                    
+                    ${isOwner ? `
+                        <div class="owner-section" style="background: #161a21; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                            <p><b>Email:</b> ${data.email}</p>
+                            <p><i>Bio: ${data.bio}</i></p>
+                            <button onclick="alert('Fitur Edit Profil Segera Hadir!')">Edit Profil</button>
+                        </div>
+                    ` : ""}
+
+                    <div class="creation-section" style="margin-top: 20px;">
+                        <button class="btn-creation" style="background:#00ff88; color:black; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; border-radius:5px;">
+                            Lihat Komik Buatan ${data.displayName}
+                        </button>
+                    </div>
+                </div>
+            `;
+        } else {
+            profileDiv.innerHTML = "<h2>User tidak ditemukan.</h2>";
+        }
+    } catch (error) {
+        console.error("Error Muat Profil:", error);
+    }
+}
+
+// Jalankan muat profil saat pertama kali load jika ada param UID
+muatProfil();
