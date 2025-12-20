@@ -48,3 +48,54 @@ body {
 .footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 15px; } /* UKURAN LOGO FOOTER */
 .social-icons { margin-bottom: 20px; color: #8b949e; display: flex; justify-content: center; gap: 20px; }
 .footer-links a { color: #8b949e; text-decoration: none; margin: 0 10px; font-size: 13px; }
+
+/* Anti-Scroll Horizontal */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* Navbar & Hamburger */
+.nav-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 20px;
+}
+
+/* Sembunyikan menu di mobile */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none; /* Kita akan pakai JS untuk toggle */
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        width: 100%;
+        background: #161a21;
+        padding: 20px;
+        border-bottom: 2px solid #00ff88;
+        z-index: 1000;
+    }
+    .nav-links.active {
+        display: flex;
+    }
+}
+
+/* Icon Hamburger */
+.hamburger {
+    display: none;
+    cursor: pointer;
+    font-size: 24px;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .hamburger { display: block; }
+}
