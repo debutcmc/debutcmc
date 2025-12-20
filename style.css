@@ -1,52 +1,50 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Base Style */
 body {
-    background-color: #121212; /* Gelap Premium */
+    background-color: #0b0e14;
     color: white;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
 }
 
-/* Navbar */
-.navbar {
-    background: #1f1f1f;
-    padding: 15px 5%;
+/* Navbar & Logo */
+.navbar { 
+    background: #161a21; 
+    padding: 10px 5%; 
+    border-bottom: 1px solid #2d333b;
     position: sticky;
     top: 0;
-    z-index: 100;
-    border-bottom: 1px solid #333;
+    z-index: 1000;
 }
 .nav-content { display: flex; justify-content: space-between; align-items: center; }
-.logo-text { font-size: 24px; color: #00ff88; }
+.logo-area { display: flex; align-items: center; gap: 10px; }
+.nav-logo { width: 40px; height: 40px; border-radius: 8px; } /* UKURAN LOGO NAV */
+.logo-text { font-size: 20px; color: #00ff88; margin: 0; }
 .logo-text span { color: white; }
+
 .navbar ul { display: flex; list-style: none; gap: 20px; }
-.navbar a { text-decoration: none; color: #ccc; font-weight: 500; }
+.navbar a { text-decoration: none; color: #8b949e; font-weight: 600; font-size: 14px; }
 .navbar a:hover { color: #00ff88; }
 
-/* Grid Komik */
-.home-container { padding: 40px 5%; }
-.section-title { margin-bottom: 25px; font-size: 22px; border-left: 5px solid #00ff88; padding-left: 15px; }
-.comic-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
+/* Promo Banner (Bukan gambar logo, tapi section warna) */
+.promo-banner {
+    background: linear-gradient(90deg, #1e293b, #00ff8844);
+    height: 200px;
+    border-radius: 12px;
+    margin: 20px 5%;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
 }
-.comic-card {
-    text-decoration: none;
-    color: white;
-    transition: transform 0.3s;
-}
-.comic-card:hover { transform: translateY(-10px); }
-.thumbnail {
-    width: 100%;
-    aspect-ratio: 3/4;
-    overflow: hidden;
-    border-radius: 8px;
-    background: #333;
-}
-.thumbnail img { width: 100%; height: 100%; object-fit: cover; }
-.comic-info { padding: 10px 0; }
-.genre-tag { font-size: 10px; color: #00ff88; font-weight: bold; }
-.author { font-size: 12px; color: #888; }
 
-/* Dev Section */
-.upload-section { margin-top: 100px; text-align: center; color: #444; }
-.upload-section button { background: #333; color: #888; border: none; padding: 10px; cursor: pointer; }
+/* Comic Grid */
+.home-container { padding: 10px 5%; }
+.section-title { font-size: 18px; margin: 20px 0; border-left: 4px solid #00ff88; padding-left: 10px; }
+.comic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
+.comic-card { text-decoration: none; color: white; }
+.thumbnail img { width: 100%; border-radius: 6px; aspect-ratio: 3/4; object-fit: cover; }
+
+/* Footer */
+.footer-pro { background: #161a21; padding: 40px 0; text-align: center; border-top: 1px solid #2d333b; }
+.footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 15px; } /* UKURAN LOGO FOOTER */
+.social-icons { margin-bottom: 20px; color: #8b949e; display: flex; justify-content: center; gap: 20px; }
+.footer-links a { color: #8b949e; text-decoration: none; margin: 0 10px; font-size: 13px; }
