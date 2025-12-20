@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DebutCMC - Official Site</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
@@ -14,10 +14,16 @@
                 <img src="https://i.ibb.co.com/3qkWwbb/Gemini-Generated-Image-d1gyk6d1gyk6d1gy.png" alt="Logo" class="nav-logo">
                 <h1 class="logo-text">Debut<span>CMC</span></h1>
             </div>
-            <ul>
+            
+            <div class="hamburger" id="hamburger">☰</div>
+
+            <ul class="nav-links" id="nav-menu">
+                <li><a href="index.html">HOME</a></li>
                 <li><a href="#">ORIGINALS</a></li>
                 <li><a href="#">GENRE</a></li>
-                <li><a href="#">POPULER</a></li>
+                <li id="auth-section">
+                    <button onclick="loginGoogle()" id="btn-login-nav" style="background:#00ff88; color:black; border:none; padding:5px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>
+                </li>
             </ul>
         </div>
     </nav>
@@ -32,20 +38,7 @@
 
         <h2 class="section-title">SERIES PILIHAN</h2>
         <div class="comic-grid" id="comic-list">
-            <a href="detail.html?id=1" class="comic-card">
-                <div class="thumbnail"><img src="https://picsum.photos/seed/manga1/300/400" alt="Cover A Spell for a Smith"></div>
-                <div class="comic-info"><h3>A Spell for a Smith</h3><p>Fantasy</p></div>
-            </a>
-
-            <a href="detail.html?id=2" class="comic-card">
-                <div class="thumbnail"><img src="https://picsum.photos/seed/manga2/300/400" alt="Cover Cyber Code"></div>
-                <div class="comic-info"><h3>Cyber Code</h3><p>Action</p></div>
-            </a>
-
-            <a href="detail.html?id=3" class="comic-card">
-                <div class="thumbnail"><img src="https://picsum.photos/seed/manga3/300/400" alt="Cover Dark Moon"></div>
-                <div class="comic-info"><h3>Dark Moon</h3><p>Horror</p></div>
-            </a>
+            <p style="color: #8b949e; text-align: center; grid-column: 1/-1;">Memuat koleksi komik...</p>
         </div>
     </main>
 
