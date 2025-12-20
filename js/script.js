@@ -85,7 +85,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- B. LOGIKA PROFIL (Bio & Dev Mode) ---
+// --- B. LOGIKA PROFIL ---
 async function muatProfil() {
     const urlParams = new URLSearchParams(window.location.search);
     const userId = urlParams.get('uid');
@@ -135,7 +135,7 @@ window.aktifkanDev = async () => {
     }
 };
 
-// --- C. LOGIKA DASHBOARD (Upload & Create Series) ---
+// --- C. LOGIKA DASHBOARD ---
 const btnCreate = document.getElementById('btn-create-series');
 const fileInput = document.getElementById('file-input');
 const uploadTrigger = document.getElementById('upload-trigger');
@@ -143,7 +143,10 @@ const uploadTrigger = document.getElementById('upload-trigger');
 if (uploadTrigger && fileInput) {
     uploadTrigger.addEventListener('click', () => fileInput.click());
     fileInput.addEventListener('change', () => {
-        if(fileInput.files[0]) uploadTrigger.innerHTML = `<p style="color:#00ff88">📸 ${fileInput.files[0].name} terpilih!</p>`;
+        if(fileInput.files[0]) {
+            const statusText = document.getElementById('upload-status');
+            if(statusText) statusText.innerText = `📸 ${fileInput.files[0].name} terpilih!`;
+        }
     });
 }
 
@@ -156,7 +159,7 @@ if (btnCreate) {
         const statusText = document.getElementById('upload-status');
 
         if (!file || !title || !summary) {
-            alert("Harap lengkapi semua data (Judul, Summary, dan Cover)!");
+            alert("Harap lengkapi semua data!");
             return;
         }
 
@@ -190,7 +193,7 @@ if (btnCreate) {
                 });
 
                 alert("BERHASIL! Seri komik kamu resmi terbit.");
-                window.location.href = "index.html"; 
+                location.reload(); 
             }
         } catch (error) {
             console.error(error);
@@ -202,26 +205,46 @@ if (btnCreate) {
     });
 }
 
+// INI FUNGSI BARU YANG KAMU MINTA
 async function muatKomikSaya() {
     const list = document.getElementById('my-comic-list');
     if (!list) return;
+    
     const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
+    
     list.innerHTML = "";
+    let punyaKomik = false;
+
     snap.forEach(d => {
         const data = d.data();
         if (data.authorId === auth.currentUser.uid) {
+            punyaKomik = true;
             list.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; background:#161a21; padding:10px; margin-bottom:8px; border-radius:8px;">
-                    <span style="color:white;">${data.title}</span>
-                    <button onclick="hapusKomik('${d.id}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Hapus</button>
+                <div style="background:#161a21; border:1px solid #333; border-radius:10px; overflow:hidden; display:flex; gap:15px; align-items:center; padding:10px; margin-bottom:10px;">
+                    <img src="${data.coverUrl}" style="width:60px; height:60px; object-fit:cover; border-radius:5px;">
+                    <div style="flex-grow:1;">
+                        <h4 style="margin:0; color:white;">${data.title}</h4>
+                        <span style="font-size:11px; color:#00ff88;">${data.genre}</span>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <button onclick="window.location.href='manage.html?id=${d.id}'" style="background:#333; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Edit</button>
+                        <button onclick="hapusKomik('${d.id}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;">Hapus</button>
+                    </div>
                 </div>`;
         }
     });
+
+    if (!punyaKomik) {
+        list.innerHTML = `<div style="text-align:center; padding:40px; border:2px dashed #222; border-radius:10px;">
+            <p style="color:#444;">Kamu belum punya karya. Mulai buat sekarang!</p>
+            <button onclick="openTab(event, 'tab-buat')" style="color:#00ff88; background:none; border:none; cursor:pointer; font-weight:bold;">+ Tambah Series</button>
+        </div>`;
+    }
 }
 
 window.hapusKomik = async (id) => {
-    if (confirm("Hapus seri ini?")) {
+    if (confirm("Hapus seri ini secara permanen?")) {
         const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
         await deleteDoc(doc(db, "comics", id));
         muatKomikSaya();
