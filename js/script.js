@@ -36,12 +36,10 @@ onAuthStateChanged(auth, async (user) => {
     const authOverlay = document.getElementById('auth-overlay');
 
     if (user) {
-        // 1. Ambil Data User dari DB
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         let userData = userSnap.data();
 
-        // Jika user baru, buat data awal
         if (!userSnap.exists()) {
             userData = {
                 displayName: user.displayName,
@@ -55,7 +53,6 @@ onAuthStateChanged(auth, async (user) => {
             await setDoc(userRef, userData);
         }
 
-        // 2. Update Navbar
         if (authSection) {
             const userPhoto = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=00ff88&color=0b0e14`;
             authSection.innerHTML = `
@@ -68,7 +65,6 @@ onAuthStateChanged(auth, async (user) => {
                 </div>`;
         }
 
-        // 3. Proteksi Dashboard (Hanya Jika isAuthor: true)
         if (window.location.pathname.includes('dashboard.html')) {
             if (userData.isAuthor) {
                 if(dashboardUI) dashboardUI.style.display = 'block';
@@ -79,8 +75,7 @@ onAuthStateChanged(auth, async (user) => {
                 window.location.href = `profile.html?uid=${user.uid}`;
             }
         }
-
-        muatProfil(); // Update profil jika sedang di profile.html
+        muatProfil();
     } else {
         if (authSection) authSection.innerHTML = `<button onclick="loginGoogle()" style="background:#00ff88; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>`;
         if (window.location.pathname.includes('dashboard.html')) {
@@ -108,7 +103,6 @@ async function muatProfil() {
                 <h2>${data.displayName}</h2>
                 <p style="color:#8b949e;">@${data.username}</p>
                 <p id="bio-text" style="background:#161a21; padding:15px; border-radius:10px;">${data.bio}</p>
-                
                 ${isOwner ? `
                     <button onclick="editBio()" style="background:none; border:1px solid #333; color:#8b949e; padding:5px 10px; cursor:pointer; margin-bottom:20px;">Edit Bio</button>
                     <hr style="border:0; border-top:1px solid #222; margin:20px 0;">
@@ -141,28 +135,70 @@ window.aktifkanDev = async () => {
     }
 };
 
-// --- C. LOGIKA DASHBOARD (Upload & Manage) ---
-const uploadBtn = document.getElementById('upload-trigger');
-if (uploadBtn) {
-    uploadBtn.addEventListener('click', async () => {
-        const file = document.getElementById('file-input').files[0];
-        const judul = document.getElementById('comic-title').value;
-        if (!file || !judul) return alert("Lengkapi data!");
+// --- C. LOGIKA DASHBOARD (Upload & Create Series) ---
+const btnCreate = document.getElementById('btn-create-series');
+const fileInput = document.getElementById('file-input');
+const uploadTrigger = document.getElementById('upload-trigger');
+
+if (uploadTrigger && fileInput) {
+    uploadTrigger.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+        if(fileInput.files[0]) uploadTrigger.innerHTML = `<p style="color:#00ff88">📸 ${fileInput.files[0].name} terpilih!</p>`;
+    });
+}
+
+if (btnCreate) {
+    btnCreate.addEventListener('click', async () => {
+        const title = document.getElementById('comic-title').value;
+        const genre = document.getElementById('comic-genre').value;
+        const summary = document.getElementById('comic-summary').value;
+        const file = fileInput.files[0];
+        const statusText = document.getElementById('upload-status');
+
+        if (!file || !title || !summary) {
+            alert("Harap lengkapi semua data (Judul, Summary, dan Cover)!");
+            return;
+        }
+
+        btnCreate.disabled = true;
+        btnCreate.innerText = "Processing...";
+        statusText.innerText = "🚀 Mengirim ke ImgBB...";
 
         const formData = new FormData();
         formData.append('image', file);
+
         try {
-            const res = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', { method: 'POST', body: formData });
-            const imgHasil = await res.json();
-            await addDoc(collection(db, "comics"), {
-                title: judul,
-                coverUrl: imgHasil.data.url,
-                authorId: auth.currentUser.uid,
-                createdAt: serverTimestamp()
+            const res = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', {
+                method: 'POST',
+                body: formData
             });
-            alert("Rilis Berhasil!");
-            location.reload();
-        } catch (e) { console.error(e); }
+            const dataImg = await res.json();
+
+            if (dataImg.status === 200) {
+                statusText.innerText = "✅ Cover terupload! Menyimpan data...";
+
+                await addDoc(collection(db, "comics"), {
+                    title: title,
+                    genre: genre,
+                    summary: summary,
+                    coverUrl: dataImg.data.url,
+                    authorId: auth.currentUser.uid,
+                    authorName: auth.currentUser.displayName,
+                    createdAt: serverTimestamp(),
+                    viewCount: 0,
+                    rating: 0
+                });
+
+                alert("BERHASIL! Seri komik kamu resmi terbit.");
+                window.location.href = "index.html"; 
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Gagal mengunggah.");
+        } finally {
+            btnCreate.disabled = false;
+            btnCreate.innerText = "Create Series >";
+        }
     });
 }
 
@@ -203,8 +239,11 @@ async function loadHome() {
         const data = d.data();
         grid.innerHTML += `
             <a href="detail.html?id=${d.id}" class="comic-card">
-                <img src="${data.coverUrl}" style="width:100%; border-radius:10px;">
+                <div class="thumbnail">
+                    <img src="${data.coverUrl}" style="width:100%; border-radius:10px;">
+                </div>
                 <h4 style="color:white; margin:10px 0 0 0;">${data.title}</h4>
+                <p style="font-size:12px; color:#00ff88;">${data.genre}</p>
             </a>`;
     });
 }
