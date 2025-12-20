@@ -213,3 +213,36 @@ async function loadHome() {
 loadHome();
 // Jalankan Muat Profil (jika di halaman profile.html)
 muatProfil();
+
+// --- E. LOGIKA NAVBAR & MOBILE OPTIMIZATION ---
+
+// 1. Toggle Hamburger Menu
+const hamburger = document.getElementById('hamburger');
+const navMenu = document.getElementById('nav-menu');
+
+if (hamburger) {
+    hamburger.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+    });
+}
+
+// 2. Pantau Status Login untuk Update UI Navbar
+onAuthStateChanged(auth, (user) => {
+    const authSection = document.getElementById('auth-section');
+    if (!authSection) return;
+
+    if (user) {
+        // Jika sudah login, ganti tombol Sign In jadi link Dashboard & Foto
+        authSection.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <a href="dashboard.html" style="color:#00ff88; font-weight:bold; font-size:12px;">DASHBOARD</a>
+                <img src="${user.photoURL}" style="width:30px; border-radius:50%; border:1px solid #00ff88; cursor:pointer;" onclick="window.location.href='profile.html?uid=${user.uid}'">
+            </div>
+        `;
+    } else {
+        // Jika belum login, tampilkan tombol Sign In
+        authSection.innerHTML = `
+            <button onclick="loginGoogle()" style="background:#00ff88; color:black; border:none; padding:5px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>
+        `;
+    }
+});
