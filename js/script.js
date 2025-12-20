@@ -1,8 +1,8 @@
-// 1. IMPORT FIREBASE (Gunakan Versi CDN agar Simpel)
+// 1. IMPORT FIREBASE (Versi CDN Module)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 2. CONFIG MILIK KAMU (CEO DEBUTCMC)
+// 2. CONFIG FIREBASE DEBUTCMC
 const firebaseConfig = {
   apiKey: "AIzaSyCt2j9hATOmWYqdknCi05j8zIO59SaF578",
   authDomain: "debutcmc-ec2ad.firebaseapp.com",
@@ -12,7 +12,7 @@ const firebaseConfig = {
   appId: "1:283108871954:web:5900298201e74ce83d2dcb"
 };
 
-// 3. INISIALISASI
+// 3. INISIALISASI FIREBASE
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
@@ -22,19 +22,28 @@ const uploadBtn = document.getElementById('upload-trigger');
 const statusText = document.getElementById('upload-status');
 const previewImg = document.getElementById('image-preview');
 
-if (uploadBtn) {
+// Pastikan elemen ada sebelum menjalankan event listener (mencegah error di halaman non-admin)
+if (uploadBtn && fileInput) {
     uploadBtn.addEventListener('click', () => fileInput.click());
-}
 
-if (fileInput) {
     fileInput.addEventListener('change', async function() {
         const file = this.files[0];
+        const judulInput = document.getElementById('comic-title');
+        const genreInput = document.getElementById('comic-genre');
+
         if (!file) return;
+
+        // Validasi: Pastikan judul sudah diisi sebelum upload
+        if (judulInput && !judulInput.value) {
+            alert("Harap isi Judul Komik terlebih dahulu!");
+            this.value = ""; // Reset file input
+            return;
+        }
 
         const formData = new FormData();
         formData.append('image', file);
 
-        statusText.innerText = "🚀 Mengunggah ke ImgBB...";
+        statusText.innerText = "🚀 Mengunggah gambar ke ImgBB...";
         uploadBtn.disabled = true;
 
         try {
@@ -47,21 +56,30 @@ if (fileInput) {
 
             if (hasil.status === 200) {
                 const linkGambar = hasil.data.url;
-                statusText.innerText = "✅ Gambar Berhasil di ImgBB! Sekarang mendaftarkan ke Database...";
+                const judul = judulInput ? judulInput.value : "Tanpa Judul";
+                const genre = genreInput ? genreInput.value : "Umum";
 
-                // STEP 2: SIMPAN LINK KE FIREBASE FIRESTORE
+                statusText.innerText = "✅ Gambar aman! Mendaftarkan ke Database...";
+
+                // STEP 2: SIMPAN DATA LENGKAP KE FIREBASE FIRESTORE
                 await addDoc(collection(db, "comics"), {
-                    title: "Komik Baru " + Date.now(), // Nama sementara
-                    imageUrl: linkGambar,
+                    title: judul,
+                    genre: genre,
+                    coverUrl: linkGambar,
                     createdAt: serverTimestamp()
                 });
 
-                statusText.innerHTML = `🔥 SUKSES TOTAL! <br> Komik sudah terdaftar di Firebase. <br> <a href="${linkGambar}" target="_blank" style="color:#00ff88">Lihat Gambar</a>`;
+                statusText.innerHTML = `🔥 BERHASIL DIRILIS! <br> Komik "${judul}" sudah tayang di Database.`;
                 previewImg.src = hasil.data.display_url;
                 previewImg.style.display = 'block';
+                
+                // Reset form setelah sukses
+                if(judulInput) judulInput.value = "";
+            } else {
+                statusText.innerText = "❌ Gagal Upload: " + hasil.error.message;
             }
         } catch (error) {
-            statusText.innerText = "❌ Terjadi kesalahan sistem!";
+            statusText.innerText = "❌ Terjadi kesalahan koneksi!";
             console.error(error);
         } finally {
             uploadBtn.disabled = false;
