@@ -1,56 +1,49 @@
-// 1. IMPORT FIREBASE (Versi CDN Module)
+// 1. IMPORT FIREBASE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { 
-    getFirestore, 
-    collection, 
-    addDoc, 
-    serverTimestamp, 
-    doc, 
-    setDoc, 
-    getDoc,
-    getDocs,
-    query,
-    orderBy 
+    getFirestore, collection, addDoc, serverTimestamp, doc, setDoc, getDoc, getDocs, query, orderBy 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
-    getAuth, 
-    onAuthStateChanged,
-    GoogleAuthProvider,
-    signInWithPopup,
-    signOut
+    getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-// 2. CONFIG FIREBASE DEBUTCMC
+// 2. CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyCt2j9hATOmWYqdknCi05j8zIO59SaF578",
-  authDomain: "debutcmc-ec2ad.firebaseapp.com",
-  projectId: "debutcmc-ec2ad",
-  storageBucket: "debutcmc-ec2ad.firebasestorage.app",
-  messagingSenderId: "283108871954",
-  appId: "1:283108871954:web:5900298201e74ce83d2dcb"
+    apiKey: "AIzaSyCt2j9hATOmWYqdknCi05j8zIO59SaF578",
+    authDomain: "debutcmc-ec2ad.firebaseapp.com",
+    projectId: "debutcmc-ec2ad",
+    storageBucket: "debutcmc-ec2ad.firebasestorage.app",
+    messagingSenderId: "283108871954",
+    appId: "1:283108871954:web:5900298201e74ce83d2dcb"
 };
 
-// 3. INISIALISASI FIREBASE
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// --- A. LOGIKA AUTH (LOGIN & OBSERVER) ---
-
-// Fungsi Login Global
+// --- A. FUNGSI LOGIN GLOBAL ---
 window.loginGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, provider);
-        console.log("User Logged In:", result.user);
+        console.log("CEO Login detected:", result.user.displayName);
+        // Jika login di index, otomatis arahkan ke dashboard
+        if (window.location.pathname.includes('index.html')) {
+            window.location.href = "dashboard.html";
+        }
     } catch (error) {
         console.error("Login Error:", error);
     }
 };
 
-// Simpan data user ke Database & Jalankan fungsi halaman
+// --- B. SATU OBSERVER UNTUK SEMUA (NAVBAR & PROTEKSI) ---
 onAuthStateChanged(auth, async (user) => {
+    const authSection = document.getElementById('auth-section');
+    const dashboardUI = document.getElementById('dashboard-ui');
+    const authOverlay = document.getElementById('auth-overlay');
+
     if (user) {
+        // 1. Registrasi ke Firestore
         const userRef = doc(db, "users", user.uid);
         await setDoc(userRef, {
             displayName: user.displayName,
@@ -60,293 +53,117 @@ onAuthStateChanged(auth, async (user) => {
             username: user.email.split('@')[0],
             bio: "Member DebutCMC"
         }, { merge: true });
-        
-        // Cek halaman profil jika sedang dibuka
-        muatProfil();
-    }
-});
 
-// --- B. LOGIKA UPLOAD (IMGBB + FIREBASE) ---
-
-const fileInput = document.getElementById('file-input');
-const uploadBtn = document.getElementById('upload-trigger');
-const statusText = document.getElementById('upload-status');
-const previewImg = document.getElementById('image-preview');
-
-if (uploadBtn && fileInput) {
-    uploadBtn.addEventListener('click', () => fileInput.click());
-
-    fileInput.addEventListener('change', async function() {
-        const file = this.files[0];
-        const judulInput = document.getElementById('comic-title');
-        const genreInput = document.getElementById('comic-genre');
-
-        if (!file || !auth.currentUser) {
-            if (!auth.currentUser) alert("Silakan login terlebih dahulu!");
-            return;
-        }
-
-        if (judulInput && !judulInput.value) {
-            alert("Harap isi Judul Komik terlebih dahulu!");
-            this.value = ""; 
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append('image', file);
-        statusText.innerText = "🚀 Mengunggah gambar ke ImgBB...";
-        uploadBtn.disabled = true;
-
-        try {
-            const response = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', {
-                method: 'POST',
-                body: formData
-            });
-            const hasil = await response.json();
-
-            if (hasil.status === 200) {
-                const linkGambar = hasil.data.url;
-                statusText.innerText = "✅ Gambar aman! Mendaftarkan ke Database...";
-
-                await addDoc(collection(db, "comics"), {
-                    title: judulInput ? judulInput.value : "Tanpa Judul",
-                    genre: genreInput ? genreInput.value : "Umum",
-                    coverUrl: linkGambar,
-                    authorId: auth.currentUser.uid,
-                    createdAt: serverTimestamp()
-                });
-
-                statusText.innerHTML = `🔥 BERHASIL DIRILIS!`;
-                previewImg.src = hasil.data.display_url;
-                previewImg.style.display = 'block';
-                if(judulInput) judulInput.value = "";
-            }
-        } catch (error) {
-            statusText.innerText = "❌ Kesalahan sistem!";
-            console.error(error);
-        } finally {
-            uploadBtn.disabled = false;
-        }
-    });
-}
-
-// --- C. FUNGSI TAMPIL PROFIL (DINAMIS) ---
-
-async function muatProfil() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const userId = urlParams.get('uid'); 
-    const profileDiv = document.getElementById('profile-content');
-    
-    if (!profileDiv || !userId) return;
-
-    try {
-        const userSnap = await getDoc(doc(db, "users", userId));
-        const currentUser = auth.currentUser;
-
-        if (userSnap.exists()) {
-            const data = userSnap.data();
-            const isOwner = currentUser && currentUser.uid === userId;
-
-            profileDiv.innerHTML = `
-                <div class="profile-header" style="text-align:center; padding: 20px;">
-                    <img src="${data.photoURL}" class="avatar" style="border-radius:50%; width:100px;">
-                    <h2>${data.displayName} (@${data.username})</h2>
-                    
-                    ${isOwner ? `
-                        <div class="owner-section" style="background: #161a21; padding: 10px; border-radius: 8px; margin-top: 10px;">
-                            <p><b>Email:</b> ${data.email}</p>
-                            <p><i>Bio: ${data.bio}</i></p>
-                            <button onclick="alert('Fitur Edit Profil Segera Hadir!')">Edit Profil</button>
-                        </div>
-                    ` : ""}
-
-                    <div class="creation-section" style="margin-top: 20px;">
-                        <button class="btn-creation" style="background:#00ff88; color:black; border:none; padding:10px 20px; font-weight:bold; cursor:pointer; border-radius:5px;">
-                            Lihat Komik Buatan ${data.displayName}
-                        </button>
+        // 2. Update Navbar UI
+        if (authSection) {
+            const userPhoto = user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&background=00ff88&color=0b0e14`;
+            authSection.innerHTML = `
+                <div class="user-profile-nav" style="display:flex; align-items:center; gap:12px;">
+                    <div class="nav-user-info" style="text-align:right;">
+                        <span style="display:block; font-size:12px; font-weight:bold; color:#00ff88;">CEO</span>
+                        <span style="display:block; font-size:10px; color:#8b949e;">${user.displayName.split(' ')[0]}</span>
                     </div>
-                </div>
-            `;
-        } else {
-            profileDiv.innerHTML = "<h2>User tidak ditemukan.</h2>";
+                    <a href="dashboard.html">
+                        <img src="${userPhoto}" style="width:38px; height:38px; border-radius:50%; border:2px solid #00ff88; cursor:pointer;">
+                    </a>
+                </div>`;
         }
-    } catch (error) {
-        console.error("Error Muat Profil:", error);
-    }
-}
 
-// --- D. LOGIKA HALAMAN UTAMA (MENAMPILKAN SEMUA KOMIK) ---
-
-async function loadHome() {
-    const comicGrid = document.getElementById('comic-list');
-    
-    if (!comicGrid) return;
-
-    try {
-        const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        
-        comicGrid.innerHTML = "";
-
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            const id = doc.id;
-
-            comicGrid.innerHTML += `
-                <a href="detail.html?id=${id}" class="comic-card">
-                    <div class="thumbnail">
-                        <img src="${data.coverUrl}" alt="${data.title}">
-                    </div>
-                    <div class="comic-info">
-                        <h3>${data.title}</h3>
-                        <p>${data.genre}</p>
-                    </div>
-                </a>
-            `;
-        });
-    } catch (error) {
-        console.error("Gagal memuat halaman utama:", error);
-    }
-}
-
-// Jalankan Load Home
-loadHome();
-// Jalankan Muat Profil (jika di halaman profile.html)
-muatProfil();
-
-// --- E. LOGIKA NAVBAR & MOBILE OPTIMIZATION ---
-
-// 1. Toggle Hamburger Menu
-const hamburger = document.getElementById('hamburger');
-const navMenu = document.getElementById('nav-menu');
-
-if (hamburger) {
-    hamburger.addEventListener('click', () => {
-        navMenu.classList.toggle('active');
-    });
-}
-
-// 2. Pantau Status Login untuk Update UI Navbar
-onAuthStateChanged(auth, (user) => {
-    const authSection = document.getElementById('auth-section');
-    if (!authSection) return;
-
-    if (user) {
-        // Jika sudah login, ganti tombol Sign In jadi link Dashboard & Foto
-        authSection.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <a href="dashboard.html" style="color:#00ff88; font-weight:bold; font-size:12px;">DASHBOARD</a>
-                <img src="${user.photoURL}" style="width:30px; border-radius:50%; border:1px solid #00ff88; cursor:pointer;" onclick="window.location.href='profile.html?uid=${user.uid}'">
-            </div>
-        `;
-    } else {
-        // Jika belum login, tampilkan tombol Sign In
-        authSection.innerHTML = `
-            <button onclick="loginGoogle()" style="background:#00ff88; color:black; border:none; padding:5px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>
-        `;
-    }
-});
-
-// --- F. PROTEKSI DASHBOARD & LOGOUT ---
-
-// 1. Pantau Status Login Khusus Dashboard
-onAuthStateChanged(auth, (user) => {
-    const dashboardUI = document.getElementById('dashboard-ui');
-    const authOverlay = document.getElementById('auth-overlay');
-    const welcomeMsg = document.getElementById('welcome-msg');
-    const adminEmail = document.getElementById('admin-email');
-
-    if (window.location.pathname.includes('dashboard.html')) {
-        if (user) {
-            // Jika login: Tampilkan Dashboard
+        // 3. Dashboard Logic
+        if (window.location.pathname.includes('dashboard.html')) {
             if(dashboardUI) dashboardUI.style.display = 'block';
             if(authOverlay) authOverlay.style.display = 'none';
-            if(welcomeMsg) welcomeMsg.innerText = `Selamat Datang, ${user.displayName}!`;
-            if(adminEmail) adminEmail.innerText = `Admin: ${user.email}`;
-        } else {
-            // Jika tidak login: Sembunyikan Dashboard, Tampilkan Pesan Tolak
+            muatKomikSaya();
+        }
+
+        muatProfil();
+    } else {
+        // User Logout Logic
+        if (authSection) {
+            authSection.innerHTML = `<button onclick="loginGoogle()" style="background:#00ff88; color:black; border:none; padding:8px 20px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>`;
+        }
+        if (window.location.pathname.includes('dashboard.html')) {
             if(dashboardUI) dashboardUI.style.display = 'none';
             if(authOverlay) authOverlay.style.display = 'block';
         }
     }
 });
 
-// 2. Fungsi Logout
-const btnLogout = document.getElementById('btn-logout');
-if (btnLogout) {
-    btnLogout.addEventListener('click', async () => {
+// --- C. LOGIKA UPLOAD ---
+const uploadBtn = document.getElementById('upload-trigger');
+if (uploadBtn) {
+    uploadBtn.addEventListener('click', async () => {
+        const file = document.getElementById('file-input').files[0];
+        const judul = document.getElementById('comic-title').value;
+        const status = document.getElementById('upload-status');
+
+        if (!file || !judul) return alert("Isi judul dan pilih gambar!");
+
+        status.innerText = "🚀 Uploading...";
+        const formData = new FormData();
+        formData.append('image', file);
+
         try {
-            await signOut(auth);
-            alert("Berhasil keluar!");
-            window.location.href = "index.html"; // Balik ke home
-        } catch (error) {
-            console.error("Gagal Logout:", error);
+            const res = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', { method: 'POST', body: formData });
+            const dataImg = await res.json();
+
+            await addDoc(collection(db, "comics"), {
+                title: judul,
+                coverUrl: dataImg.data.url,
+                authorId: auth.currentUser.uid,
+                createdAt: serverTimestamp()
+            });
+            alert("Berhasil Rilis!");
+            location.reload();
+        } catch (e) { console.error(e); }
+    });
+}
+
+// --- D. FUNGSI KELOLA & LIST ---
+async function muatKomikSaya() {
+    const list = document.getElementById('my-comic-list');
+    if (!list) return;
+    const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    list.innerHTML = "";
+    snap.forEach(docSnap => {
+        const data = docSnap.data();
+        if (data.authorId === auth.currentUser.uid) {
+            list.innerHTML += `<div style="display:flex; justify-content:space-between; background:#161a21; padding:10px; margin-bottom:5px; border-radius:5px;">
+                <span>${data.title}</span>
+                <button onclick="hapusKomik('${docSnap.id}')" style="color:#ff4444; background:none; border:none; cursor:pointer;">Hapus</button>
+            </div>`;
         }
     });
 }
 
-// --- G. LOGIKA KELOLA KOMIK (KHUSUS DASHBOARD) ---
-
-async function muatKomikSaya() {
-    const listKontainer = document.getElementById('my-comic-list'); // Pastikan ID ini ada di HTML dashboard
-    if (!listKontainer || !auth.currentUser) return;
-
-    try {
-        // Ambil komik yang authorId-nya sama dengan user yang login
-        const q = query(
-            collection(db, "comics"), 
-            orderBy("createdAt", "desc")
-        );
-        const querySnapshot = await getDocs(q);
-        
-        listKontainer.innerHTML = "";
-        let adaKomik = false;
-
-        querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            // Filter manual (karena butuh index kalau pakai where di query)
-            if (data.authorId === auth.currentUser.uid) {
-                adaKomik = true;
-                const id = docSnap.id;
-
-                listKontainer.innerHTML += `
-                    <div class="manage-card" style="display:flex; gap:15px; background:#1c2128; padding:10px; border-radius:8px; margin-bottom:10px; align-items:center;">
-                        <img src="${data.coverUrl}" style="width:50px; height:70px; object-fit:cover; border-radius:4px;">
-                        <div style="flex-grow:1;">
-                            <h4 style="margin:0; font-size:14px;">${data.title}</h4>
-                            <p style="margin:0; font-size:12px; color:#8b949e;">${data.genre}</p>
-                        </div>
-                        <button onclick="hapusKomik('${id}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">HAPUS</button>
-                    </div>
-                `;
-            }
-        });
-
-        if (!adaKomik) listKontainer.innerHTML = "<p style='color:#8b949e;'>Belum ada komik yang dirilis.</p>";
-
-    } catch (error) {
-        console.error("Gagal muat daftar kelola:", error);
-    }
-}
-
-// Fungsi Hapus Komik Global (Agar bisa dipanggil dari onclick)
 window.hapusKomik = async (id) => {
-    if (confirm("Apakah kamu yakin ingin menghapus komik ini?")) {
-        try {
-            const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
-            await deleteDoc(doc(db, "comics", id));
-            alert("Komik berhasil dihapus!");
-            muatKomikSaya(); // Refresh daftar
-        } catch (error) {
-            alert("Gagal menghapus!");
-            console.error(error);
-        }
+    if (confirm("Hapus komik?")) {
+        const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+        await deleteDoc(doc(db, "comics", id));
+        muatKomikSaya();
     }
 };
 
-// Jalankan muatKomikSaya saat login di dashboard
-onAuthStateChanged(auth, (user) => {
-    if (user && window.location.pathname.includes('dashboard.html')) {
-        muatKomikSaya();
-    }
-});
+// Fungsi Logout
+const btnLogout = document.getElementById('btn-logout');
+if (btnLogout) {
+    btnLogout.addEventListener('click', () => signOut(auth).then(() => window.location.href = "index.html"));
+}
+
+// Load Home Grid
+async function loadHome() {
+    const grid = document.getElementById('comic-list');
+    if (!grid) return;
+    const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    grid.innerHTML = "";
+    snap.forEach(d => {
+        const data = d.data();
+        grid.innerHTML += `<a href="detail.html?id=${d.id}" class="comic-card">
+            <img src="${data.coverUrl}" style="width:100%; aspect-ratio:3/4; object-fit:cover; border-radius:8px;">
+            <h4>${data.title}</h4>
+        </a>`;
+    });
+}
+loadHome();
