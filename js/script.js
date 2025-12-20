@@ -7,7 +7,10 @@ import {
     serverTimestamp, 
     doc, 
     setDoc, 
-    getDoc 
+    getDoc,
+    getDocs,
+    query,
+    orderBy 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { 
     getAuth, 
@@ -35,7 +38,7 @@ const provider = new GoogleAuthProvider();
 
 // --- A. LOGIKA AUTH (LOGIN & OBSERVER) ---
 
-// Fungsi Login (Gunakan ini di login.html)
+// Fungsi Login Global
 window.loginGoogle = async () => {
     try {
         const result = await signInWithPopup(auth, provider);
@@ -45,7 +48,7 @@ window.loginGoogle = async () => {
     }
 };
 
-// Simpan data user ke Database saat login
+// Simpan data user ke Database & Jalankan fungsi halaman
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         const userRef = doc(db, "users", user.uid);
@@ -58,7 +61,7 @@ onAuthStateChanged(auth, async (user) => {
             bio: "Member DebutCMC"
         }, { merge: true });
         
-        // Jika sedang di halaman profil, muat datanya
+        // Cek halaman profil jika sedang dibuka
         muatProfil();
     }
 });
@@ -109,7 +112,7 @@ if (uploadBtn && fileInput) {
                     title: judulInput ? judulInput.value : "Tanpa Judul",
                     genre: genreInput ? genreInput.value : "Umum",
                     coverUrl: linkGambar,
-                    authorId: auth.currentUser.uid, // Simpan ID pembuat
+                    authorId: auth.currentUser.uid,
                     createdAt: serverTimestamp()
                 });
 
@@ -172,5 +175,41 @@ async function muatProfil() {
     }
 }
 
-// Jalankan muat profil saat pertama kali load jika ada param UID
+// --- D. LOGIKA HALAMAN UTAMA (MENAMPILKAN SEMUA KOMIK) ---
+
+async function loadHome() {
+    const comicGrid = document.getElementById('comic-list');
+    
+    if (!comicGrid) return;
+
+    try {
+        const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
+        const querySnapshot = await getDocs(q);
+        
+        comicGrid.innerHTML = "";
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const id = doc.id;
+
+            comicGrid.innerHTML += `
+                <a href="detail.html?id=${id}" class="comic-card">
+                    <div class="thumbnail">
+                        <img src="${data.coverUrl}" alt="${data.title}">
+                    </div>
+                    <div class="comic-info">
+                        <h3>${data.title}</h3>
+                        <p>${data.genre}</p>
+                    </div>
+                </a>
+            `;
+        });
+    } catch (error) {
+        console.error("Gagal memuat halaman utama:", error);
+    }
+}
+
+// Jalankan Load Home
+loadHome();
+// Jalankan Muat Profil (jika di halaman profile.html)
 muatProfil();
