@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DebutCMC - Official Site</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -13,60 +12,49 @@
         <div class="nav-content">
             <h1 class="logo-text">Debut<span>CMC</span></h1>
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#genre">Genre</a></li>
-                <li><a href="#upload" class="dev-link">Dev Zone</a></li>
+                <li><a href="#">ORIGINALS</a></li>
+                <li><a href="#">GENRE</a></li>
+                <li><a href="#">POPULER</a></li>
             </ul>
         </div>
     </nav>
 
     <main class="home-container">
-        <h2 class="section-title">TOP SERIES HARI INI</h2>
-        
+        <section class="hero-banner">
+            <img src="https://i.ibb.co.com/3qkWwbb/Gemini-Generated-Image-d1gyk6d1gyk6d1gy.png" alt="DebutCMC Hero" class="hero-img">
+            <div class="hero-overlay">
+                <h2>Selamat Datang di Masa Depan Manga</h2>
+                <p>Baca karya original terbaik hanya di DebutCMC.</p>
+            </div>
+        </section>
+
+        <h2 class="section-title">SERIES PILIHAN</h2>
         <div class="comic-grid">
-            <a href="comic-detail.html?title_no=001" class="comic-card">
-                <div class="thumbnail">
-                    <img src="https://picsum.photos/seed/comic1/300/400" alt="Thumbnail">
-                </div>
-                <div class="comic-info">
-                    <span class="genre-tag">FANTASY</span>
-                    <h3>A Spell for a Smith</h3>
-                    <p class="author">By Creator A</p>
-                </div>
+            <a href="viewer.html?id=1" class="comic-card">
+                <div class="thumbnail"><img src="https://picsum.photos/seed/manga1/300/400" alt=""></div>
+                <div class="comic-info"><h3>A Spell for a Smith</h3><p>Fantasy</p></div>
             </a>
-
-            <a href="comic-detail.html?title_no=002" class="comic-card">
-                <div class="thumbnail">
-                    <img src="https://picsum.photos/seed/comic2/300/400" alt="Thumbnail">
-                </div>
-                <div class="comic-info">
-                    <span class="genre-tag">ROMANCE</span>
-                    <h3>Love in Code</h3>
-                    <p class="author">By CEO Debut</p>
-                </div>
-            </a>
-
-            <a href="comic-detail.html?title_no=003" class="comic-card">
-                <div class="thumbnail">
-                    <img src="https://picsum.photos/seed/comic3/300/400" alt="Thumbnail">
-                </div>
-                <div class="comic-info">
-                    <span class="genre-tag">ACTION</span>
-                    <h3>Vercel Knight</h3>
-                    <p class="author">By Developer X</p>
-                </div>
+            <a href="viewer.html?id=2" class="comic-card">
+                <div class="thumbnail"><img src="https://picsum.photos/seed/manga2/300/400" alt=""></div>
+                <div class="comic-info"><h3>Cyber Code</h3><p>Action</p></div>
             </a>
         </div>
-
-        <section id="upload" class="upload-section">
-            <hr>
-            <h3>Creator Studio (Dev Only)</h3>
-            <p>Upload cover baru ke ImgBB</p>
-            <input type="file" id="file-input" style="display:none;">
-            <button id="upload-trigger">Upload New Cover</button>
-            <p id="upload-status"></p>
-        </section>
     </main>
+
+    <footer class="footer-pro">
+        <div class="footer-top">
+            <div class="social-icons">
+                <span>FB</span> <span>IG</span> <span>X</span> <span>YT</span>
+            </div>
+            <div class="footer-links">
+                <a href="#">About</a> <a href="#">Feedback</a> <a href="#">Help</a> <a href="#">Terms</a> <a href="#">Privacy</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <img src="https://i.ibb.co.com/3qkWwbb/Gemini-Generated-Image-d1gyk6d1gyk6d1gy.png" alt="Logo" class="footer-logo">
+            <p>© 2025 DebutCMC Ltd.</p>
+        </div>
+    </footer>
 
     <script src="script.js"></script>
 </body>
