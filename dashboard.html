@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard CEO | DebutCMC</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-layout { display: grid; grid-template-columns: 250px 1fr; min-height: 100vh; }
+        .sidebar { background: #161a21; padding: 20px; border-right: 1px solid #2d333b; }
+        .main-content { padding: 40px; background: #0b0e14; }
+        .stat-card { background: #1c2128; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #00ff88; }
+        .nav-link { display: block; padding: 10px; color: #8b949e; text-decoration: none; border-radius: 5px; margin-bottom: 5px; }
+        .nav-link.active { background: #00ff88; color: #0b0e14; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <h2 style="color: #00ff88;">Debut<span>CMC</span></h2>
+            <p style="font-size: 12px; color: #8b949e; margin-bottom: 20px;">Admin: officialdebutcmc@gmail.com</p>
+            <nav>
+                <a href="#" class="nav-link active">🏠 Dashboard</a>
+                <a href="#" class="nav-link">📚 Kelola Series</a>
+                <a href="#" class="nav-link">➕ Tambah Chapter</a>
+                <a href="#" id="btn-logout" class="nav-link" style="color: #ff4444; margin-top: 50px;">🚪 Keluar</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="stat-card">
+                <h3>Selamat Datang, CEO!</h3>
+                <p>Siap merilis maha karya hari ini?</p>
+            </div>
+
+            <section id="form-upload-komik">
+                <h2>Tambah Series Baru</h2>
+                <div style="max-width: 500px; background: #161a21; padding: 20px; border-radius: 10px;">
+                    <label>Judul</label><br>
+                    <input type="text" id="comic-title" style="width:100%; margin-bottom:15px; background:#0b0e14; color:white; border:1px solid #333; padding:10px;"><br>
+                    <label>Genre</label><br>
+                    <select id="comic-genre" style="width:100%; margin-bottom:15px; background:#0b0e14; color:white; border:1px solid #333; padding:10px;">
+                        <option>Fantasy</option><option>Action</option><option>Horror</option>
+                    </select><br>
+                    <input type="file" id="file-input" style="margin-bottom:15px;"><br>
+                    <button id="upload-trigger" style="background:#00ff88; width:100%; padding:12px; border:none; font-weight:bold; cursor:pointer;">PUBLISH</button>
+                    <p id="upload-status"></p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script type="module" src="js/script.js"></script>
+</body>
+</html>
