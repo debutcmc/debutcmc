@@ -284,3 +284,69 @@ if (btnLogout) {
         }
     });
 }
+
+// --- G. LOGIKA KELOLA KOMIK (KHUSUS DASHBOARD) ---
+
+async function muatKomikSaya() {
+    const listKontainer = document.getElementById('my-comic-list'); // Pastikan ID ini ada di HTML dashboard
+    if (!listKontainer || !auth.currentUser) return;
+
+    try {
+        // Ambil komik yang authorId-nya sama dengan user yang login
+        const q = query(
+            collection(db, "comics"), 
+            orderBy("createdAt", "desc")
+        );
+        const querySnapshot = await getDocs(q);
+        
+        listKontainer.innerHTML = "";
+        let adaKomik = false;
+
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            // Filter manual (karena butuh index kalau pakai where di query)
+            if (data.authorId === auth.currentUser.uid) {
+                adaKomik = true;
+                const id = docSnap.id;
+
+                listKontainer.innerHTML += `
+                    <div class="manage-card" style="display:flex; gap:15px; background:#1c2128; padding:10px; border-radius:8px; margin-bottom:10px; align-items:center;">
+                        <img src="${data.coverUrl}" style="width:50px; height:70px; object-fit:cover; border-radius:4px;">
+                        <div style="flex-grow:1;">
+                            <h4 style="margin:0; font-size:14px;">${data.title}</h4>
+                            <p style="margin:0; font-size:12px; color:#8b949e;">${data.genre}</p>
+                        </div>
+                        <button onclick="hapusKomik('${id}')" style="background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:12px;">HAPUS</button>
+                    </div>
+                `;
+            }
+        });
+
+        if (!adaKomik) listKontainer.innerHTML = "<p style='color:#8b949e;'>Belum ada komik yang dirilis.</p>";
+
+    } catch (error) {
+        console.error("Gagal muat daftar kelola:", error);
+    }
+}
+
+// Fungsi Hapus Komik Global (Agar bisa dipanggil dari onclick)
+window.hapusKomik = async (id) => {
+    if (confirm("Apakah kamu yakin ingin menghapus komik ini?")) {
+        try {
+            const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+            await deleteDoc(doc(db, "comics", id));
+            alert("Komik berhasil dihapus!");
+            muatKomikSaya(); // Refresh daftar
+        } catch (error) {
+            alert("Gagal menghapus!");
+            console.error(error);
+        }
+    }
+};
+
+// Jalankan muatKomikSaya saat login di dashboard
+onAuthStateChanged(auth, (user) => {
+    if (user && window.location.pathname.includes('dashboard.html')) {
+        muatKomikSaya();
+    }
+});
