@@ -15,11 +15,16 @@
         </header>
 
         <main>
-            <div id="status-card" class="card">
-                <h3>Status Proyek</h3>
-                <p id="status-desc">Menunggu inisialisasi dari CEO...</p>
-                <button id="action-btn">AKTIFKAN MODE SERIUS</button>
-            </div>
+            <div class="card">
+    <h3>Upload Cover Manga</h3>
+    <input type="file" id="file-input" accept="image/*" style="display:none;">
+    <button id="upload-trigger">PILIH GAMBAR</button>
+    
+    <div id="preview-container" style="margin-top: 15px;">
+        <p id="upload-status">Siap upload...</p>
+        <img id="image-preview" src="" style="max-width: 100%; border-radius: 10px; display: none;">
+    </div>
+</div>  
         </main>
 
         <footer>
