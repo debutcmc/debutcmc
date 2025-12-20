@@ -246,3 +246,41 @@ onAuthStateChanged(auth, (user) => {
         `;
     }
 });
+
+// --- F. PROTEKSI DASHBOARD & LOGOUT ---
+
+// 1. Pantau Status Login Khusus Dashboard
+onAuthStateChanged(auth, (user) => {
+    const dashboardUI = document.getElementById('dashboard-ui');
+    const authOverlay = document.getElementById('auth-overlay');
+    const welcomeMsg = document.getElementById('welcome-msg');
+    const adminEmail = document.getElementById('admin-email');
+
+    if (window.location.pathname.includes('dashboard.html')) {
+        if (user) {
+            // Jika login: Tampilkan Dashboard
+            if(dashboardUI) dashboardUI.style.display = 'block';
+            if(authOverlay) authOverlay.style.display = 'none';
+            if(welcomeMsg) welcomeMsg.innerText = `Selamat Datang, ${user.displayName}!`;
+            if(adminEmail) adminEmail.innerText = `Admin: ${user.email}`;
+        } else {
+            // Jika tidak login: Sembunyikan Dashboard, Tampilkan Pesan Tolak
+            if(dashboardUI) dashboardUI.style.display = 'none';
+            if(authOverlay) authOverlay.style.display = 'block';
+        }
+    }
+});
+
+// 2. Fungsi Logout
+const btnLogout = document.getElementById('btn-logout');
+if (btnLogout) {
+    btnLogout.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            alert("Berhasil keluar!");
+            window.location.href = "index.html"; // Balik ke home
+        } catch (error) {
+            console.error("Gagal Logout:", error);
+        }
+    });
+}
