@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { 
-    getFirestore, collection, doc, getDoc, getDocs, query, orderBy, where 
+    getFirestore, collection, doc, getDoc, getDocs, setDoc, query, orderBy, where, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { 
     getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup 
@@ -20,118 +20,123 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// --- LOGIKA AUTH (LOGIN GOOGLE) ---
+// --- 1. LOGIKA AUTH & SYNC ---
 window.loginGoogle = async () => {
     try { 
-        await signInWithPopup(auth, provider); 
+        const result = await signInWithPopup(auth, provider);
+        await syncUserData(result.user); // Simpan ke database setelah login
         location.reload(); 
     } catch (e) { 
         console.error("Login Gagal:", e); 
     }
 };
 
-// --- ROUTING OTOMATIS BERDASARKAN URL ---
-onAuthStateChanged(auth, async (user) => {
-    const section = document.getElementById('auth-section');
-    if (user && section) {
-        section.innerHTML = `
-            <img src="${user.photoURL}" 
-                 onclick="location.href='profile.html?uid=${user.uid}'" 
-                 style="width:35px; height:35px; border-radius:50%; border:2px solid #00ff88; cursor:pointer; object-fit:cover;">`;
+async function syncUserData(user) {
+    const userRef = doc(db, "users", user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+        await setDoc(userRef, {
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+            email: user.email,
+            bio: "Halo! Saya pembaca di DebutCMC.",
+            role: "reader", // Default role
+            joinedAt: serverTimestamp()
+        });
     }
-    
+}
+
+// --- 2. ROUTING OTOMATIS ---
+onAuthStateChanged(auth, async (user) => {
+    // Tampilkan Avatar di Navbar
+    const section = document.getElementById('auth-section');
+    if (section) {
+        section.innerHTML = user ? 
+            `<img src="${user.photoURL}" onclick="location.href='profile.html?uid=${user.uid}'" style="width:35px; height:35px; border-radius:50%; border:2px solid #00ff88; cursor:pointer; object-fit:cover;">` :
+            `<button onclick="loginGoogle()" style="background:#00ff88; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">LOGIN</button>`;
+    }
+
     const path = window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
     const ch = urlParams.get('ch');
     const uid = urlParams.get('uid');
-    
-    if (path.includes('index.html') || path.endsWith('/')) {
-        loadHome();
-    } else if (path.includes('detail.html')) {
-        loadDetail(id);
-    } else if (path.includes('viewer.html')) {
-        loadViewer(id, ch);
-    } else if (path.includes('profile.html')) {
-        loadProfile(uid || user?.uid); 
-    }
+
+    if (path.includes('index.html') || path.endsWith('/')) loadHome();
+    else if (path.includes('detail.html')) loadDetail(id);
+    else if (path.includes('viewer.html') || path.includes('reader.html')) loadViewer(id, ch);
+    else if (path.includes('profile.html')) loadProfile(uid || user?.uid);
 });
 
-// --- 1. LOAD HOME (DAFTAR KOMIK BERANDA) ---
+// --- 3. LOAD HOME ---
 async function loadHome() {
     const grid = document.getElementById('comic-list');
     if (!grid) return;
 
-    grid.innerHTML = "<p style='color:gray; padding:20px;'>Memuat karya terbaru...</p>";
-    
     try {
         const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
         grid.innerHTML = "";
 
         if (snap.empty) {
-            grid.innerHTML = "<p style='padding:20px;'>Belum ada komik yang dirilis.</p>";
+            grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:gray;'>Belum ada komik tersedia.</p>";
             return;
         }
 
         snap.forEach(d => {
             const data = d.data();
             grid.innerHTML += `
-                <a href="detail.html?id=${d.id}" class="comic-card" style="text-decoration:none; color:inherit;">
-                    <div style="position:relative; overflow:hidden; border-radius:8px;">
-                        <img src="${data.coverUrl}" loading="lazy" style="width:100%; aspect-ratio:3/4; object-fit:cover; display:block;">
-                        <span style="position:absolute; top:8px; right:8px; background:#00ff88; color:#000; font-size:10px; padding:2px 8px; font-weight:bold; border-radius:4px; z-index:2;">
-                            ${data.statusSeries || 'NEW'}
-                        </span>
+                <a href="detail.html?id=${d.id}" class="comic-card">
+                    <div class="img-container">
+                        <img src="${data.coverUrl}" loading="lazy">
+                        <span class="card-tag">${data.statusSeries || 'NEW'}</span>
                     </div>
-                    <h4 style="margin:10px 0 5px 0; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${data.title}</h4>
-                    <p style="color:#00ff88; font-size:11px; margin:0;">${data.genre || 'Action'}</p>
+                    <div class="comic-title">${data.title}</div>
+                    <div class="comic-meta">${data.genre || 'Manga'}</div>
                 </a>`;
         });
-    } catch (e) {
-        console.error("Error Home:", e);
-        grid.innerHTML = "<p>Gagal memuat data.</p>";
-    }
+    } catch (e) { console.error("Error Home:", e); }
 }
 
-// --- 2. LOAD DETAIL (INFO KOMIK & CHAPTER) ---
+// --- 4. LOAD DETAIL ---
 async function loadDetail(id) {
     if (!id) return;
     try {
         const snap = await getDoc(doc(db, "comics", id));
         if (snap.exists()) {
             const data = snap.data();
+            document.title = `${data.title} | DebutCMC`;
             
-            if(document.getElementById('comic-title')) document.getElementById('comic-title').innerText = data.title;
-            if(document.getElementById('comic-genre')) document.getElementById('comic-genre').innerText = data.genre;
-            if(document.getElementById('comic-cover')) document.getElementById('comic-cover').src = data.coverUrl;
-            
-            // Sinkronisasi Sinopsis
-            const synopsisEl = document.getElementById('comic-summary');
-            if(synopsisEl) {
-                synopsisEl.innerText = data.summary || "Tidak ada sinopsis.";
-            }
-            
-            // Muat Daftar Chapter
+            // Mapping elemen UI
+            const el = {
+                title: document.getElementById('comic-title'),
+                genre: document.getElementById('comic-genre'),
+                cover: document.getElementById('comic-cover'),
+                summary: document.getElementById('comic-summary')
+            };
+
+            if (el.title) el.title.innerText = data.title;
+            if (el.genre) el.genre.innerText = data.genre;
+            if (el.cover) el.cover.src = data.coverUrl;
+            if (el.summary) el.summary.innerText = data.summary || "Sinopsis belum tersedia.";
+
+            // Load Chapters
             const qCh = query(collection(db, "chapters"), where("comicId", "==", id), orderBy("createdAt", "desc"));
             const cSnap = await getDocs(qCh);
             const container = document.getElementById('chapters-container');
             
             if (container) {
-                container.innerHTML = "";
-                if (cSnap.empty) {
-                    container.innerHTML = "<p style='color:gray; padding:20px;'>Belum ada chapter.</p>";
-                    return;
-                }
-                cSnap.forEach((c) => {
-                    const chData = c.data();
+                container.innerHTML = cSnap.empty ? "<p style='color:gray; padding:20px;'>Belum ada chapter.</p>" : "";
+                cSnap.forEach(c => {
+                    const ch = c.data();
+                    const date = ch.createdAt?.toDate() ? ch.createdAt.toDate().toLocaleDateString('id-ID') : "Baru saja";
                     container.innerHTML += `
-                        <a href="viewer.html?id=${id}&ch=${c.id}" class="chapter-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #2d333b; text-decoration:none; color:white;">
+                        <a href="viewer.html?id=${id}&ch=${c.id}" class="chapter-item">
                             <div>
-                                <span style="display:block;">${chData.chapterTitle}</span>
-                                <small style="color:gray; font-size:10px;">${new Date(chData.createdAt?.toDate()).toLocaleDateString('id-ID')}</small>
+                                <span>${ch.chapterTitle}</span>
+                                <small>${date}</small>
                             </div>
-                            <span class="btn-read" style="background:#00ff88; color:#000; padding:6px 15px; border-radius:4px; font-size:12px; font-weight:bold;">BACA</span>
+                            <span class="btn-read">BACA</span>
                         </a>`;
                 });
             }
@@ -139,7 +144,7 @@ async function loadDetail(id) {
     } catch (e) { console.error("Error Detail:", e); }
 }
 
-// --- 3. LOAD VIEWER (MODE BACA HP OPTIMIZED) ---
+// --- 5. LOAD VIEWER ---
 async function loadViewer(id, chId) {
     const viewer = document.getElementById('manga-viewer');
     const titleDisplay = document.getElementById('chapter-title-display');
@@ -149,57 +154,47 @@ async function loadViewer(id, chId) {
         const snap = await getDoc(doc(db, "chapters", chId));
         if (snap.exists()) {
             const data = snap.data();
-            if(titleDisplay) titleDisplay.innerText = data.chapterTitle;
+            if (titleDisplay) titleDisplay.innerText = data.chapterTitle;
 
             const images = data.images || [];
-            
-            // Render gambar dengan Lazy Load untuk HP
             viewer.innerHTML = images.map(img => `
-                <img src="${img}" 
-                     class="manga-page" 
-                     loading="lazy" 
-                     style="width:100%; display:block; margin-bottom:-1px;"
-                     onerror="this.src='https://via.placeholder.com/800x1200?text=Gagal+Memuat+Gambar'">
+                <img src="${img}" class="manga-page" loading="lazy" 
+                     onerror="this.src='https://via.placeholder.com/800x1200?text=Gagal+Memuat'">
             `).join('');
             
-        } else {
-            viewer.innerHTML = "<p style='text-align:center; padding:50px;'>Chapter tidak ditemukan.</p>";
+            // Auto scroll ke atas saat ganti chapter
+            window.scrollTo(0,0);
         }
-    } catch (e) { 
-        console.error("Error Viewer:", e); 
-        viewer.innerHTML = "<p style='text-align:center; padding:50px;'>Terjadi kesalahan saat memuat gambar.</p>";
-    }
+    } catch (e) { console.error("Error Viewer:", e); }
 }
 
-// --- 4. LOAD PROFILE (USER & AUTHOR) ---
+// --- 6. LOAD PROFILE ---
 async function loadProfile(uid) {
     const container = document.getElementById('profile-content');
     if (!container || !uid) return;
 
     try {
         const snap = await getDoc(doc(db, "users", uid));
-        const data = snap.exists() ? snap.data() : null;
+        if (!snap.exists()) return;
+        
+        const data = snap.data();
         const isOwner = auth.currentUser?.uid === uid;
 
         container.innerHTML = `
-            <div style="text-align:center; color:white; padding:20px; max-width:500px; margin:0 auto;">
-                <img src="${data?.photoURL || 'https://via.placeholder.com/100'}" style="width:100px; height:100px; border-radius:50%; border:3px solid #00ff88; object-fit:cover; margin-bottom:10px;">
-                <h2 style="margin:0;">${data?.displayName || 'User'}</h2>
-                <p style="color:#00ff88; font-size:12px; margin-bottom:20px;">@${uid.substring(0,6)}</p>
+            <div class="profile-header">
+                <img src="${data.photoURL}" class="profile-avatar">
+                <h2>${data.displayName}</h2>
+                <p class="uid-tag">ID: ${uid.substring(0,8)}</p>
                 
-                <div style="background:#161a21; padding:20px; border-radius:12px; border:1px solid #2d333b; text-align:left;">
-                    <h4 style="margin:0 0 10px 0; font-size:11px; color:gray; text-transform:uppercase;">Bio</h4>
-                    <p style="color:#e6edf3; font-size:14px; line-height:1.6;">${data?.bio || "Halo! Saya pembaca di DebutCMC."}</p>
+                <div class="bio-box">
+                    <label>BIO</label>
+                    <p>${data.bio || "Belum ada bio."}</p>
                 </div>
 
                 ${isOwner ? `
-                    <div style="margin-top:20px; display:grid; gap:10px;">
-                        <button onclick="location.href='dashboard.html'" style="background:#00ff88; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px;">
-                            <i class="fa-solid fa-gauge-high"></i> DASHBOARD KREATOR
-                        </button>
-                        <button onclick="auth.signOut().then(() => location.href='index.html')" style="background:transparent; border:1px solid #ff4444; color:#ff4444; padding:10px; border-radius:8px; cursor:pointer; font-size:13px;">
-                            LOGOUT AKUN
-                        </button>
+                    <div class="profile-actions">
+                        <button onclick="location.href='dashboard.html'" class="btn-dash">DASHBOARD KREATOR</button>
+                        <button onclick="auth.signOut().then(()=>location.href='index.html')" class="btn-logout">LOGOUT</button>
                     </div>
                 ` : ''}
             </div>`;
