@@ -4,7 +4,158 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DebutCMC - Official Site</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00ff88;
+            --bg: #0b0e14;
+            --card: #161a21;
+            --border: #2d333b;
+            --text-dim: #8b949e;
+        }
+
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            overflow-x: hidden;
+        }
+
+        /* --- NAVBAR & HAMBURGER --- */
+        .navbar {
+            background: rgba(22, 26, 33, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            padding: 10px 0;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .nav-logo { width: 35px; height: 35px; object-fit: contain; }
+        .logo-text { font-size: 1.2rem; margin: 0; color: var(--primary); }
+        .logo-text span { color: white; }
+
+        .hamburger {
+            display: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 20px;
+            margin: 0;
+            padding: 0;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover { color: var(--primary); }
+
+        /* --- MOBILE MENU STYLE --- */
+        @media (max-width: 768px) {
+            .hamburger { display: block; }
+            .nav-links {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: var(--card);
+                flex-direction: column;
+                padding: 20px 0;
+                gap: 15px;
+                border-bottom: 1px solid var(--border);
+                display: none; /* Default sembunyi */
+            }
+            .nav-links.active { display: flex; animation: slideDown 0.3s ease forwards; }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- COMIC GRID (3 KOLOM DI HP) --- */
+        .home-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
+        .section-title { font-size: 1.1rem; margin: 20px 0; letter-spacing: 1px; border-left: 4px solid var(--primary); padding-left: 10px; }
+
+        .comic-grid {
+            display: grid;
+            /* Default Desktop: 6 kolom */
+            grid-template-columns: repeat(6, 1fr); 
+            gap: 12px;
+        }
+
+        /* Responsive Grid: Referensi Gambar */
+        @media (max-width: 1024px) { .comic-grid { grid-template-columns: repeat(4, 1fr); } }
+        
+        @media (max-width: 480px) { 
+            .comic-grid { 
+                /* PAKSA 3 KOLOM DI HP BIAR PERSIS GAMBAR */
+                grid-template-columns: repeat(3, 1fr); 
+                gap: 8px; 
+            } 
+        }
+
+        .comic-card {
+            background: var(--card);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .comic-card img {
+            width: 100%;
+            aspect-ratio: 3/4; /* Biar ukuran seragam tinggi semua */
+            object-fit: cover;
+            display: block;
+        }
+
+        .comic-info { padding: 8px; }
+        .comic-title {
+            font-size: 11px;
+            font-weight: bold;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0;
+        }
+        .comic-genre { font-size: 9px; color: var(--text-dim); }
+
+        /* --- BANNER --- */
+        .promo-banner {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(45deg, #1a1a1a, #00ff8833), url('https://via.placeholder.com/1200x400');
+            background-size: cover;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            margin-bottom: 25px;
+        }
+    </style>
 </head>
 <body>
 
@@ -15,7 +166,9 @@
                 <h1 class="logo-text">Debut<span>CMC</span></h1>
             </div>
             
-            <div class="hamburger" id="hamburger">☰</div>
+            <div class="hamburger" id="hamburger-btn">
+                <i class="fa-solid fa-bars"></i>
+            </div>
 
             <ul class="nav-links" id="nav-menu">
                 <li><a href="index.html">HOME</a></li>
@@ -31,32 +184,66 @@
     <main class="home-container">
         <section class="promo-banner">
             <div class="promo-text">
-                <h2>Rilis Baru Minggu Ini</h2>
-                <p>Jelajahi petualangan tanpa batas di DebutCMC.</p>
+                <h2 style="margin:0">Rilis Baru</h2>
+                <p style="font-size: 13px; color: #ccc;">Jelajahi petualangan tanpa batas.</p>
             </div>
         </section>
 
         <h2 class="section-title">SERIES PILIHAN</h2>
+        
         <div class="comic-grid" id="comic-list">
-            <p style="color: #8b949e; text-align: center; grid-column: 1/-1;">Memuat koleksi komik...</p>
-        </div>
+            <div class="comic-card">
+                <img src="https://via.placeholder.com/300x400" alt="Cover">
+                <div class="comic-info">
+                    <p class="comic-title">Judul Komik 1</p>
+                    <span class="comic-genre">Action</span>
+                </div>
+            </div>
+            <div class="comic-card">
+                <img src="https://via.placeholder.com/300x400" alt="Cover">
+                <div class="comic-info">
+                    <p class="comic-title">Judul Komik 2</p>
+                    <span class="comic-genre">Romance</span>
+                </div>
+            </div>
+            <div class="comic-card">
+                <img src="https://via.placeholder.com/300x400" alt="Cover">
+                <div class="comic-info">
+                    <p class="comic-title">Judul Komik 3</p>
+                    <span class="comic-genre">Fantasy</span>
+                </div>
+            </div>
+            </div>
     </main>
 
-    <footer class="footer-pro">
-        <div class="footer-top">
-            <div class="social-icons">
-                <span>FB</span> <span>IG</span> <span>X</span> <span>YT</span>
-            </div>
-            <div class="footer-links">
-                <a href="#">About</a> <a href="#">Feedback</a> <a href="#">Help</a> <a href="#">Terms</a> <a href="#">Privacy</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <img src="https://i.ibb.co.com/3qkWwbb/Gemini-Generated-Image-d1gyk6d1gyk6d1gy.png" alt="Logo" class="footer-logo">
-            <p>© 2025 DebutCMC Ltd.</p>
-        </div>
-    </footer>
+    <script>
+        // Logika Hamburger Menu
+        const hbBtn = document.getElementById('hamburger-btn');
+        const navMenu = document.getElementById('nav-menu');
 
-    <script type="module" src="js/script.js"></script>
+        hbBtn.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            
+            // Ganti icon bars ke xmark (opsional tapi keren)
+            const icon = hbBtn.querySelector('i');
+            if(navMenu.classList.contains('active')) {
+                icon.classList.replace('fa-bars', 'fa-xmark');
+            } else {
+                icon.classList.replace('fa-xmark', 'fa-bars');
+            }
+        });
+
+        // Klik di luar menu untuk menutup
+        document.addEventListener('click', (e) => {
+            if(!hbBtn.contains(e.target) && !navMenu.contains(e.target)) {
+                navMenu.classList.remove('active');
+                hbBtn.querySelector('i').classList.replace('fa-xmark', 'fa-bars');
+            }
+        });
+
+        function loginGoogle() {
+            alert('Login Process...');
+        }
+    </script>
 </body>
 </html>
