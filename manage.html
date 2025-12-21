@@ -44,12 +44,23 @@
         /* Chapter Management List */
         .chapter-control-list { display: flex; flex-direction: column; gap: 10px; }
         .chapter-item { background: #0d1117; border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .chapter-info { display: flex; align-items: center; gap: 15px; }
-        .drag-handle { color: #333; cursor: grab; }
+        
+        /* New Upload Zone Styles */
+        .upload-zone { border: 2px dashed var(--border); padding: 30px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .upload-zone:hover { border-color: var(--primary); background: #ffffff05; }
+        
+        #file-preview-container { 
+            max-height: 400px; 
+            overflow-y: auto; 
+            margin-top: 15px; 
+            background: #0d1117; 
+            border-radius: 8px;
+            padding: 5px;
+        }
 
-        .badge-status { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .status-private { background: #ff444422; color: #ff4444; }
-        .status-public { background: #00ff8822; color: #00ff88; }
+        /* Scrollbar styling */
+        #file-preview-container::-webkit-scrollbar { width: 5px; }
+        #file-preview-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -107,27 +118,11 @@
                         <div class="form-group">
                             <label>Status Rilis</label>
                             <select id="edit-status">
-                                <optgroup label="Sering Digunakan">
-                                    <option value="ONGOING">Ongoing</option>
-                                    <option value="TAMAT">Tamat</option>
-                                    <option value="HIATUS">Hiatus</option>
-                                </optgroup>
-                                <optgroup label="Status Spesifik">
-                                    <option value="PRIVATE">🔒 Private (Draf)</option>
-                                    <option value="COMING SOON">Coming Soon</option>
-                                    <option value="ON HOLD">On Hold</option>
-                                    <option value="REBOOT">Reboot</option>
-                                    <option value="PILOT">Pilot Chapter</option>
-                                    <option value="CANCELLED">Cancelled</option>
-                                    <option value="ARCHIVED">Archived</option>
-                                </optgroup>
-                                <optgroup label="Extended Status">
-                                    <option value="SEASONAL">Seasonal</option>
-                                    <option value="ON EDITING">On Editing</option>
-                                    <option value="SPECIAL RELEASE">Special Release</option>
-                                    <option value="REVIVED">Revived</option>
-                                    <option value="UNDER REVIEW">Under Review</option>
-                                </optgroup>
+                                <option value="ONGOING">Ongoing</option>
+                                <option value="TAMAT">Tamat</option>
+                                <option value="HIATUS">Hiatus</option>
+                                <option value="PRIVATE">🔒 Private (Draf)</option>
+                                <option value="COMING SOON">Coming Soon</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -160,7 +155,6 @@
                 <div class="card">
                     <div class="card-header" style="justify-content: space-between;">
                         <div style="display:flex; align-items:center; gap:12px;"><i class="fa-solid fa-layer-group"></i> <h3>Daftar Chapter</h3></div>
-                        <button class="btn btn-outline" onclick="reorderChapters()"><i class="fa-solid fa-sort"></i> Urutan</button>
                     </div>
                     <div id="chapter-list" class="chapter-control-list">
                         </div>
@@ -177,12 +171,15 @@
                     <div class="form-group">
                         <label>Upload Halaman (Batch)</label>
                         <div class="upload-zone" onclick="document.getElementById('ch-files').click()">
-                            <i class="fa-solid fa-images fa-2x" style="color:#333; margin-bottom:10px;"></i>
-                            <p id="upload-status">Klik untuk pilih gambar</p>
+                            <i class="fa-solid fa-images fa-2x" style="color:var(--primary); margin-bottom:10px;"></i>
+                            <p id="upload-status" style="margin:0; font-size:13px;">Klik untuk pilih gambar</p>
                             <input type="file" id="ch-files" multiple hidden accept="image/*">
                         </div>
+                        
+                        <div id="file-preview-container"></div>
                     </div>
-                    <button class="btn btn-accent" style="width:100%" id="btn-upload-chapter">
+
+                    <button class="btn btn-accent" style="width:100%; margin-top:10px;" id="btn-upload-chapter">
                         <i class="fa-solid fa-paper-plane"></i> PUBLISH CHAPTER
                     </button>
                     
