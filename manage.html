@@ -3,82 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Series | DebutCMC</title>
+    <title>Series Manager | DebutCMC</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .manage-container { max-width: 1000px; margin: 30px auto; padding: 20px; }
-        .grid-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card-box { background: #161a21; padding: 25px; border-radius: 12px; border: 1px solid #2d333b; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; color: #8b949e; margin-bottom: 5px; text-transform: uppercase; }
-        .form-group input, .form-group select, .form-group textarea { 
-            width: 100%; padding: 10px; background: #0b0e14; border: 1px solid #333; color: white; border-radius: 6px; 
+        :root { --primary: #00ff88; --bg: #0b0e14; --card: #161a21; --border: #2d333b; }
+        body { background: var(--bg); color: #e6edf3; font-family: 'Inter', system-ui, sans-serif; margin: 0; padding-bottom: 50px; }
+        
+        .top-nav { background: rgba(22, 26, 33, 0.8); backdrop-filter: blur(10px); sticky; top: 0; z-index: 100; padding: 15px 5%; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 15px; }
+        .container { max-width: 1100px; margin: 20px auto; padding: 0 15px; }
+        
+        /* Grid System */
+        .main-grid { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        @media (max-width: 900px) { .main-grid { grid-template-columns: 1fr; } }
+
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        
+        /* Form Styling */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 12px; font-weight: 600; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        input, select, textarea { 
+            width: 100%; padding: 12px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; box-sizing: border-box; transition: 0.3s;
         }
-        .btn-save { background: #00ff88; color: #0b0e14; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
-        .chapter-list-item { background: #0b0e14; padding: 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #00ff88; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1); }
+        
+        /* Badges & Buttons */
+        .btn { padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; justify-content: center; }
+        .btn-primary { background: var(--primary); color: #0b0e14; width: 100%; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: white; }
+
+        /* Chapter List */
+        .chapter-item { 
+            background: #0d1117; padding: 15px; border-radius: 10px; margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: center; border: 1px solid transparent; transition: 0.3s;
+        }
+        .chapter-item:hover { border-color: var(--primary); background: #1c2128; }
+        
+        /* Upload Area */
+        .upload-zone { 
+            border: 2px dashed var(--border); padding: 40px 20px; text-align: center; border-radius: 12px; 
+            cursor: pointer; transition: 0.3s; background: #0d1117;
+        }
+        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 255, 136, 0.02); }
     </style>
 </head>
-<body style="background: #0b0e14; color: white; font-family: sans-serif;">
+<body>
 
-    <div class="manage-container">
-        <button onclick="location.href='dashboard.html'" style="background:none; border:none; color:#8b949e; cursor:pointer; margin-bottom: 20px;">← Kembali ke Dashboard</button>
-        
-        <h1 id="display-title" style="color: #00ff88; margin-bottom: 5px;">Memuat Judul...</h1>
-        <p style="color: #8b949e; margin-bottom: 30px;">Konfigurasi Series & Manajemen Chapter</p>
+    <div class="top-nav">
+        <button onclick="location.href='dashboard.html'" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Dashboard</button>
+        <h2 id="display-title" style="margin: 0; font-size: 18px; color: var(--primary);">Loading Series...</h2>
+    </div>
 
-        <div class="grid-settings">
-            <div class="card-box">
-                <h3 style="margin-top: 0;">⚙️ Detail Series</h3>
-                <div class="form-group">
-                    <label>Penulis (Writer)</label>
-                    <input type="text" id="edit-writer" placeholder="Nama Penulis">
+    <div class="container">
+        <div class="main-grid">
+            
+            <div class="content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-sliders"></i> <h3>General Configuration</h3>
+                    </div>
+                    
+                    <div class="grid-settings" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                        <div class="form-group">
+                            <label>Writer / Author</label>
+                            <input type="text" id="edit-writer" placeholder="Original Story by...">
+                        </div>
+                        <div class="form-group">
+                            <label>Artist / Illustrator</label>
+                            <input type="text" id="edit-artist" placeholder="Art by...">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Synopsis Update</label>
+                        <textarea id="edit-summary" rows="4" placeholder="Update your story description..."></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                        <div class="form-group">
+                            <label>Genre</label>
+                            <select id="edit-genre">
+                                <option value="ACTION">Action</option>
+                                <option value="ROMANCE">Romance</option>
+                                <option value="FANTASY">Fantasy</option>
+                                <option value="HORROR">Horror</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Series Status</label>
+                            <select id="edit-status">
+                                <option value="ONGOING">Ongoing</option>
+                                <option value="HIATUS">Hiatus</option>
+                                <option value="COMPLETED">Completed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Age Rating</label>
+                            <select id="edit-rating">
+                                <option value="SU">All Ages (SU)</option>
+                                <option value="13+">Teens (13+)</option>
+                                <option value="17+">Mature (17+)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Comment Section</label>
+                        <select id="edit-comment">
+                            <option value="aktif">Public (Enabled)</option>
+                            <option value="nonaktif">Private (Disabled)</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-primary" id="btn-update-series">
+                        <i class="fa-solid fa-floppy-disk"></i> SAVE GLOBAL SETTINGS
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label>Ilustrator (Artist)</label>
-                    <input type="text" id="edit-artist" placeholder="Nama Ilustrator">
+
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-book-open"></i> <h3>Published Chapters</h3>
+                    </div>
+                    <div id="chapter-list">
+                        </div>
                 </div>
-                <div class="form-group">
-                    <label>Rating Usia</label>
-                    <select id="edit-rating">
-                        <option value="SU">Semua Umur (SU)</option>
-                        <option value="13+">Remaja (13+)</option>
-                        <option value="17+">Dewasa (17+)</option>
-                        <option value="21+">Khusus (21+)</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Komentar</label>
-                    <select id="edit-comment">
-                        <option value="aktif">Aktifkan</option>
-                        <option value="nonaktif">Matikan</option>
-                    </select>
-                </div>
-                <button class="btn-save" id="btn-update-series">UPDATE DATA SERIES</button>
             </div>
 
-            <div class="card-box">
-                <h3 style="margin-top: 0;">📤 Rilis Chapter Baru</h3>
-                <div class="form-group">
-                    <label>Judul Chapter</label>
-                    <input type="text" id="ch-title" placeholder="Contoh: Bab 01 - Pertemuan">
+            <div class="sidebar">
+                <div class="card" style="border-top: 4px solid #3d5afe;">
+                    <div class="card-header">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> <h3>New Release</h3>
+                    </div>
+                    <div class="form-group">
+                        <label>Chapter Name</label>
+                        <input type="text" id="ch-title" placeholder="Ex: Ch. 05 - The Awakening">
+                    </div>
+                    <div class="form-group">
+                        <label>Manga Pages</label>
+                        <div class="upload-zone" onclick="document.getElementById('ch-files').click()">
+                            <i class="fa-solid fa-images" style="font-size: 30px; color: var(--border); margin-bottom: 10px;"></i>
+                            <p id="upload-status" style="font-size: 13px; margin: 0;">Click to select multiple files</p>
+                            <input type="file" id="ch-files" multiple accept="image/*" style="display:none">
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" style="background: #3d5afe; color: white;" id="btn-upload-chapter">
+                        <i class="fa-solid fa-rocket"></i> RELEASE CHAPTER
+                    </button>
+                    <div id="upload-progress" style="margin-top: 15px; display: none;">
+                        <div style="height: 6px; background: #0d1117; border-radius: 10px; overflow: hidden;">
+                            <div id="progress-bar" style="width: 0%; height: 100%; background: var(--primary); transition: 0.3s;"></div>
+                        </div>
+                        <p id="progress-text" style="font-size: 11px; color: #8b949e; margin-top: 5px; text-align: center;"></p>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Upload Gambar (Bisa banyak sekaligus)</label>
-                    <input type="file" id="ch-files" multiple accept="image/*" style="border: 2px dashed #333; padding: 20px;">
-                </div>
-                <button class="btn-save" style="background: #3d5afe; color: white;" id="btn-upload-chapter">UPLOAD CHAPTER</button>
-                <p id="upload-progress" style="font-size: 12px; color: #00ff88; margin-top: 10px; display: none;"></p>
-            </div>
-        </div>
 
-        <div class="card-box">
-            <h3>📖 Daftar Chapter</h3>
-            <div id="chapter-list">
-                <p style="color: #444;">Belum ada chapter yang dirilis.</p>
+                <div class="card" style="background: rgba(255, 68, 68, 0.05); border-color: rgba(255, 68, 68, 0.2);">
+                    <h4 style="color: #ff4444; margin-top: 0;"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone</h4>
+                    <p style="font-size: 12px; color: #8b949e;">Deleting the series will remove all chapters and assets permanently.</p>
+                    <button class="btn btn-outline" style="color: #ff4444; border-color: #ff4444; width: 100%; font-size: 12px;">DELETE SERIES</button>
+                </div>
             </div>
+
         </div>
     </div>
 
     <script type="module" src="js/manage.js"></script>
+    <script>
+        // UI Interaction for File Selection
+        document.getElementById('ch-files').onchange = (e) => {
+            const count = e.target.files.length;
+            document.getElementById('upload-status').innerHTML = count > 0 ? 
+                `<b style="color: var(--primary)">${count} Files Selected</b>` : "Click to select multiple files";
+        };
+    </script>
 </body>
 </html>
