@@ -1,24 +1,28 @@
 /* =========================================
-   1. BASE STYLE (Unsur Asli Kamu)
+   1. RESET & BASE STYLE
    ========================================= */
-* { box-sizing: border-box; } 
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+} 
 
 html, body {
     max-width: 100%;
     overflow-x: hidden; 
-    position: relative;
     background-color: #0b0e14;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
+    color: #e6edf3; /* Warna teks sedikit lebih soft agar mata tidak cepat lelah */
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.5;
+    scroll-behavior: smooth;
 }
 
 /* =========================================
-   2. NAVBAR & LOGO (Unsur Asli Kamu)
+   2. NAVBAR & LOGO
    ========================================= */
 .navbar { 
-    background: #161a21; 
-    padding: 10px 5%; 
+    background: rgba(22, 26, 33, 0.95); /* Semi transparan agar lebih modern */
+    backdrop-filter: blur(10px); /* Efek blur kaca */
     border-bottom: 1px solid #2d333b;
     position: sticky;
     top: 0;
@@ -26,23 +30,28 @@ html, body {
 }
 
 .nav-content { 
+    max-width: 1300px; /* Batasi lebar maksimal */
+    margin: 0 auto;
     display: flex; 
     justify-content: space-between; 
     align-items: center; 
-    padding: 10px 20px;
+    padding: 12px 20px;
 }
 
-.logo-area { display: flex; align-items: center; gap: 10px; }
-.nav-logo { width: 40px; height: 40px; border-radius: 8px; } 
-.logo-text { font-size: 20px; color: #00ff88; margin: 0; }
+.logo-area { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    text-decoration: none; /* Hilangkan garis bawah jika logo adalah <a> */
+}
+
+.nav-logo { width: 35px; height: 35px; border-radius: 8px; object-fit: cover; } 
+.logo-text { font-size: 22px; color: #00ff88; font-weight: 800; letter-spacing: -0.5px; }
 .logo-text span { color: white; }
 
 .nav-links { 
     display: flex; 
-    list-style: none; 
-    gap: 20px; 
-    margin: 0; 
-    padding: 0; 
+    gap: 25px; 
 }
 
 .nav-links a { 
@@ -50,19 +59,24 @@ html, body {
     color: #8b949e; 
     font-weight: 600; 
     font-size: 14px; 
+    transition: 0.3s;
 }
 
-.nav-links a:hover { color: #00ff88; }
+.nav-links a:hover, .nav-links a.active { 
+    color: #00ff88; 
+}
 
 .hamburger {
     display: none;
     cursor: pointer;
-    font-size: 24px;
+    font-size: 22px;
     color: white;
+    background: none;
+    border: none;
 }
 
 /* =========================================
-   3. MOBILE MENU
+   3. MOBILE MENU (Perbaikan Logika)
    ========================================= */
 @media (max-width: 768px) {
     .hamburger { display: block; }
@@ -71,109 +85,183 @@ html, body {
         display: none; 
         flex-direction: column;
         position: absolute;
-        top: 60px;
+        top: 100%; /* Pas di bawah navbar */
         left: 0;
         width: 100%;
         background: #161a21;
-        padding: 20px;
+        padding: 0; /* Reset padding */
         border-bottom: 2px solid #00ff88;
-        z-index: 1000;
-        text-align: center;
+        overflow: hidden;
+        transition: all 0.3s ease-in-out;
     }
 
     .nav-links.active {
         display: flex; 
+        padding: 20px 0;
+    }
+
+    .nav-links a {
+        padding: 12px 20px;
+        width: 100%;
+        border-bottom: 1px solid #2d333b;
     }
 }
 
 /* =========================================
-   4. CONTENT & GRID (Perbaikan Layout)
+   4. CONTENT & GRID
    ========================================= */
-.promo-banner {
-    background: linear-gradient(90deg, #1e293b, #00ff8844);
-    height: 200px;
-    border-radius: 12px;
-    margin: 20px 5%;
-    display: flex;
-    align-items: center;
-    padding: 0 40px;
+.home-container { 
+    max-width: 1300px;
+    margin: 0 auto;
+    padding: 20px; 
 }
 
-.home-container { padding: 10px 5%; }
+.promo-banner {
+    background: linear-gradient(135deg, #1e293b 0%, #00ff8833 100%);
+    min-height: 180px;
+    border-radius: 16px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    padding: 30px;
+    border: 1px solid #2d333b;
+}
+
 .section-title { 
-    font-size: 18px; 
-    margin: 20px 0; 
+    font-size: 1.2rem; 
+    margin: 30px 0 20px; 
     border-left: 4px solid #00ff88; 
-    padding-left: 10px; 
+    padding-left: 15px; 
+    font-weight: 700;
 }
 
 .comic-grid { 
     display: grid; 
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
     gap: 20px; 
 }
 
-/* --- FITUR BARU: KARTU KOMIK KONSISTEN --- */
+/* Responsif Grid untuk layar kecil */
+@media (max-width: 480px) {
+    .comic-grid {
+        grid-template-columns: repeat(2, 1fr); /* Maksimalkan 2 kolom di HP */
+        gap: 12px;
+    }
+}
+
+/* --- KARTU KOMIK --- */
 .comic-card {
     display: flex;
     flex-direction: column;
     text-decoration: none;
-    width: 100%;
-    color: white;
-    transition: transform 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
 }
 
 .comic-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px);
+}
+
+.comic-card .img-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3/4; /* Standar poster komik lebih proporsional */
+    border-radius: 12px;
+    overflow: hidden;
+    background: #161a21;
+    border: 1px solid #2d333b;
 }
 
 .comic-card img {
     width: 100%;
-    aspect-ratio: 2/3; /* Poster Portrait (Vertikal) */
+    height: 100%;
     object-fit: cover;
-    border-radius: 10px;
-    background: #161a21;
-    border: 1px solid #333;
+    transition: 0.5s;
+}
+
+.comic-card:hover img {
+    transform: scale(1.1);
+}
+
+/* Overlay Status (Chapter/Rating) */
+.card-tag {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 255, 136, 0.9);
+    color: #0b0e14;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
 }
 
 .comic-title {
-    color: white;
-    margin: 10px 0 2px 0;
+    color: #fff;
+    margin: 12px 0 4px 0;
     font-size: 14px;
     font-weight: 600;
-    /* Efek Titik-titik Otomatis & Anti-Spam */
+    line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2; 
     -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-word; 
-    line-height: 1.3;
+}
+
+.comic-meta {
+    font-size: 12px;
+    color: #8b949e;
 }
 
 /* =========================================
-   5. FOOTER (Unsur Asli Kamu)
+   5. FOOTER
    ========================================= */
 .footer-pro { 
     background: #161a21; 
-    padding: 40px 0; 
+    padding: 60px 20px 40px; 
     text-align: center; 
     border-top: 1px solid #2d333b; 
-    margin-top: 50px;
+    margin-top: 80px;
 }
 
-.footer-logo { width: 50px; height: 50px; border-radius: 50%; margin-bottom: 15px; }
-.social-icons { 
+.footer-logo { 
+    width: 60px; 
+    height: 60px; 
+    border-radius: 15px; 
     margin-bottom: 20px; 
-    color: #8b949e; 
+}
+
+.social-icons { 
+    margin-bottom: 25px; 
     display: flex; 
     justify-content: center; 
-    gap: 20px; 
+    gap: 25px; 
+}
+
+.social-icons a {
+    color: #8b949e;
+    font-size: 20px;
+    transition: 0.3s;
+}
+
+.social-icons a:hover { color: #00ff88; }
+
+.footer-links {
+    margin-bottom: 20px;
 }
 
 .footer-links a { 
     color: #8b949e; 
     text-decoration: none; 
-    margin: 0 10px; 
-    font-size: 13px; 
+    margin: 0 12px; 
+    font-size: 14px; 
+    transition: 0.2s;
+}
+
+.footer-links a:hover { color: white; }
+
+.copyright {
+    color: #484f58;
+    font-size: 12px;
+    margin-top: 30px;
 }
