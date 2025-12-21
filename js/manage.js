@@ -210,3 +210,72 @@ window.hapusChapter = async (id) => {
 // LOGOUT
 const logoutBtn = document.getElementById('btn-logout');
 if (logoutBtn) logoutBtn.onclick = () => signOut(auth).then(() => location.href='index.html');
+
+// ==========================================
+// 7. FITUR UPDATE DATA SERIES LENGKAP
+// ==========================================
+const btnUpdate = document.getElementById('btn-update-series');
+if (btnUpdate) {
+    btnUpdate.onclick = async () => {
+        const originalText = btnUpdate.innerHTML;
+        btnUpdate.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Menyimpan...";
+        btnUpdate.disabled = true;
+
+        try {
+            const docRef = doc(db, "comics", comicId);
+            await updateDoc(docRef, {
+                writer: document.getElementById('edit-writer')?.value || "",
+                artist: document.getElementById('edit-artist')?.value || "",
+                colorist: document.getElementById('edit-colorist')?.value || "",
+                letterer: document.getElementById('edit-letterer')?.value || "",
+                inker: document.getElementById('edit-inker')?.value || "",
+                editor: document.getElementById('edit-editor')?.value || "",
+                layoutArtist: document.getElementById('edit-layout')?.value || "",
+                translator: document.getElementById('edit-translator')?.value || "",
+                socialLink: document.getElementById('edit-social')?.value || "",
+                dedication: document.getElementById('edit-dedication')?.value || "",
+                summary: document.getElementById('edit-summary')?.value || "",
+                genre: document.getElementById('edit-genre')?.value || "ACTION",
+                statusSeries: document.getElementById('edit-status')?.value || "ONGOING",
+                rating: document.getElementById('edit-rating')?.value || "SU",
+                commentStatus: document.getElementById('edit-comment')?.value || "aktif",
+                tags: document.getElementById('edit-tags')?.value || "",
+                updatedAt: serverTimestamp()
+            });
+
+            alert("✅ Data Series Berhasil Diperbarui!");
+        } catch (e) {
+            console.error(e);
+            alert("❌ Gagal Memperbarui: " + e.message);
+        } finally {
+            btnUpdate.innerHTML = originalText;
+            btnUpdate.disabled = false;
+        }
+    };
+}
+
+// Tambahan untuk memuat data baru ke form saat halaman dibuka
+// (Update fungsi muatDataSeries yang ada agar mendukung input baru)
+const originalMuatData = muatDataSeries;
+muatDataSeries = async () => {
+    await originalMuatData(); // Jalankan fungsi asli dulu
+    try {
+        const snap = await getDoc(doc(db, "comics", comicId));
+        if (snap.exists()) {
+            const d = snap.data();
+            // Isi input tambahan yang belum ada di fungsi lama
+            const extraFields = {
+                'edit-colorist': d.colorist, 'edit-letterer': d.letterer,
+                'edit-inker': d.inker, 'edit-editor': d.editor,
+                'edit-layout': d.layoutArtist, 'edit-translator': d.translator,
+                'edit-social': d.socialLink, 'edit-dedication': d.dedication,
+                'edit-rating': d.rating, 'edit-comment': d.commentStatus,
+                'edit-tags': d.tags
+            };
+            for (const [id, value] of Object.entries(extraFields)) {
+                const el = document.getElementById(id);
+                if (el) el.value = value || "";
+            }
+        }
+    } catch (e) { console.error(e); }
+};
