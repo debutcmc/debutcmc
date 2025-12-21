@@ -4,14 +4,195 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profil Member | DebutCMC</title>
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { 
+            --primary: #00ff88; 
+            --bg: #0b0e14; 
+            --card: #161a21; 
+            --border: #2d333b; 
+            --text-dim: #8b949e; 
+        }
+
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .profile-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            width: 100%;
+            max-width: 450px;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: 20px;
+        }
+
+        /* Avatar Section */
+        .avatar-wrapper {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+        }
+
+        #profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--primary);
+            padding: 3px;
+        }
+
+        .edit-avatar-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: var(--primary);
+            color: black;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid var(--bg);
+            font-size: 14px;
+        }
+
+        /* Form Styling */
+        .info-group {
+            text-align: left;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 11px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+            margin-left: 5px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+        }
+
+        textarea { resize: none; height: 80px; }
+
+        .btn-save {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: #0b0e14;
+            border: none;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover { color: white; }
+
+        /* Badge Status */
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+    </style>
 </head>
-<body style="background: #0b0e14;">
-    
-    <div id="profile-content" style="max-width: 500px; margin: 50px auto; padding: 20px;">
-        <p style="color: white; text-align: center;">Memuat profil...</p>
+<body>
+
+    <div class="profile-card">
+        <div class="badge">CREATOR MEMBER</div>
+        
+        <div class="avatar-wrapper">
+            <img id="profile-img" src="https://via.placeholder.com/150" alt="User Avatar">
+            <label for="avatar-input" class="edit-avatar-btn">
+                <i class="fa-solid fa-camera"></i>
+            </label>
+            <input type="file" id="avatar-input" hidden accept="image/*">
+        </div>
+
+        <div class="info-group">
+            <label>Nama Pena / Username</label>
+            <input type="text" id="username" placeholder="Masukkan nama pena...">
+        </div>
+
+        <div class="info-group">
+            <label>Bio Singkat</label>
+            <textarea id="bio" placeholder="Tuliskan sesuatu tentang dirimu..."></textarea>
+        </div>
+
+        <div class="info-group">
+            <label>Email Terdaftar</label>
+            <input type="text" id="email" readonly style="color: var(--text-dim); cursor: not-allowed; background: #0b0e14;">
+        </div>
+
+        <button class="btn-save" id="save-profile">SIMPAN PERUBAHAN</button>
+        
+        <a href="dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
     </div>
 
+    <script>
+        const avatarInput = document.getElementById('avatar-input');
+        const profileImg = document.getElementById('profile-img');
+
+        avatarInput.onchange = (e) => {
+            const [file] = avatarInput.files;
+            if (file) {
+                profileImg.src = URL.createObjectURL(file);
+            }
+        };
+    </script>
     <script type="module" src="js/script.js"></script>
 </body>
 </html>
