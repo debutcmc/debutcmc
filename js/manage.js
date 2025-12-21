@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { 
     getFirestore, collection, addDoc, serverTimestamp, doc, 
-    getDoc, getDocs, query, orderBy, where, updateDoc, deleteDoc 
+    getDoc, getDocs, query, orderBy, where, updateDoc, deleteDoc, setDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
@@ -21,139 +21,205 @@ const urlParams = new URLSearchParams(window.location.search);
 const comicId = urlParams.get('id');
 const IMGBB_KEY = 'daa2bcb021279c96cebd854f8650d77e';
 
-// Penampung File Global (Agar bisa diurutkan dan dihapus sebelum upload)
 window.selectedFilesArray = [];
 
 // ==========================================
 // 1. AUTH & ROUTING KONTROL
 // ==========================================
 onAuthStateChanged(auth, (user) => {
+    const authOverlay = document.getElementById('auth-overlay');
+    const dashboardUI = document.getElementById('dashboard-ui');
+
     if (!user) {
-        location.href = 'index.html'; 
+        if (authOverlay) authOverlay.style.display = 'block';
+        if (dashboardUI) dashboardUI.style.display = 'none';
         return;
     }
+
+    if (authOverlay) authOverlay.style.display = 'none';
+    if (dashboardUI) dashboardUI.style.display = 'block';
+
+    // Load Data Berdasarkan Halaman
     if (comicId) {
         muatDataSeries();
         muatDaftarChapter();
-        muatStatistik();
     } else {
-        const myComicList = document.getElementById('my-comic-list');
-        if (myComicList) muatKomikSaya(user.uid);
+        muatKomikSaya(user.uid);
+    }
+
+    // Selalu muat data profil & statistik global
+    muatDataProfil(user);
+    muatStatistikGlobal(user.uid);
+});
+
+// ==========================================
+// 2. FITUR PROFIL (BARU)
+// ==========================================
+async function muatDataProfil(user) {
+    const userDoc = await getDoc(doc(db, "users", user.uid));
+    const dispEmail = document.getElementById('user-display-email');
+    const dispName = document.getElementById('user-display-name');
+    const inputName = document.getElementById('profile-name');
+    const inputBio = document.getElementById('profile-bio');
+    const inputLink = document.getElementById('profile-link');
+    const avatarPrev = document.getElementById('avatar-preview');
+
+    if (dispEmail) dispEmail.innerText = user.email;
+
+    if (userDoc.exists()) {
+        const d = userDoc.data();
+        if (dispName) dispName.innerText = d.displayName || "Kreator Baru";
+        if (inputName) inputName.value = d.displayName || "";
+        if (inputBio) inputBio.value = d.bio || "";
+        if (inputLink) inputLink.value = d.socialLink || "";
+        if (avatarPrev && d.photoURL) avatarPrev.src = d.photoURL;
+    }
+}
+
+document.getElementById('btn-update-profile')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-update-profile');
+    btn.disabled = true;
+    const user = auth.currentUser;
+
+    try {
+        let photoURL = document.getElementById('avatar-preview').src;
+        const fileInput = document.getElementById('avatar-input');
+        
+        if (fileInput.files[0]) {
+            const formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+            const resJson = await res.json();
+            photoURL = resJson.data.url;
+        }
+
+        await setDoc(doc(db, "users", user.uid), {
+            displayName: document.getElementById('profile-name').value,
+            bio: document.getElementById('profile-bio').value,
+            socialLink: document.getElementById('profile-link').value,
+            photoURL: photoURL,
+            updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        alert("Profil diperbarui!");
+        location.reload();
+    } catch (e) {
+        alert("Gagal update profil: " + e.message);
+    } finally { btn.disabled = false; }
+});
+
+// ==========================================
+// 3. STATISTIK GLOBAL (BARU)
+// ==========================================
+async function muatStatistikGlobal(uid) {
+    try {
+        const q = query(collection(db, "comics"), where("authorId", "==", uid));
+        const snap = await getDocs(q);
+        let totalViews = 0;
+        let totalLikes = 0;
+
+        snap.forEach(doc => {
+            const d = doc.data();
+            totalViews += (d.views || 0);
+            totalLikes += (d.likes || 0);
+        });
+
+        if(document.getElementById('total-views')) document.getElementById('total-views').innerText = totalViews;
+        if(document.getElementById('total-likes')) document.getElementById('total-likes').innerText = totalLikes;
+    } catch (e) { console.error("Stats Error:", e); }
+}
+
+// ==========================================
+// 4. DAFTAR KOMIK DI DASHBOARD (DIPERBAIKI)
+// ==========================================
+async function muatKomikSaya(uid) {
+    const list = document.getElementById('my-comic-list');
+    if (!list) return;
+
+    try {
+        const q = query(collection(db, "comics"), where("authorId", "==", uid));
+        const snap = await getDocs(q);
+        list.innerHTML = "";
+
+        if (snap.empty) {
+            list.innerHTML = "<p>Belum ada karya.</p>";
+            return;
+        }
+
+        snap.forEach((doc) => {
+            const d = doc.data();
+            const div = document.createElement('div');
+            div.className = "card"; 
+            div.style = "padding: 15px; display: flex; flex-direction: column; gap: 10px;";
+            div.innerHTML = `
+                <img src="${d.coverUrl || 'https://via.placeholder.com/150'}" style="width:100%; height:200px; object-fit:cover; border-radius:8px;">
+                <h4 style="margin:0;">${d.title}</h4>
+                <div style="font-size:12px; color:gray;">👁️ ${d.views || 0} | ❤️ ${d.likes || 0}</div>
+                <button onclick="location.href='manage.html?id=${doc.id}'" class="btn-main" style="padding:8px; font-size:12px;">KELOLA</button>
+            `;
+            list.appendChild(div);
+        });
+    } catch (e) { console.error(e); }
+}
+
+// ==========================================
+// 5. BUAT SERIES BARU (DIPERBAIKI)
+// ==========================================
+document.getElementById('btn-create-series')?.addEventListener('click', async () => {
+    const btn = document.getElementById('btn-create-series');
+    const title = document.getElementById('comic-title').value;
+    const genre = document.getElementById('comic-genre').value;
+    const summary = document.getElementById('comic-summary').value;
+    const file = document.getElementById('file-input').files[0];
+
+    if (!title || !file) return alert("Judul dan Cover wajib diisi!");
+
+    btn.disabled = true;
+    btn.innerText = "Menerbitkan...";
+
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
+        const resJson = await res.json();
+        const coverUrl = resJson.data.url;
+
+        await addDoc(collection(db, "comics"), {
+            title, genre, summary, coverUrl,
+            authorId: auth.currentUser.uid,
+            views: 0, likes: 0, subscribers: 0,
+            statusSeries: "ONGOING",
+            createdAt: serverTimestamp()
+        });
+
+        alert("Series Berhasil Dibuat!");
+        location.reload();
+    } catch (e) {
+        alert("Gagal: " + e.message);
+    } finally { btn.disabled = false; }
+});
+
+// ==========================================
+// 6. LOGOUT
+// ==========================================
+document.getElementById('btn-logout')?.addEventListener('click', async () => {
+    if (confirm("Logout?")) {
+        await signOut(auth);
+        location.href = 'index.html';
     }
 });
 
 // ==========================================
-// 2. MUAT DATA SERIES (DETAIL MANAGE)
+// 7. PREVIEW & URUTAN FILE CHAPTER (Lanjutan)
 // ==========================================
-async function muatDataSeries() {
-    const titleDisp = document.getElementById('display-title');
-    const coverPreview = document.getElementById('cover-preview');
-    try {
-        const snap = await getDoc(doc(db, "comics", comicId));
-        if (snap.exists()) {
-            const d = snap.data();
-            if (titleDisp) titleDisp.innerText = d.title;
-            if (coverPreview) coverPreview.src = d.coverUrl || 'img/placeholder.jpg';
-            const fields = {
-                'edit-title': d.title,
-                'edit-summary': d.summary,
-                'edit-writer': d.writer,
-                'edit-artist': d.artist,
-                'edit-colorist': d.colorist,
-                'edit-letterer': d.letterer,
-                'edit-editor': d.editor,
-                'edit-translator': d.translator,
-                'edit-status': d.statusSeries,
-                'edit-privacy': d.privacyMode || 'public',
-                'edit-password': d.password || '',
-                'edit-rating-age': d.ratingAge || 'SU',
-                'edit-comment': d.commentStatus || 'aktif'
-            };
-            for (const [id, value] of Object.entries(fields)) {
-                const el = document.getElementById(id);
-                if (el) el.value = value || "";
-            }
-            if (d.privacyMode === 'password') {
-                document.getElementById('password-box').style.display = 'block';
-            }
-        }
-    } catch (e) { console.error("Error Load Series:", e); }
-}
-
-// ==========================================
-// 3. STATISTIK REAL-TIME
-// ==========================================
-async function muatStatistik() {
-    try {
-        const snap = await getDoc(doc(db, "comics", comicId));
-        const data = snap.data();
-        document.getElementById('stat-views').innerText = data.views || 0;
-        document.getElementById('stat-likes').innerText = data.likes || 0;
-        document.getElementById('stat-subs').innerText = data.subscribers || 0;
-        const qComm = query(collection(db, "chapters"), where("comicId", "==", comicId));
-        const commSnap = await getDocs(qComm);
-        document.getElementById('stat-comments').innerText = commSnap.size;
-    } catch (e) { console.log("Statistik belum tersedia"); }
-}
-
-// ==========================================
-// 4. UPDATE DATA SERIES (SIMPAN PERUBAHAN)
-// ==========================================
-const btnUpdate = document.getElementById('btn-update-series');
-if (btnUpdate) {
-    btnUpdate.onclick = async () => {
-        btnUpdate.disabled = true;
-        const originalText = btnUpdate.innerHTML;
-        btnUpdate.innerHTML = "<i class='fa-solid fa-spinner fa-spin'></i> Menyimpan...";
-        try {
-            const docRef = doc(db, "comics", comicId);
-            let finalCoverUrl = document.getElementById('cover-preview').src;
-            const coverFile = document.getElementById('edit-cover-file').files[0];
-            if (coverFile) {
-                const formData = new FormData();
-                formData.append('image', coverFile);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
-                const imgData = await res.json();
-                finalCoverUrl = imgData.data.url;
-            }
-            await updateDoc(docRef, {
-                title: document.getElementById('edit-title').value,
-                summary: document.getElementById('edit-summary').value,
-                writer: document.getElementById('edit-writer').value,
-                artist: document.getElementById('edit-artist').value,
-                colorist: document.getElementById('edit-colorist').value,
-                letterer: document.getElementById('edit-letterer').value,
-                editor: document.getElementById('edit-editor').value,
-                translator: document.getElementById('edit-translator').value,
-                statusSeries: document.getElementById('edit-status').value,
-                privacyMode: document.getElementById('edit-privacy').value,
-                password: document.getElementById('edit-password').value,
-                ratingAge: document.getElementById('edit-rating-age').value,
-                commentStatus: document.getElementById('edit-comment').value,
-                coverUrl: finalCoverUrl,
-                updatedAt: serverTimestamp()
-            });
-            alert("✅ Sukses! Data series telah diperbarui.");
-            location.reload();
-        } catch (e) {
-            alert("❌ Gagal update: " + e.message);
-        } finally {
-            btnUpdate.disabled = false;
-            btnUpdate.innerHTML = originalText;
-        }
-    };
-}
-
-// ==========================================
-// 5. FITUR PREVIEW, HAPUS, & URUTAN FILE (UI)
-// ==========================================
+// Fungsi ini menangani tampilan list gambar sebelum di-upload ke chapter
 const chFileInput = document.getElementById('ch-files');
 if (chFileInput) {
     chFileInput.onchange = (e) => {
         const newFiles = Array.from(e.target.files);
         window.selectedFilesArray = [...window.selectedFilesArray, ...newFiles];
         renderFilePreview();
-        chFileInput.value = ""; // Reset input agar bisa pilih file yang sama jika perlu
+        chFileInput.value = ""; 
     };
 }
 
@@ -197,7 +263,7 @@ window.moveFile = (index, direction) => {
 };
 
 // ==========================================
-// 6. UPLOAD CHAPTER KE FIREBASE
+// 8. UPLOAD CHAPTER BARU
 // ==========================================
 const btnUploadCh = document.getElementById('btn-upload-chapter');
 if (btnUploadCh) {
@@ -237,7 +303,6 @@ if (btnUploadCh) {
                 likes: 0
             });
 
-            if (barFill) barFill.style.width = "100%";
             alert("🚀 Chapter Berhasil Dipublikasikan!");
             window.selectedFilesArray = [];
             location.reload();
@@ -249,7 +314,7 @@ if (btnUploadCh) {
 }
 
 // ==========================================
-// 7. MANAJEMEN DAFTAR CHAPTER
+// 9. MUAT & HAPUS CHAPTER
 // ==========================================
 async function muatDaftarChapter() {
     const list = document.getElementById('chapter-list');
@@ -286,29 +351,23 @@ window.hapusChapter = async (id) => {
         try {
             await deleteDoc(doc(db, "chapters", id));
             location.reload();
-        } catch (e) { alert("Gagal."); }
+        } catch (e) { alert("Gagal menghapus."); }
     }
 };
 
 // ==========================================
-// 8. TOOLS LAINNYA
+// 10. TOOLS & DELETE SERIES
 // ==========================================
-window.previewSeries = () => { window.open(`detail.html?id=${comicId}`, '_blank'); };
-
 window.deleteSeries = async () => {
-    if (confirm("‼️ Hapus seluruh series?")) {
-        const password = prompt("Ketik 'KONFIRMASI':");
-        if (password === 'KONFIRMASI') {
-            await deleteDoc(doc(db, "comics", comicId));
-            location.href = 'dashboard.html';
+    if (confirm("‼️ PERINGATAN: Hapus seluruh series dan semua chapter di dalamnya?")) {
+        const konfirmasi = prompt("Ketik 'HAPUS PERMANEN' untuk melanjutkan:");
+        if (konfirmasi === 'HAPUS PERMANEN') {
+            try {
+                await deleteDoc(doc(db, "comics", comicId));
+                // Opsional: Tambahkan logika hapus semua chapter terkait di sini
+                alert("Series berhasil dihapus.");
+                location.href = 'dashboard.html';
+            } catch (e) { alert("Gagal menghapus series."); }
         }
     }
 };
-
-const coverInput = document.getElementById('edit-cover-file');
-if (coverInput) {
-    coverInput.onchange = (e) => {
-        const [file] = e.target.files;
-        if (file) document.getElementById('cover-preview').src = URL.createObjectURL(file);
-    };
-}
