@@ -7,225 +7,243 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #00ff88; --bg: #0b0e14; --card: #161a21; --border: #2d333b; --accent: #3d5afe; --danger: #ff4444; }
-        body { background: var(--bg); color: #e6edf3; font-family: 'Inter', sans-serif; margin: 0; }
-        
-        /* Stats Dashboard */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-box { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 12px; text-align: center; }
-        .stat-box i { font-size: 20px; color: var(--primary); margin-bottom: 10px; }
-        .stat-value { display: block; font-size: 24px; font-weight: 800; }
-        .stat-label { font-size: 11px; color: #8b949e; text-transform: uppercase; }
-
-        .top-nav { background: rgba(22, 26, 33, 0.9); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; padding: 15px 5%; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-        .container { max-width: 1300px; margin: 20px auto; padding: 0 15px; }
-        
-        .main-grid { display: grid; grid-template-columns: 1fr 400px; gap: 25px; }
-        @media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
-
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 25px; margin-bottom: 25px; }
-        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        
-        /* Cover Edit Mode */
-        .cover-wrapper { position: relative; width: 180px; height: 250px; border-radius: 8px; overflow: hidden; border: 2px solid var(--border); margin-bottom: 15px; }
-        .cover-preview { width: 100%; height: 100%; object-fit: cover; }
-        .cover-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; cursor: pointer; }
-        .cover-wrapper:hover .cover-overlay { opacity: 1; }
-
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-size: 11px; font-weight: 700; color: #8b949e; margin-bottom: 8px; text-transform: uppercase; }
-        input, select, textarea { width: 100%; padding: 12px; background: #0d1117; border: 1px solid var(--border); color: white; border-radius: 8px; font-size: 14px; }
-        
-        .btn { padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-primary { background: var(--primary); color: #0b0e14; }
-        .btn-accent { background: var(--accent); color: white; }
-        .btn-outline { background: transparent; border: 1px solid var(--border); color: white; }
-
-        /* Chapter Management List */
-        .chapter-control-list { display: flex; flex-direction: column; gap: 10px; }
-        .chapter-item { background: #0d1117; border: 1px solid var(--border); padding: 12px 18px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-        
-        /* New Upload Zone Styles */
-        .upload-zone { border: 2px dashed var(--border); padding: 30px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; }
-        .upload-zone:hover { border-color: var(--primary); background: #ffffff05; }
-        
-        #file-preview-container { 
-            max-height: 400px; 
-            overflow-y: auto; 
-            margin-top: 15px; 
-            background: #0d1117; 
-            border-radius: 8px;
-            padding: 5px;
+        :root { 
+            --primary: #00ff88; 
+            --bg: #0b0e14; 
+            --card: #161a21; 
+            --border: #2d333b; 
+            --accent: #3d5afe; 
+            --danger: #ff4444; 
+            --sidebar-w: 260px;
         }
 
-        /* Scrollbar styling */
-        #file-preview-container::-webkit-scrollbar { width: 5px; }
-        #file-preview-container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+        body { 
+            background: var(--bg); 
+            color: #e6edf3; 
+            font-family: 'Inter', sans-serif; 
+            margin: 0; 
+            display: flex; /* Untuk Sidebar Layout */
+        }
+
+        /* --- SIDEBAR HAMBURGER --- */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            height: 100vh;
+            position: fixed;
+            left: -260px; /* Hidden by default di mobile */
+            transition: 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.active { left: 0; }
+
+        .sidebar-header {
+            padding: 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .sidebar-menu { padding: 15px; flex: 1; }
+        .menu-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 12px 15px; color: #8b949e;
+            text-decoration: none; border-radius: 8px;
+            margin-bottom: 5px; transition: 0.2s;
+        }
+        .menu-item:hover, .menu-item.active { background: #ffffff05; color: var(--primary); }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-wrapper {
+            flex: 1;
+            margin-left: 0;
+            transition: 0.3s;
+            min-width: 0;
+        }
+
+        .top-nav { 
+            background: rgba(22, 26, 33, 0.9); 
+            backdrop-filter: blur(10px); 
+            position: sticky; 
+            top: 0; z-index: 900; 
+            padding: 12px 30px; 
+            border-bottom: 1px solid var(--border); 
+            display: flex; align-items: center; justify-content: space-between; 
+        }
+
+        .hamburger {
+            font-size: 20px; cursor: pointer; color: var(--primary);
+            background: rgba(0, 255, 136, 0.1);
+            padding: 8px 12px; border-radius: 6px;
+        }
+
+        /* --- CONTENT GRID --- */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        
+        .main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 25px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stat-box { 
+            background: var(--card); border: 1px solid var(--border); 
+            padding: 15px; border-radius: 12px; text-align: center; 
+        }
+        .stat-value { display: block; font-size: 20px; font-weight: 800; color: white; }
+        .stat-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
+
+        /* Form Controls */
+        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 11px; font-weight: 700; color: #8b949e; margin-bottom: 6px; text-transform: uppercase; }
+        input, select, textarea { 
+            width: 100%; padding: 10px; background: #0d1117; 
+            border: 1px solid var(--border); color: white; border-radius: 6px; 
+            font-size: 13px; box-sizing: border-box;
+        }
+
+        .btn { padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
+        .btn-primary { background: var(--primary); color: #0b0e14; }
+        .btn-accent { background: var(--accent); color: white; }
+
+        /* Responsive */
+        @media (min-width: 1100px) {
+            .sidebar { left: 0; }
+            .main-wrapper { margin-left: var(--sidebar-w); }
+            .hamburger { display: none; }
+        }
+
+        @media (max-width: 1100px) {
+            .main-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Overlay */
+        .sidebar-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            display: none; z-index: 950;
+        }
+        .sidebar-overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="top-nav">
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <button onclick="location.href='dashboard.html'" class="btn btn-outline"><i class="fa-solid fa-chevron-left"></i></button>
-            <h2 id="display-title" style="margin:0; font-size: 20px;">Memuat Data...</h2>
-        </div>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-outline" onclick="previewSeries()"><i class="fa-solid fa-eye"></i> Preview</button>
-            <button class="btn btn-primary" id="btn-update-series"><i class="fa-solid fa-cloud-arrow-up"></i> SIMPAN PERUBAHAN</button>
-        </div>
-    </div>
+    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
 
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-box"><i class="fa-solid fa-chart-line"></i><span class="stat-value" id="stat-views">0</span><span class="stat-label">Total Views</span></div>
-            <div class="stat-box"><i class="fa-solid fa-heart"></i><span class="stat-value" id="stat-likes">0</span><span class="stat-label">Total Likes</span></div>
-            <div class="stat-box"><i class="fa-solid fa-user-plus"></i><span class="stat-value" id="stat-subs">0</span><span class="stat-label">Subscribers</span></div>
-            <div class="stat-box"><i class="fa-solid fa-comments"></i><span class="stat-value" id="stat-comments">0</span><span class="stat-label">Komentar</span></div>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3 style="margin:0; color:var(--primary);">Debut<span>CMC</span></h3>
+            <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="cursor:pointer; display:block;" class="desktop-hide"></i>
         </div>
+        <nav class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-house"></i> Dashboard</a>
+            <a href="#" class="menu-item active"><i class="fa-solid fa-pen-to-square"></i> Edit Series</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-chart-simple"></i> Analytics</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-comments"></i> Komentar</a>
+            <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
+            <a href="#" class="menu-item" style="color:var(--danger);"><i class="fa-solid fa-power-off"></i> Keluar</a>
+        </nav>
+    </aside>
 
-        <div class="main-grid">
-            <div class="left-col">
-                <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-sliders"></i> <h3>Konfigurasi Utama</h3></div>
-                    
-                    <div style="display: flex; gap: 25px; flex-wrap: wrap;">
-                        <div class="cover-section">
-                            <label>Cover Komik</label>
-                            <div class="cover-wrapper">
-                                <img id="cover-preview" src="img/placeholder.jpg" class="cover-preview">
-                                <div class="cover-overlay" onclick="document.getElementById('edit-cover-file').click()">
-                                    <i class="fa-solid fa-camera fa-2x"></i>
+    <div class="main-wrapper">
+        <header class="top-nav">
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
+                <h2 id="display-title" style="margin:0; font-size: 18px;">Series Editor</h2>
+            </div>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn btn-primary" id="btn-update-series"><i class="fa-solid fa-floppy-disk"></i> SIMPAN</button>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-box"><span class="stat-value" id="stat-views">0</span><span class="stat-label">Views</span></div>
+                <div class="stat-box"><span class="stat-value" id="stat-likes">0</span><span class="stat-label">Likes</span></div>
+                <div class="stat-box"><span class="stat-value" id="stat-subs">0</span><span class="stat-label">Subs</span></div>
+                <div class="stat-box"><span class="stat-value" id="stat-comments">0</span><span class="stat-label">Chat</span></div>
+            </div>
+
+            <div class="main-grid">
+                <div class="left-col">
+                    <div class="card">
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                            <div class="cover-section">
+                                <label>Cover</label>
+                                <div style="position: relative; width: 140px; height: 190px; border: 2px solid var(--border); border-radius: 8px; overflow: hidden;">
+                                    <img id="cover-preview" src="img/placeholder.jpg" style="width:100%; height:100%; object-fit:cover;">
+                                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('edit-cover-file').click()">
+                                        <i class="fa-solid fa-camera"></i>
+                                    </div>
+                                </div>
+                                <input type="file" id="edit-cover-file" hidden>
+                            </div>
+                            <div style="flex:1; min-width:250px;">
+                                <div class="form-group">
+                                    <label>Judul Series</label>
+                                    <input type="text" id="edit-title">
+                                </div>
+                                <div class="form-group">
+                                    <label>Sinopsis</label>
+                                    <textarea id="edit-summary" rows="4"></textarea>
                                 </div>
                             </div>
-                            <input type="file" id="edit-cover-file" hidden accept="image/*">
-                            <p style="font-size: 10px; color: #8b949e;">Rekomendasi: 600x800px (3:4)</p>
-                        </div>
-
-                        <div style="flex: 1; min-width: 300px;">
-                            <div class="form-group">
-                                <label>Judul Series</label>
-                                <input type="text" id="edit-title">
-                            </div>
-                            <div class="form-group">
-                                <label>Sinopsis Lengkap</label>
-                                <textarea id="edit-summary" rows="6"></textarea>
-                            </div>
                         </div>
                     </div>
 
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
+                    <div class="card">
+                        <label style="margin-bottom:15px; display:block;">Kolaborasi Tim</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <input type="text" placeholder="Writer" id="edit-writer">
+                            <input type="text" placeholder="Artist" id="edit-artist">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <label style="margin-bottom:15px; display:block;">Daftar Chapter</label>
+                        <div id="chapter-list">
+                            <p style="font-size:12px; color:var(--text-dim);">Belum ada chapter.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-col">
+                    <div class="card" style="border-left: 4px solid var(--accent);">
+                        <h4 style="margin:0 0 15px 0;">Publish Chapter</h4>
                         <div class="form-group">
-                            <label>Status Rilis</label>
-                            <select id="edit-status">
-                                <option value="ONGOING">Ongoing</option>
-                                <option value="TAMAT">Tamat</option>
-                                <option value="HIATUS">Hiatus</option>
-                                <option value="PRIVATE">🔒 Private (Draf)</option>
-                                <option value="COMING SOON">Coming Soon</option>
-                            </select>
+                            <label>Nama Chapter</label>
+                            <input type="text" id="ch-title" placeholder="Contoh: Chapter 01">
                         </div>
-                        <div class="form-group">
-                            <label>Visibilitas / Privasi</label>
-                            <select id="edit-privacy">
-                                <option value="public">🌍 Publik (Semua Orang)</option>
-                                <option value="user_only">👥 Hanya User Terdaftar</option>
-                                <option value="password">🔑 Proteksi Kata Sandi</option>
-                            </select>
+                        <div style="border: 2px dashed var(--border); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;" onclick="document.getElementById('ch-files').click()">
+                            <i class="fa-solid fa-images fa-lg" style="color:var(--primary);"></i>
+                            <p style="font-size:11px; margin-top:10px;">Upload Halaman</p>
+                            <input type="file" id="ch-files" multiple hidden>
                         </div>
-                        <div id="password-box" class="form-group" style="display:none;">
-                            <label>Set Kata Sandi</label>
-                            <input type="text" id="edit-password" placeholder="Masukkan Sandi">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-users"></i> <h3>Manajemen Tim & Kolaborasi</h3></div>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                        <div class="form-group"><label>Writer</label><input type="text" id="edit-writer"></div>
-                        <div class="form-group"><label>Illustrator</label><input type="text" id="edit-artist"></div>
-                        <div class="form-group"><label>Colorist</label><input type="text" id="edit-colorist"></div>
-                        <div class="form-group"><label>Letterer</label><input type="text" id="edit-letterer"></div>
-                        <div class="form-group"><label>Editor</label><input type="text" id="edit-editor"></div>
-                        <div class="form-group"><label>Translator</label><input type="text" id="edit-translator"></div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header" style="justify-content: space-between;">
-                        <div style="display:flex; align-items:center; gap:12px;"><i class="fa-solid fa-layer-group"></i> <h3>Daftar Chapter</h3></div>
-                    </div>
-                    <div id="chapter-list" class="chapter-control-list">
-                        </div>
-                </div>
-            </div>
-
-            <div class="right-col">
-                <div class="card" style="border-top: 4px solid var(--accent);">
-                    <div class="card-header"><i class="fa-solid fa-cloud-arrow-up"></i> <h3>Rilis Chapter Baru</h3></div>
-                    <div class="form-group">
-                        <label>Nama Chapter</label>
-                        <input type="text" id="ch-title" placeholder="Contoh: Chapter 01">
-                    </div>
-                    <div class="form-group">
-                        <label>Upload Halaman (Batch)</label>
-                        <div class="upload-zone" onclick="document.getElementById('ch-files').click()">
-                            <i class="fa-solid fa-images fa-2x" style="color:var(--primary); margin-bottom:10px;"></i>
-                            <p id="upload-status" style="margin:0; font-size:13px;">Klik untuk pilih gambar</p>
-                            <input type="file" id="ch-files" multiple hidden accept="image/*">
-                        </div>
-                        
-                        <div id="file-preview-container"></div>
+                        <button class="btn btn-accent" style="width:100%; margin-top:15px;" id="btn-upload-chapter">PUBLISH</button>
                     </div>
 
-                    <button class="btn btn-accent" style="width:100%; margin-top:10px;" id="btn-upload-chapter">
-                        <i class="fa-solid fa-paper-plane"></i> PUBLISH CHAPTER
-                    </button>
-                    
-                    <div id="upload-progress-box" style="display:none; margin-top:15px;">
-                        <div style="height:6px; background:#222; border-radius:10px; overflow:hidden;">
-                            <div id="bar-fill" style="width:0%; height:100%; background:var(--primary); transition:0.3s;"></div>
-                        </div>
-                        <p id="bar-text" style="font-size:10px; text-align:center; margin-top:5px;"></p>
+                    <div class="card" style="border: 1px solid #ff444433; background: #ff444405;">
+                        <button class="btn" style="color:var(--danger); font-size:11px; padding:0;" onclick="deleteSeries()">Hapus Series Permanen</button>
                     </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header"><i class="fa-solid fa-shield-halved"></i> <h3>Sistem Konten</h3></div>
-                    <div class="form-group">
-                        <label>Rating Usia</label>
-                        <select id="edit-rating-age">
-                            <option value="SU">Semua Umur</option>
-                            <option value="13+">Remaja (13+)</option>
-                            <option value="17+">Dewasa (17+)</option>
-                            <option value="21+">Eksplisit (21+)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Mode Komentar</label>
-                        <select id="edit-comment">
-                            <option value="aktif">Aktif (Buka)</option>
-                            <option value="moderasi">Moderasi (Review)</option>
-                            <option value="nonaktif">Nonaktif (Tutup)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="card" style="background: #ff444405; border-color: #ff444433;">
-                    <h4 style="color:var(--danger); margin-top:0;"><i class="fa-solid fa-trash-can"></i> Danger Zone</h4>
-                    <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger); width:100%; font-size:12px;" onclick="deleteSeries()">HAPUS PERMANEN SERIES INI</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script type="module" src="js/manage.js"></script>
     <script>
-        // UI Logic Toggle Password
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
         document.getElementById('edit-privacy').onchange = (e) => {
-            document.getElementById('password-box').style.display = (e.target.value === 'password') ? 'block' : 'none';
+            const box = document.getElementById('password-box');
+            if(box) box.style.display = (e.target.value === 'password') ? 'block' : 'none';
         };
     </script>
+    <script type="module" src="js/manage.js"></script>
 </body>
 </html>
