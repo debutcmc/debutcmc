@@ -2,86 +2,103 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reading Mode | DebutCMC</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Membaca Komik | DebutCMC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        /* Style khusus halaman baca agar mulus tanpa celah */
-        body { background-color: #000; margin: 0; }
+        /* Optimasi HP: Hapus semua scrollbar dan margin */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background-color: #000; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden; /* Mencegah geser kanan-kiri yang mengganggu */
+        }
+
+        /* Header atas yang tipis agar tidak makan tempat */
+        .viewer-header {
+            position: fixed; top: 0; width: 100%;
+            background: rgba(11, 14, 20, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 12px 15px;
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 1000;
+            border-bottom: 1px solid #30363d;
+        }
+        .chapter-title {
+            font-size: 14px; font-weight: 600; color: #00ff88;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            max-width: 60%;
+        }
+
+        /* Container gambar: Kunci utama Webtoon Style */
         .reader-container {
+            width: 100%;
+            max-width: 850px; /* Batas maksimal untuk tampilan tablet/PC */
+            margin: 0 auto; /* Tengah secara horizontal */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            width: 100%;
+            padding-top: 50px; /* Jarak agar tidak tertutup header */
         }
+
+        /* Styling Gambar Halaman */
         .manga-page {
-            width: 100%;
-            max-width: 800px; /* Standar Webtoon */
+            width: 100% !important;
             display: block;
-            line-height: 0;
-        }
-        .manga-page img {
-            width: 100%;
-            display: block;
-            margin: 0;
-            padding: 0;
+            margin-bottom: -1px; /* Trik agar tidak ada garis putih antar sambungan gambar */
             border: none;
+            height: auto;
         }
-        .reader-nav {
-            position: fixed;
-            bottom: 20px;
-            background: rgba(22, 26, 33, 0.9);
-            padding: 10px 25px;
-            border-radius: 50px;
+
+        /* Navigasi Melayang (Floating) di bawah untuk HP */
+        .mobile-nav {
+            position: fixed; bottom: 20px; left: 50%;
+            transform: translateX(-50%);
+            display: flex; gap: 15px;
+            background: rgba(11, 14, 20, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
             border: 1px solid #00ff88;
-            color: white;
-            z-index: 100;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            z-index: 1000;
         }
-        .info-header {
-            padding: 20px;
-            text-align: center;
-            color: #00ff88;
+        .mobile-nav a, .mobile-nav button {
+            color: white; text-decoration: none; font-size: 18px;
+            background: none; border: none; cursor: pointer;
+        }
+        .mobile-nav i { transition: 0.2s; }
+        .mobile-nav i:active { color: #00ff88; transform: scale(1.2); }
+
+        /* Loading Spinner */
+        #loader {
+            padding: 100px 0; text-align: center; color: #00ff88;
         }
     </style>
 </head>
 <body>
 
-    <div class="info-header">
-        <h2 id="comic-title">Memuat Komik...</h2>
-        <p id="chapter-info">Chapter 1</p>
-    </div>
+    <div class="viewer-header">
+        <a href="javascript:history.back()" style="color: white;"><i class="fa-solid fa-chevron-left"></i></a>
+        <div class="chapter-title" id="chapter-title-display">Memuat Chapter...</div>
+        <div style="width: 20px;"></div> </div>
 
     <div class="reader-container" id="manga-viewer">
+        <div id="loader">
+            <i class="fa-solid fa-circle-notch fa-spin fa-2xl"></i>
+            <p style="margin-top: 15px; font-size: 14px;">Mendownload halaman...</p>
         </div>
-
-    <div class="reader-nav">
-        <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">⬅ KEMBALI</a>
     </div>
 
-    <script src="js/script.js"></script>
-    <script>
-        // Logika otomatis untuk membaca ?id=1
-        const urlParams = new URLSearchParams(window.location.search);
-        const comicId = urlParams.get('id');
-        const titleElement = document.getElementById('comic-title');
-        const viewer = document.getElementById('manga-viewer');
+    <div class="mobile-nav">
+        <a href="index.html" title="Beranda"><i class="fa-solid fa-house"></i></a>
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Ke Atas">
+            <i class="fa-solid fa-arrow-up"></i>
+        </button>
+        <button onclick="location.reload()" title="Refresh">
+            <i class="fa-solid fa-rotate-right"></i>
+        </button>
+    </div>
 
-        if (comicId === '1') {
-            titleElement.innerText = "A Spell for a Smith";
-            // Simulasi gambar halaman 1, 2, 3
-            viewer.innerHTML = `
-                <img src="https://picsum.photos/seed/comic1page1/800/1200" class="manga-page">
-                <img src="https://picsum.photos/seed/comic1page2/800/1200" class="manga-page">
-            `;
-        } else if (comicId === '2') {
-            titleElement.innerText = "Cyber Code";
-            viewer.innerHTML = `
-                <img src="https://picsum.photos/seed/comic2page1/800/1200" class="manga-page">
-                <img src="https://picsum.photos/seed/comic2page2/800/1200" class="manga-page">
-            `;
-        } else {
-            titleElement.innerText = "Komik Tidak Ditemukan";
-        }
-    </script>
+    <script type="module" src="js/script.js"></script>
+
 </body>
 </html>
