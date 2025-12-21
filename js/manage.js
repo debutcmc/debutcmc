@@ -24,6 +24,39 @@ const IMGBB_KEY = 'daa2bcb021279c96cebd854f8650d77e';
 window.selectedFilesArray = [];
 
 // ==========================================
+// FITUR AUTO-SAVE & DRAFT (PENAMBAHAN BARU)
+// ==========================================
+function simpanDraftKeLocal() {
+    if (!comicId) return;
+    const draftData = {
+        title: document.getElementById('comic-title')?.value || "",
+        genre: document.getElementById('comic-genre')?.value || "",
+        summary: document.getElementById('comic-summary')?.value || ""
+    };
+    localStorage.setItem(`draft_series_${comicId}`, JSON.stringify(draftData));
+}
+
+function muatDraftDariLocal() {
+    const dataMentah = localStorage.getItem(`draft_series_${comicId}`);
+    if (dataMentah) {
+        const data = JSON.parse(dataMentah);
+        // Menggunakan setTimeout dikit agar memastikan element sudah siap di DOM
+        setTimeout(() => {
+            if (document.getElementById('comic-title')) document.getElementById('comic-title').value = data.title;
+            if (document.getElementById('comic-genre')) document.getElementById('comic-genre').value = data.genre;
+            if (document.getElementById('comic-summary')) document.getElementById('comic-summary').value = data.summary;
+        }, 500);
+    }
+}
+
+// Pasang Listener Otomatis
+document.addEventListener('input', (e) => {
+    if (['comic-title', 'comic-genre', 'comic-summary'].includes(e.target.id)) {
+        simpanDraftKeLocal();
+    }
+});
+
+// ==========================================
 // 1. AUTH & ROUTING KONTROL
 // ==========================================
 onAuthStateChanged(auth, (user) => {
@@ -39,21 +72,20 @@ onAuthStateChanged(auth, (user) => {
     if (authOverlay) authOverlay.style.display = 'none';
     if (dashboardUI) dashboardUI.style.display = 'block';
 
-    // Load Data Berdasarkan Halaman
     if (comicId) {
-        muatDataSeries();
+        // muatDataSeries(); // Asumsi fungsi ini ada di HTML/global
         muatDaftarChapter();
+        muatDraftDariLocal(); // Panggil Auto-fill saat login berhasil
     } else {
         muatKomikSaya(user.uid);
     }
 
-    // Selalu muat data profil & statistik global
     muatDataProfil(user);
     muatStatistikGlobal(user.uid);
 });
 
 // ==========================================
-// 2. FITUR PROFIL (BARU)
+// 2. FITUR PROFIL
 // ==========================================
 async function muatDataProfil(user) {
     const userDoc = await getDoc(doc(db, "users", user.uid));
@@ -109,7 +141,7 @@ document.getElementById('btn-update-profile')?.addEventListener('click', async (
 });
 
 // ==========================================
-// 3. STATISTIK GLOBAL (BARU)
+// 3. STATISTIK GLOBAL
 // ==========================================
 async function muatStatistikGlobal(uid) {
     try {
@@ -130,7 +162,7 @@ async function muatStatistikGlobal(uid) {
 }
 
 // ==========================================
-// 4. DAFTAR KOMIK DI DASHBOARD (DIPERBAIKI)
+// 4. DAFTAR KOMIK DI DASHBOARD
 // ==========================================
 async function muatKomikSaya(uid) {
     const list = document.getElementById('my-comic-list');
@@ -163,7 +195,7 @@ async function muatKomikSaya(uid) {
 }
 
 // ==========================================
-// 5. BUAT SERIES BARU (DIPERBAIKI)
+// 5. BUAT SERIES BARU
 // ==========================================
 document.getElementById('btn-create-series')?.addEventListener('click', async () => {
     const btn = document.getElementById('btn-create-series');
@@ -210,9 +242,8 @@ document.getElementById('btn-logout')?.addEventListener('click', async () => {
 });
 
 // ==========================================
-// 7. PREVIEW & URUTAN FILE CHAPTER (Lanjutan)
+// 7. PREVIEW & URUTAN FILE CHAPTER
 // ==========================================
-// Fungsi ini menangani tampilan list gambar sebelum di-upload ke chapter
 const chFileInput = document.getElementById('ch-files');
 if (chFileInput) {
     chFileInput.onchange = (e) => {
@@ -263,12 +294,13 @@ window.moveFile = (index, direction) => {
 };
 
 // ==========================================
-// 8. UPLOAD CHAPTER BARU
+// 8. UPLOAD CHAPTER BARU (DIPERBAIKI AGAR TIDAK HILANG)
 // ==========================================
 const btnUploadCh = document.getElementById('btn-upload-chapter');
 if (btnUploadCh) {
     btnUploadCh.onclick = async () => {
-        const title = document.getElementById('ch-title').value;
+        const titleInput = document.getElementById('ch-title');
+        const title = titleInput.value;
         const files = window.selectedFilesArray;
         const progressBox = document.getElementById('upload-progress-box');
         const barFill = document.getElementById('bar-fill');
@@ -304,8 +336,17 @@ if (btnUploadCh) {
             });
 
             alert("🚀 Chapter Berhasil Dipublikasikan!");
+            
+            // PERBAIKAN: Jangan reload, cukup bersihkan field chapter
             window.selectedFilesArray = [];
-            location.reload();
+            renderFilePreview();
+            titleInput.value = "";
+            if (progressBox) progressBox.style.display = 'none';
+            
+            // Muat ulang daftar chapter agar muncul yang baru
+            muatDaftarChapter();
+            btnUploadCh.disabled = false;
+
         } catch (e) {
             alert("Gagal upload chapter: " + e.message);
             btnUploadCh.disabled = false;
@@ -350,7 +391,7 @@ window.hapusChapter = async (id) => {
     if (confirm("⚠️ Hapus chapter ini?")) {
         try {
             await deleteDoc(doc(db, "chapters", id));
-            location.reload();
+            muatDaftarChapter(); // Muat ulang daftar saja
         } catch (e) { alert("Gagal menghapus."); }
     }
 };
@@ -363,8 +404,9 @@ window.deleteSeries = async () => {
         const konfirmasi = prompt("Ketik 'HAPUS PERMANEN' untuk melanjutkan:");
         if (konfirmasi === 'HAPUS PERMANEN') {
             try {
+                // Hapus draft lokal juga kalau series dihapus
+                localStorage.removeItem(`draft_series_${comicId}`);
                 await deleteDoc(doc(db, "comics", comicId));
-                // Opsional: Tambahkan logika hapus semua chapter terkait di sini
                 alert("Series berhasil dihapus.");
                 location.href = 'dashboard.html';
             } catch (e) { alert("Gagal menghapus series."); }
