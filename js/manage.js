@@ -1,57 +1,77 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Series | DebutCMC</title>
-    <link rel="stylesheet" href="css/style.css">
-</head>
-<body style="background: #0b0e14; color: white; font-family: sans-serif; margin: 0;">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, getDocs, query, orderBy, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    <div id="manage-ui" style="max-width: 800px; margin: 0 auto; padding: 20px;">
-        
-        <header style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
-            <button onclick="window.location.href='dashboard.html'" style="background: #161a21; border: 1px solid #333; color: white; padding: 10px; border-radius: 50%; cursor: pointer; width: 40px; height: 40px;">←</button>
-            <div>
-                <h1 id="manage-title" style="margin: 0; font-size: 20px; color: #00ff88;">Memuat Judul...</h1>
-                <p style="margin: 0; font-size: 12px; color: #8b949e;">Management Center</p>
-            </div>
-        </header>
+const firebaseConfig = {
+    apiKey: "AIzaSyCt2j9hATOmWYqdknCi05j8zIO59SaF578",
+    authDomain: "debutcmc-ec2ad.firebaseapp.com",
+    projectId: "debutcmc-ec2ad",
+    storageBucket: "debutcmc-ec2ad.firebasestorage.app",
+    appId: "1:283108871954:web:5900298201e74ce83d2dcb"
+};
 
-        <div id="series-info" style="display: flex; gap: 20px; background: #161a21; padding: 20px; border-radius: 15px; border: 1px solid #2d333b; margin-bottom: 30px;">
-            <img id="series-cover" src="" style="width: 100px; height: 100px; object-fit: cover; border-radius: 10px; background: #0b0e14;">
-            <div>
-                <h2 id="info-title" style="margin: 0 0 5px 0;">-</h2>
-                <span id="info-genre" style="color: #00ff88; font-size: 12px; font-weight: bold; background: rgba(0,255,136,0.1); padding: 3px 8px; border-radius: 5px;">-</span>
-                <p id="info-summary" style="font-size: 13px; color: #8b949e; margin-top: 10px; line-height: 1.4;">-</p>
-            </div>
-        </div>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-        <section style="background: #161a21; padding: 25px; border-radius: 15px; border: 1px solid #2d333b; margin-bottom: 30px;">
-            <h3 style="margin-top: 0; color: #00ff88;">➕ Upload Chapter Baru</h3>
-            
-            <label style="display:block; margin-bottom:8px; font-size:12px; color:#8b949e;">NOMOR/JUDUL CHAPTER</label>
-            <input type="text" id="chapter-title" placeholder="Contoh: Chapter 01: Pertemuan" style="width: 100%; padding: 12px; margin-bottom: 20px; background: #0b0e14; border: 1px solid #333; color: white; border-radius: 8px;">
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        document.getElementById('auth-overlay').style.display = 'block';
+    } else {
+        document.getElementById('dashboard-ui').style.display = 'block';
+        const path = window.location.pathname;
+        if (path.includes('dashboard.html')) muatKomikSaya();
+        if (path.includes('manage.html')) { muatDataSeries(); muatDaftarChapter(); }
+    }
+});
 
-            <label style="display:block; margin-bottom:8px; font-size:12px; color:#8b949e;">GAMBAR KOMIK (Multiple Images)</label>
-            <div id="drop-zone" style="border: 2px dashed #333; padding: 30px; text-align: center; border-radius: 10px; cursor: pointer; background: #0b0e14;">
-                <p id="upload-status">📁 Klik untuk pilih gambar chapter</p>
-                <input type="file" id="chapter-files" accept="image/*" multiple style="display: none;">
-            </div>
-            <p style="font-size: 11px; color: #444; margin-top: 5px;">*Urutan gambar sesuai dengan nama file atau saat dipilih.</p>
+// --- DASHBOARD LOGIC ---
+async function muatKomikSaya() {
+    const list = document.getElementById('my-comic-list');
+    const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
+    const snap = await getDocs(q);
+    list.innerHTML = "";
+    snap.forEach(d => {
+        if (d.data().authorId === auth.currentUser.uid) {
+            list.innerHTML += `
+                <div style="background:#161a21; padding:15px; border-radius:10px; display:flex; gap:15px; align-items:center; border:1px solid #333;">
+                    <img src="${d.data().coverUrl}" style="width:50px; height:70px; object-fit:cover; border-radius:5px;">
+                    <div style="flex-grow:1;">
+                        <h4 style="margin:0;">${d.data().title}</h4>
+                        <small style="color:#00ff88;">${d.data().status}</small>
+                    </div>
+                    <button onclick="location.href='manage.html?id=${d.id}'" style="background:#333; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Manage</button>
+                </div>`;
+        }
+    });
+}
 
-            <button id="btn-upload-chapter" style="width: 100%; margin-top: 20px; background: #00ff88; color: black; border: none; padding: 15px; font-weight: bold; border-radius: 8px; cursor: pointer;">Publish Chapter</button>
-        </section>
+// --- CREATE SERIES ---
+const btnCreate = document.getElementById('btn-create-series');
+if (btnCreate) {
+    btnCreate.onclick = async () => {
+        const title = document.getElementById('comic-title').value;
+        const file = document.getElementById('file-input').files[0];
+        if (!title || !file) return alert("Isi judul dan cover!");
 
-        <section>
-            <h3 style="border-left: 4px solid #00ff88; padding-left: 15px;">Daftar Chapter</h3>
-            <div id="chapter-list" style="margin-top: 15px; display: flex; flex-direction: column; gap: 10px;">
-                <p style="color: #444;">Belum ada chapter.</p>
-            </div>
-        </section>
+        btnCreate.innerText = "Uploading...";
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch('https://api.imgbb.com/1/upload?key=daa2bcb021279c96cebd854f8650d77e', { method: 'POST', body: formData });
+        const img = await res.json();
 
-    </div>
+        await addDoc(collection(db, "comics"), {
+            title,
+            genre: document.getElementById('comic-genre').value,
+            summary: document.getElementById('comic-summary').value,
+            coverUrl: img.data.url,
+            authorId: auth.currentUser.uid,
+            status: "pending",
+            createdAt: serverTimestamp()
+        });
+        alert("Berhasil!"); location.reload();
+    };
+}
 
-    <script type="module" src="js/manage.js"></script>
-</body>
-</html>
+// --- GLOBAL WINDOW FUNCTIONS ---
+window.logout = () => signOut(auth).then(() => location.href='index.html');
