@@ -6,6 +6,7 @@ import {
     getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
+// --- KONFIGURASI FIREBASE ---
 const firebaseConfig = {
     apiKey: "AIzaSyCt2j9hATOmWYqdknCi05j8zIO59SaF578",
     authDomain: "debutcmc-ec2ad.firebaseapp.com",
@@ -19,7 +20,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// --- AUTH LOGIC ---
+// --- LOGIKA AUTH (LOGIN GOOGLE) ---
 window.loginGoogle = async () => {
     try { 
         await signInWithPopup(auth, provider); 
@@ -29,6 +30,7 @@ window.loginGoogle = async () => {
     }
 };
 
+// --- ROUTING OTOMATIS BERDASARKAN URL ---
 onAuthStateChanged(auth, async (user) => {
     const section = document.getElementById('auth-section');
     if (user && section) {
@@ -38,7 +40,6 @@ onAuthStateChanged(auth, async (user) => {
                  style="width:35px; height:35px; border-radius:50%; border:2px solid #00ff88; cursor:pointer; object-fit:cover;">`;
     }
     
-    // Routing Otomatis berdasarkan URL
     const path = window.location.pathname;
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('id');
@@ -52,16 +53,16 @@ onAuthStateChanged(auth, async (user) => {
     } else if (path.includes('viewer.html')) {
         loadViewer(id, ch);
     } else if (path.includes('profile.html')) {
-        loadProfile(uid || user?.uid); // Jika uid kosong, buka profil sendiri
+        loadProfile(uid || user?.uid); 
     }
 });
 
-// --- LOAD HOME (BERANDA) ---
+// --- 1. LOAD HOME (DAFTAR KOMIK BERANDA) ---
 async function loadHome() {
     const grid = document.getElementById('comic-list');
     if (!grid) return;
 
-    grid.innerHTML = "<p style='color:gray;'>Memuat karya terbaru...</p>";
+    grid.innerHTML = "<p style='color:gray; padding:20px;'>Memuat karya terbaru...</p>";
     
     try {
         const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
@@ -69,7 +70,7 @@ async function loadHome() {
         grid.innerHTML = "";
 
         if (snap.empty) {
-            grid.innerHTML = "<p>Belum ada komik yang dirilis.</p>";
+            grid.innerHTML = "<p style='padding:20px;'>Belum ada komik yang dirilis.</p>";
             return;
         }
 
@@ -78,12 +79,12 @@ async function loadHome() {
             grid.innerHTML += `
                 <a href="detail.html?id=${d.id}" class="comic-card" style="text-decoration:none; color:inherit;">
                     <div style="position:relative; overflow:hidden; border-radius:8px;">
-                        <img src="${data.coverUrl}" loading="lazy" style="width:100%; aspect-ratio:3/4; object-fit:cover; transition:0.3s;" class="hover-zoom">
+                        <img src="${data.coverUrl}" loading="lazy" style="width:100%; aspect-ratio:3/4; object-fit:cover; display:block;">
                         <span style="position:absolute; top:8px; right:8px; background:#00ff88; color:#000; font-size:10px; padding:2px 8px; font-weight:bold; border-radius:4px; z-index:2;">
                             ${data.statusSeries || 'NEW'}
                         </span>
                     </div>
-                    <h4 class="comic-title" style="margin:10px 0 5px 0; font-size:14px;">${data.title}</h4>
+                    <h4 style="margin:10px 0 5px 0; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${data.title}</h4>
                     <p style="color:#00ff88; font-size:11px; margin:0;">${data.genre || 'Action'}</p>
                 </a>`;
         });
@@ -93,7 +94,7 @@ async function loadHome() {
     }
 }
 
-// --- LOAD DETAIL ---
+// --- 2. LOAD DETAIL (INFO KOMIK & CHAPTER) ---
 async function loadDetail(id) {
     if (!id) return;
     try {
@@ -105,8 +106,11 @@ async function loadDetail(id) {
             if(document.getElementById('comic-genre')) document.getElementById('comic-genre').innerText = data.genre;
             if(document.getElementById('comic-cover')) document.getElementById('comic-cover').src = data.coverUrl;
             
-            const synopsisEl = document.querySelector('.synopsis');
-            if(synopsisEl) synopsisEl.innerText = data.summary || "Tidak ada sinopsis.";
+            // Sinkronisasi Sinopsis
+            const synopsisEl = document.getElementById('comic-summary');
+            if(synopsisEl) {
+                synopsisEl.innerText = data.summary || "Tidak ada sinopsis.";
+            }
             
             // Muat Daftar Chapter
             const qCh = query(collection(db, "chapters"), where("comicId", "==", id), orderBy("createdAt", "desc"));
@@ -117,6 +121,7 @@ async function loadDetail(id) {
                 container.innerHTML = "";
                 if (cSnap.empty) {
                     container.innerHTML = "<p style='color:gray; padding:20px;'>Belum ada chapter.</p>";
+                    return;
                 }
                 cSnap.forEach((c) => {
                     const chData = c.data();
@@ -126,7 +131,7 @@ async function loadDetail(id) {
                                 <span style="display:block;">${chData.chapterTitle}</span>
                                 <small style="color:gray; font-size:10px;">${new Date(chData.createdAt?.toDate()).toLocaleDateString('id-ID')}</small>
                             </div>
-                            <span class="btn-read" style="background:#00ff88; color:#000; padding:4px 12px; border-radius:4px; font-size:12px; font-weight:bold;">BACA</span>
+                            <span class="btn-read" style="background:#00ff88; color:#000; padding:6px 15px; border-radius:4px; font-size:12px; font-weight:bold;">BACA</span>
                         </a>`;
                 });
             }
@@ -134,27 +139,39 @@ async function loadDetail(id) {
     } catch (e) { console.error("Error Detail:", e); }
 }
 
-// --- LOAD VIEWER ---
+// --- 3. LOAD VIEWER (MODE BACA HP OPTIMIZED) ---
 async function loadViewer(id, chId) {
     const viewer = document.getElementById('manga-viewer');
+    const titleDisplay = document.getElementById('chapter-title-display');
     if (!viewer || !chId) return;
 
     try {
         const snap = await getDoc(doc(db, "chapters", chId));
         if (snap.exists()) {
             const data = snap.data();
-            const titleEl = document.getElementById('chapter-title-display'); // Ganti ID agar tidak bentrok dengan judul komik
-            if(titleEl) titleEl.innerText = data.chapterTitle;
+            if(titleDisplay) titleDisplay.innerText = data.chapterTitle;
 
             const images = data.images || [];
+            
+            // Render gambar dengan Lazy Load untuk HP
             viewer.innerHTML = images.map(img => `
-                <img src="${img}" class="manga-page" style="width:100%; display:block; margin-bottom:2px;" onerror="this.src='img/error-image.jpg'">
+                <img src="${img}" 
+                     class="manga-page" 
+                     loading="lazy" 
+                     style="width:100%; display:block; margin-bottom:-1px;"
+                     onerror="this.src='https://via.placeholder.com/800x1200?text=Gagal+Memuat+Gambar'">
             `).join('');
+            
+        } else {
+            viewer.innerHTML = "<p style='text-align:center; padding:50px;'>Chapter tidak ditemukan.</p>";
         }
-    } catch (e) { console.error("Error Viewer:", e); }
+    } catch (e) { 
+        console.error("Error Viewer:", e); 
+        viewer.innerHTML = "<p style='text-align:center; padding:50px;'>Terjadi kesalahan saat memuat gambar.</p>";
+    }
 }
 
-// --- LOAD PROFILE ---
+// --- 4. LOAD PROFILE (USER & AUTHOR) ---
 async function loadProfile(uid) {
     const container = document.getElementById('profile-content');
     if (!container || !uid) return;
@@ -171,16 +188,14 @@ async function loadProfile(uid) {
                 <p style="color:#00ff88; font-size:12px; margin-bottom:20px;">@${uid.substring(0,6)}</p>
                 
                 <div style="background:#161a21; padding:20px; border-radius:12px; border:1px solid #2d333b; text-align:left;">
-                    <h4 style="margin:0 0 10px 0; font-size:13px; color:gray; text-transform:uppercase;">Bio Kreator</h4>
-                    <p style="color:#e6edf3; font-size:14px; line-height:1.6;">
-                        ${data?.bio || "Halo! Saya pembaca di DebutCMC."}
-                    </p>
+                    <h4 style="margin:0 0 10px 0; font-size:11px; color:gray; text-transform:uppercase;">Bio</h4>
+                    <p style="color:#e6edf3; font-size:14px; line-height:1.6;">${data?.bio || "Halo! Saya pembaca di DebutCMC."}</p>
                 </div>
 
                 ${isOwner ? `
                     <div style="margin-top:20px; display:grid; gap:10px;">
-                        <button onclick="location.href='dashboard.html'" style="background:#00ff88; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:10px;">
-                            <i class="fa-solid fa-gauge-high"></i> MASUK CREATOR CENTER
+                        <button onclick="location.href='dashboard.html'" style="background:#00ff88; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px;">
+                            <i class="fa-solid fa-gauge-high"></i> DASHBOARD KREATOR
                         </button>
                         <button onclick="auth.signOut().then(() => location.href='index.html')" style="background:transparent; border:1px solid #ff4444; color:#ff4444; padding:10px; border-radius:8px; cursor:pointer; font-size:13px;">
                             LOGOUT AKUN
