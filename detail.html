@@ -5,66 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Info Komik | DebutCMC</title>
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
-        .detail-header { padding: 40px 5%; display: flex; gap: 30px; background: linear-gradient(180deg, #161a21 0%, #0b0e14 100%); }
-        .cover-big { width: 200px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,255,136,0.2); }
-        .info-text h1 { color: #00ff88; margin-bottom: 10px; }
-        .synopsis { color: #8b949e; line-height: 1.6; max-width: 600px; }
+        .detail-header { 
+            padding: 40px 5%; 
+            display: flex; 
+            gap: 30px; 
+            background: linear-gradient(180deg, #161a21 0%, #0b0e14 100%); 
+            flex-wrap: wrap; /* Supaya rapi di HP */
+        }
+        .cover-big { 
+            width: 200px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 30px rgba(0,255,136,0.2); 
+            object-fit: cover;
+            aspect-ratio: 3/4;
+        }
+        .info-text h1 { color: #00ff88; margin-bottom: 10px; font-size: 2rem; }
+        .synopsis { 
+            color: #8b949e; 
+            line-height: 1.6; 
+            max-width: 600px; 
+            margin-top: 15px;
+            white-space: pre-line; /* Agar enter di sinopsis terbaca */
+        }
         
         .chapter-list { padding: 20px 5%; }
         .chapter-item { 
             display: flex; justify-content: space-between; align-items: center;
             background: #161a21; padding: 15px 20px; border-radius: 10px;
             margin-bottom: 10px; text-decoration: none; color: white;
-            border: 1px solid transparent; transition: 0.3s;
+            border: 1px solid #30363d; transition: 0.3s;
         }
-        .chapter-item:hover { border-color: #00ff88; background: #1c2129; }
-        .btn-read { background: #00ff88; color: #0b0e14; padding: 10px 20px; border-radius: 5px; font-weight: bold; }
+        .chapter-item:hover { border-color: #00ff88; background: #1c2129; transform: translateX(5px); }
+        .btn-read { background: #00ff88; color: #0b0e14; padding: 8px 18px; border-radius: 5px; font-weight: bold; font-size: 14px; }
+        
+        @media (max-width: 600px) {
+            .detail-header { justify-content: center; text-align: center; }
+            .info-text { display: flex; flex-direction: column; align-items: center; }
+        }
     </style>
 </head>
 <body>
 
+    <div style="padding: 15px 5%; background: #161a21;">
+        <a href="index.html" style="color: #00ff88; text-decoration: none;">
+            <i class="fa-solid fa-arrow-left"></i> Kembali ke Beranda
+        </a>
+    </div>
+
     <div class="detail-header">
-        <img id="comic-cover" src="" alt="Cover" class="cover-big">
+        <img id="comic-cover" src="img/placeholder.jpg" alt="Cover" class="cover-big">
         <div class="info-text">
-            <h1 id="comic-title">Loading...</h1>
-            <p id="comic-genre" style="color:#00ff88; font-weight:bold;"></p>
-            <p class="synopsis">Ini adalah sinopsis singkat tentang petualangan hebat di dunia DebutCMC. Ikuti terus kisahnya!</p>
+            <h1 id="comic-title">Memuat...</h1>
+            <p id="comic-genre" style="color:#00ff88; font-weight:bold; text-transform: uppercase;"></p>
+            <p id="comic-summary" class="synopsis">Sedang mengambil sinopsis karya...</p>
         </div>
     </div>
 
     <div class="chapter-list">
-        <h3 style="margin-bottom: 20px;">Daftar Chapter</h3>
+        <h3 style="margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-layer-group"></i> Daftar Chapter
+        </h3>
         <div id="chapters-container">
-            </div>
+            <p style="color: gray;">Mencari chapter terbaru...</p>
+        </div>
     </div>
 
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('id');
-        const container = document.getElementById('chapters-container');
+    <script type="module" src="js/script.js"></script>
 
-        // Data Simulasi (Nanti bisa dari Database)
-        const dataKomik = {
-            '1': { title: "A Spell for a Smith", genre: "FANTASY", cover: "https://picsum.photos/seed/manga1/300/400", chapters: 3 },
-            '2': { title: "Cyber Code", genre: "ACTION", cover: "https://picsum.photos/seed/manga2/300/400", chapters: 5 }
-        };
-
-        const komik = dataKomik[id];
-        if (komik) {
-            document.getElementById('comic-title').innerText = komik.title;
-            document.getElementById('comic-genre').innerText = komik.genre;
-            document.getElementById('comic-cover').src = komik.cover;
-
-            for (let i = 1; i <= komik.chapters; i++) {
-                container.innerHTML += `
-                    <a href="viewer.html?id=${id}&ch=${i}" class="chapter-item">
-                        <span>Chapter ${i}</span>
-                        <span class="btn-read">BACA</span>
-                    </a>
-                `;
-            }
-        }
-    </script>
 </body>
 </html>
