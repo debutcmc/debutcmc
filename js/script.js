@@ -45,21 +45,14 @@ onAuthStateChanged(auth, async (user) => {
     const ch = urlParams.get('ch');
     const uid = urlParams.get('uid');
     
-    // Cek jika di halaman index (Beranda)
     if (path.includes('index.html') || path.endsWith('/')) {
         loadHome();
-    } 
-    // Halaman Detail Komik
-    else if (path.includes('detail.html')) {
+    } else if (path.includes('detail.html')) {
         loadDetail(id);
-    } 
-    // Halaman Baca (Viewer)
-    else if (path.includes('viewer.html')) {
+    } else if (path.includes('viewer.html')) {
         loadViewer(id, ch);
-    } 
-    // Halaman Profil User
-    else if (path.includes('profile.html')) {
-        loadProfile(uid);
+    } else if (path.includes('profile.html')) {
+        loadProfile(uid || user?.uid); // Jika uid kosong, buka profil sendiri
     }
 });
 
@@ -82,12 +75,11 @@ async function loadHome() {
 
         snap.forEach(d => {
             const data = d.data();
-            // FILTER STATUS DIHAPUS agar semua komik Bapak muncul
             grid.innerHTML += `
                 <a href="detail.html?id=${d.id}" class="comic-card" style="text-decoration:none; color:inherit;">
-                    <div style="position:relative;">
-                        <img src="${data.coverUrl}" loading="lazy" style="width:100%; border-radius:8px; aspect-ratio:3/4; object-fit:cover;">
-                        <span style="position:absolute; top:8px; right:8px; background:#00ff88; color:#000; font-size:10px; padding:2px 8px; font-weight:bold; border-radius:4px;">
+                    <div style="position:relative; overflow:hidden; border-radius:8px;">
+                        <img src="${data.coverUrl}" loading="lazy" style="width:100%; aspect-ratio:3/4; object-fit:cover; transition:0.3s;" class="hover-zoom">
+                        <span style="position:absolute; top:8px; right:8px; background:#00ff88; color:#000; font-size:10px; padding:2px 8px; font-weight:bold; border-radius:4px; z-index:2;">
                             ${data.statusSeries || 'NEW'}
                         </span>
                     </div>
@@ -109,7 +101,6 @@ async function loadDetail(id) {
         if (snap.exists()) {
             const data = snap.data();
             
-            // Update UI Detail (Pastikan ID ini ada di detail.html)
             if(document.getElementById('comic-title')) document.getElementById('comic-title').innerText = data.title;
             if(document.getElementById('comic-genre')) document.getElementById('comic-genre').innerText = data.genre;
             if(document.getElementById('comic-cover')) document.getElementById('comic-cover').src = data.coverUrl;
@@ -131,7 +122,10 @@ async function loadDetail(id) {
                     const chData = c.data();
                     container.innerHTML += `
                         <a href="viewer.html?id=${id}&ch=${c.id}" class="chapter-item" style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #2d333b; text-decoration:none; color:white;">
-                            <span>${chData.chapterTitle}</span>
+                            <div>
+                                <span style="display:block;">${chData.chapterTitle}</span>
+                                <small style="color:gray; font-size:10px;">${new Date(chData.createdAt?.toDate()).toLocaleDateString('id-ID')}</small>
+                            </div>
                             <span class="btn-read" style="background:#00ff88; color:#000; padding:4px 12px; border-radius:4px; font-size:12px; font-weight:bold;">BACA</span>
                         </a>`;
                 });
@@ -149,12 +143,12 @@ async function loadViewer(id, chId) {
         const snap = await getDoc(doc(db, "chapters", chId));
         if (snap.exists()) {
             const data = snap.data();
-            const titleEl = document.getElementById('comic-title');
+            const titleEl = document.getElementById('chapter-title-display'); // Ganti ID agar tidak bentrok dengan judul komik
             if(titleEl) titleEl.innerText = data.chapterTitle;
 
             const images = data.images || [];
             viewer.innerHTML = images.map(img => `
-                <img src="${img}" class="manga-page" style="width:100%; display:block; margin-bottom:2px;">
+                <img src="${img}" class="manga-page" style="width:100%; display:block; margin-bottom:2px;" onerror="this.src='img/error-image.jpg'">
             `).join('');
         }
     } catch (e) { console.error("Error Viewer:", e); }
@@ -171,16 +165,27 @@ async function loadProfile(uid) {
         const isOwner = auth.currentUser?.uid === uid;
 
         container.innerHTML = `
-            <div style="text-align:center; color:white; padding:20px;">
-                <img src="${data?.photoURL || 'https://via.placeholder.com/100'}" style="width:100px; height:100px; border-radius:50%; border:3px solid #00ff88; object-fit:cover;">
-                <h2 style="margin:15px 0 5px 0;">${data?.displayName || 'User'}</h2>
-                <p style="background:#161a21; padding:15px; border-radius:10px; color:#8b949e; font-size:14px;">
-                    ${data?.bio || "Halo! Saya pembaca di DebutCMC."}
-                </p>
+            <div style="text-align:center; color:white; padding:20px; max-width:500px; margin:0 auto;">
+                <img src="${data?.photoURL || 'https://via.placeholder.com/100'}" style="width:100px; height:100px; border-radius:50%; border:3px solid #00ff88; object-fit:cover; margin-bottom:10px;">
+                <h2 style="margin:0;">${data?.displayName || 'User'}</h2>
+                <p style="color:#00ff88; font-size:12px; margin-bottom:20px;">@${uid.substring(0,6)}</p>
+                
+                <div style="background:#161a21; padding:20px; border-radius:12px; border:1px solid #2d333b; text-align:left;">
+                    <h4 style="margin:0 0 10px 0; font-size:13px; color:gray; text-transform:uppercase;">Bio Kreator</h4>
+                    <p style="color:#e6edf3; font-size:14px; line-height:1.6;">
+                        ${data?.bio || "Halo! Saya pembaca di DebutCMC."}
+                    </p>
+                </div>
+
                 ${isOwner ? `
-                    <button onclick="location.href='dashboard.html'" style="background:#00ff88; border:none; padding:12px 20px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; margin-top:10px;">
-                        <i class="fa-solid fa-gauge"></i> DASHBOARD AUTHOR
-                    </button>
+                    <div style="margin-top:20px; display:grid; gap:10px;">
+                        <button onclick="location.href='dashboard.html'" style="background:#00ff88; border:none; padding:15px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; gap:10px;">
+                            <i class="fa-solid fa-gauge-high"></i> MASUK CREATOR CENTER
+                        </button>
+                        <button onclick="auth.signOut().then(() => location.href='index.html')" style="background:transparent; border:1px solid #ff4444; color:#ff4444; padding:10px; border-radius:8px; cursor:pointer; font-size:13px;">
+                            LOGOUT AKUN
+                        </button>
+                    </div>
                 ` : ''}
             </div>`;
     } catch (e) { console.error("Error Profile:", e); }
