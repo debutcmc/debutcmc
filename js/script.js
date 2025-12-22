@@ -76,7 +76,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- 4. LOAD HOME (EDITED: PRO LOOK) ---
+// --- 4. LOAD HOME (REVISI: TAG STATUS DIPERKECIL & RAPI) ---
 async function loadHome() {
     const grid = document.getElementById('comic-list');
     if (!grid) return;
@@ -96,21 +96,48 @@ async function loadHome() {
             const coverImg = data.coverUrl || data.cover || PLACEHOLDER_IMAGE;
             const title = data.title || "Untitled";
             
-            // Tampilan diperbarui: Tulisan lebih besar, layout lebih rapi
             grid.innerHTML += `
-                <a href="detail.html?id=${d.id}" class="comic-card" style="text-decoration:none;">
-                    <div class="img-container" style="position:relative; width:100%; aspect-ratio:3/4; border-radius:12px; overflow:hidden; border:1px solid #2d333b;">
+                <a href="detail.html?id=${d.id}" class="comic-card" style="text-decoration:none; display:block;">
+                    <div class="img-container" style="position:relative; width:100%; aspect-ratio:3/4; border-radius:8px; overflow:hidden; border:1px solid #2d333b;">
                         <img src="${coverImg}" loading="lazy" onerror="this.src='${PLACEHOLDER_IMAGE}'" style="width:100%; height:100%; object-fit:cover;">
-                        <span class="card-tag" style="position:absolute; bottom:10px; left:10px; background:#00ff88; color:black; font-size:10px; font-weight:bold; padding:3px 8px; border-radius:4px; text-transform:uppercase;">
+                        
+                        <span class="card-tag" style="
+                            position:absolute; 
+                            top:6px; 
+                            right:6px; 
+                            background:rgba(0, 255, 136, 0.9); 
+                            color:black; 
+                            font-size:9px; 
+                            font-weight:800; 
+                            padding:2px 6px; 
+                            border-radius:3px; 
+                            text-transform:uppercase;
+                            letter-spacing: 0.5px;
+                            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                        ">
                             ${data.statusSeries || 'NEW'}
                         </span>
                     </div>
-                    <div class="comic-info" style="padding:10px 5px;">
-                        <div class="comic-title" style="color:white; font-size:18px; font-weight:bold; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+
+                    <div class="comic-info" style="padding:8px 2px;">
+                        <div class="comic-title" style="
+                            color:white; 
+                            font-size:14px; 
+                            font-weight:700; 
+                            margin-bottom:2px; 
+                            display:-webkit-box; 
+                            -webkit-line-clamp:1; 
+                            -webkit-box-orient:vertical; 
+                            overflow:hidden;
+                            line-height:1.2;
+                        ">
                             ${title}
                         </div>
-                        <div class="comic-meta" style="color:#8b949e; font-size:14px; font-weight:500;">
-                            <span style="color:#00ff88;">${data.genre || 'Genre'}</span> • Chapter ${data.lastChapter || '1'}
+                        
+                        <div class="comic-meta" style="color:#8b949e; font-size:11px;">
+                            <span style="color:#00ff88; font-weight:600;">${data.genre || 'Action'}</span> 
+                            <span style="margin: 0 3px; opacity:0.5;">•</span> 
+                            Ch. ${data.lastChapter || '1'}
                         </div>
                     </div>
                 </a>`;
