@@ -76,7 +76,7 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
-// --- 4. LOAD HOME (Disesuaikan dengan CSS Profesional) ---
+// --- 4. LOAD HOME (EDITED: PRO LOOK) ---
 async function loadHome() {
     const grid = document.getElementById('comic-list');
     if (!grid) return;
@@ -96,15 +96,23 @@ async function loadHome() {
             const coverImg = data.coverUrl || data.cover || PLACEHOLDER_IMAGE;
             const title = data.title || "Untitled";
             
-            // Menggunakan template literal yang sesuai dengan class CSS baru
+            // Tampilan diperbarui: Tulisan lebih besar, layout lebih rapi
             grid.innerHTML += `
-                <a href="detail.html?id=${d.id}" class="comic-card">
-                    <div class="img-container">
-                        <img src="${coverImg}" loading="lazy" onerror="this.src='${PLACEHOLDER_IMAGE}'">
-                        <span class="card-tag">${data.statusSeries || 'NEW'}</span>
+                <a href="detail.html?id=${d.id}" class="comic-card" style="text-decoration:none;">
+                    <div class="img-container" style="position:relative; width:100%; aspect-ratio:3/4; border-radius:12px; overflow:hidden; border:1px solid #2d333b;">
+                        <img src="${coverImg}" loading="lazy" onerror="this.src='${PLACEHOLDER_IMAGE}'" style="width:100%; height:100%; object-fit:cover;">
+                        <span class="card-tag" style="position:absolute; bottom:10px; left:10px; background:#00ff88; color:black; font-size:10px; font-weight:bold; padding:3px 8px; border-radius:4px; text-transform:uppercase;">
+                            ${data.statusSeries || 'NEW'}
+                        </span>
                     </div>
-                    <div class="comic-title">${title}</div>
-                    <div class="comic-meta">${data.genre || 'Action'} • Ch. ${data.lastChapter || '1'}</div>
+                    <div class="comic-info" style="padding:10px 5px;">
+                        <div class="comic-title" style="color:white; font-size:18px; font-weight:bold; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                            ${title}
+                        </div>
+                        <div class="comic-meta" style="color:#8b949e; font-size:14px; font-weight:500;">
+                            <span style="color:#00ff88;">${data.genre || 'Genre'}</span> • Chapter ${data.lastChapter || '1'}
+                        </div>
+                    </div>
                 </a>`;
         });
     } catch (e) { 
@@ -122,7 +130,6 @@ async function loadDetail(id) {
             const data = snap.data();
             document.title = `${data.title} | DebutCMC`;
             
-            // Map data ke elemen UI
             const elements = {
                 'comic-title': data.title,
                 'comic-genre': data.genre,
@@ -137,7 +144,6 @@ async function loadDetail(id) {
             const elCover = document.getElementById('comic-cover');
             if (elCover) elCover.src = data.coverUrl || data.cover || PLACEHOLDER_IMAGE;
 
-            // Load Chapters
             const qCh = query(collection(db, "chapters"), where("comicId", "==", id), orderBy("createdAt", "desc"));
             const cSnap = await getDocs(qCh);
             const container = document.getElementById('chapters-container');
