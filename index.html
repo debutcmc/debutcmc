@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DebutCMC - Official Site</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --primary: #00ff88;
@@ -68,9 +70,10 @@
         .nav-links a {
             text-decoration: none;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             transition: 0.3s;
+            text-transform: uppercase;
         }
 
         .nav-links a:hover { color: var(--primary); }
@@ -90,6 +93,7 @@
                 border-bottom: 1px solid var(--border);
                 display: none;
                 overflow: hidden;
+                box-shadow: 0 10px 15px rgba(0,0,0,0.5);
             }
             .nav-links.active { display: flex; }
             .nav-links li { width: 100%; border-bottom: 1px solid var(--border); }
@@ -97,15 +101,16 @@
             #auth-section { padding: 15px 20px; }
         }
 
-        /* --- COMIC GRID (Sesuai Layout QA) --- */
+        /* --- COMIC GRID --- */
         .home-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .section-title { 
-            font-size: 1.1rem; 
-            margin: 20px 0; 
+            font-size: 1rem; 
+            margin: 25px 0 15px; 
             letter-spacing: 1px; 
             border-left: 4px solid var(--primary); 
             padding-left: 10px; 
             text-transform: uppercase;
+            font-weight: 800;
         }
 
         .comic-grid {
@@ -115,48 +120,57 @@
         }
 
         @media (max-width: 1024px) { .comic-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 768px) { .comic-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
         @media (max-width: 480px) { .comic-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
 
-        /* Style Kartu Komik (Dynamic) */
+        /* Style Kartu Komik (Pastikan class ini sesuai dengan script.js) */
         .comic-card {
             background: var(--card);
             border-radius: 8px;
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.2s, box-shadow 0.2s;
             text-decoration: none;
             color: white;
             display: block;
+            border: 1px solid transparent;
         }
 
-        .comic-card:hover { transform: translateY(-5px); }
+        .comic-card:hover { 
+            transform: translateY(-5px); 
+            border-color: var(--primary);
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.1);
+        }
 
-        .img-container { position: relative; width: 100%; aspect-ratio: 3/4; background: #222; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .img-container { position: relative; width: 100%; aspect-ratio: 3/4; background: #222; overflow: hidden; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
+        .comic-card:hover img { transform: scale(1.05); }
         
         .card-tag {
-            position: absolute; top: 5px; right: 5px;
+            position: absolute; top: 6px; right: 6px;
             background: var(--primary); color: black;
-            font-size: 9px; font-weight: bold; padding: 2px 6px; border-radius: 4px;
+            font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px;
+            z-index: 10;
         }
 
-        .comic-info { padding: 8px; }
+        .comic-info { padding: 10px 8px; }
         .comic-title {
-            font-size: 11px; font-weight: bold; margin: 0;
+            font-size: 12px; font-weight: 600; margin: 0 0 4px 0;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            color: #fff;
         }
-        .comic-genre { font-size: 9px; color: var(--text-dim); }
+        .comic-meta { font-size: 10px; color: var(--text-dim); }
 
         /* --- BANNER --- */
         .promo-banner {
             width: 100%;
-            min-height: 150px;
-            background: linear-gradient(45deg, #161a21, #00ff8822);
+            min-height: 120px;
+            background: linear-gradient(135deg, #161a21 0%, #00ff8811 100%);
             border: 1px solid var(--border);
             border-radius: 12px;
             display: flex;
             align-items: center;
-            padding: 20px;
-            margin-bottom: 25px;
+            padding: 25px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -169,7 +183,7 @@
                 <h1 class="logo-text">Debut<span>CMC</span></h1>
             </a>
             
-            <button class="hamburger" id="hamburger-btn">
+            <button class="hamburger" id="hamburger-btn" aria-label="Menu">
                 <i class="fa-solid fa-bars"></i>
             </button>
 
@@ -187,29 +201,31 @@
     <main class="home-container">
         <section class="promo-banner">
             <div class="promo-text">
-                <h2 style="margin:0; color: var(--primary);">Rilis Baru</h2>
-                <p style="font-size: 13px; color: #ccc;">Jelajahi petualangan tanpa batas setiap hari.</p>
+                <h2 style="margin:0 0 5px 0; color: var(--primary); font-size: 1.4rem;">Rilis Baru</h2>
+                <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Update series terbaru setiap hari jam 20:00 WIB.</p>
             </div>
         </section>
 
         <h2 class="section-title">Series Pilihan</h2>
         
         <div class="comic-grid" id="comic-list">
-            <p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 50px 0;">
-                Menghubungkan ke server...
-            </p>
+            <div style="grid-column: 1/-1; text-align: center; padding: 80px 0;">
+                <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px;"></i>
+                <p style="color: var(--text-dim); font-size: 14px;">Menghubungkan ke server...</p>
+            </div>
         </div>
     </main>
 
-    <script type="module" src="js/script.js"></script>
+    <script type="module" src="script.js"></script>
 
     <script>
-        // Logika Hamburger Menu (Lokal untuk UI)
+        // Logika Hamburger Menu
         const hbBtn = document.getElementById('hamburger-btn');
         const navMenu = document.getElementById('nav-menu');
         const icon = hbBtn.querySelector('i');
 
-        hbBtn.addEventListener('click', () => {
+        hbBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
             navMenu.classList.toggle('active');
             if(navMenu.classList.contains('active')) {
                 icon.classList.replace('fa-bars', 'fa-xmark');
@@ -219,11 +235,9 @@
         });
 
         // Tutup menu saat klik di luar
-        document.addEventListener('click', (e) => {
-            if(!hbBtn.contains(e.target) && !navMenu.contains(e.target)) {
-                navMenu.classList.remove('active');
-                icon.classList.replace('fa-xmark', 'fa-bars');
-            }
+        document.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            icon.classList.replace('fa-xmark', 'fa-bars');
         });
     </script>
 </body>
