@@ -20,14 +20,18 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// Gambar cadangan jika coverUrl di database kosong atau rusak
+const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/300x400?text=No+Image';
+
 // --- 1. LOGIKA AUTH & SYNC ---
 window.loginGoogle = async () => {
     try { 
         const result = await signInWithPopup(auth, provider);
-        await syncUserData(result.user); // Simpan ke database setelah login
+        await syncUserData(result.user);
         location.reload(); 
     } catch (e) { 
-        console.error("Login Gagal:", e); 
+        console.error("Login Gagal:", e);
+        alert("Gagal login: " + e.message);
     }
 };
 
@@ -40,7 +44,7 @@ async function syncUserData(user) {
             photoURL: user.photoURL,
             email: user.email,
             bio: "Halo! Saya pembaca di DebutCMC.",
-            role: "reader", // Default role
+            role: "reader",
             joinedAt: serverTimestamp()
         });
     }
@@ -48,12 +52,11 @@ async function syncUserData(user) {
 
 // --- 2. ROUTING OTOMATIS ---
 onAuthStateChanged(auth, async (user) => {
-    // Tampilkan Avatar di Navbar
     const section = document.getElementById('auth-section');
     if (section) {
         section.innerHTML = user ? 
             `<img src="${user.photoURL}" onclick="location.href='profile.html?uid=${user.uid}'" style="width:35px; height:35px; border-radius:50%; border:2px solid #00ff88; cursor:pointer; object-fit:cover;">` :
-            `<button onclick="loginGoogle()" style="background:#00ff88; border:none; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">LOGIN</button>`;
+            `<button onclick="loginGoogle()" class="btn-login">SIGN IN</button>`;
     }
 
     const path = window.location.pathname;
@@ -62,13 +65,14 @@ onAuthStateChanged(auth, async (user) => {
     const ch = urlParams.get('ch');
     const uid = urlParams.get('uid');
 
-    if (path.includes('index.html') || path.endsWith('/')) loadHome();
+    // Routing Logic
+    if (path === '/' || path.includes('index.html')) loadHome();
     else if (path.includes('detail.html')) loadDetail(id);
     else if (path.includes('viewer.html') || path.includes('reader.html')) loadViewer(id, ch);
     else if (path.includes('profile.html')) loadProfile(uid || user?.uid);
 });
 
-// --- 3. LOAD HOME ---
+// --- 3. LOAD HOME (DAFTAR KOMIK) ---
 async function loadHome() {
     const grid = document.getElementById('comic-list');
     if (!grid) return;
@@ -79,23 +83,31 @@ async function loadHome() {
         grid.innerHTML = "";
 
         if (snap.empty) {
-            grid.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:gray;'>Belum ada komik tersedia.</p>";
+            grid.innerHTML = "<p class='empty-msg'>Belum ada komik tersedia.</p>";
             return;
         }
 
         snap.forEach(d => {
             const data = d.data();
+            // Perbaikan: Cek field 'coverUrl' atau 'cover' agar tidak broken
+            const coverImg = data.coverUrl || data.cover || PLACEHOLDER_IMAGE;
+            
             grid.innerHTML += `
                 <a href="detail.html?id=${d.id}" class="comic-card">
                     <div class="img-container">
-                        <img src="${data.coverUrl}" loading="lazy">
+                        <img src="${coverImg}" 
+                             loading="lazy" 
+                             onerror="this.src='${PLACEHOLDER_IMAGE}'">
                         <span class="card-tag">${data.statusSeries || 'NEW'}</span>
                     </div>
-                    <div class="comic-title">${data.title}</div>
-                    <div class="comic-meta">${data.genre || 'Manga'}</div>
+                    <div class="comic-title">${data.title || 'Untitled'}</div>
+                    <div class="comic-meta">${data.genre || 'Action'}</div>
                 </a>`;
         });
-    } catch (e) { console.error("Error Home:", e); }
+    } catch (e) { 
+        console.error("Error Home:", e);
+        grid.innerHTML = `<p style="color:red;">Error: Gagal memuat data.</p>`;
+    }
 }
 
 // --- 4. LOAD DETAIL ---
@@ -107,18 +119,15 @@ async function loadDetail(id) {
             const data = snap.data();
             document.title = `${data.title} | DebutCMC`;
             
-            // Mapping elemen UI
-            const el = {
-                title: document.getElementById('comic-title'),
-                genre: document.getElementById('comic-genre'),
-                cover: document.getElementById('comic-cover'),
-                summary: document.getElementById('comic-summary')
-            };
+            const elTitle = document.getElementById('comic-title');
+            const elCover = document.getElementById('comic-cover');
+            const elGenre = document.getElementById('comic-genre');
+            const elSummary = document.getElementById('comic-summary');
 
-            if (el.title) el.title.innerText = data.title;
-            if (el.genre) el.genre.innerText = data.genre;
-            if (el.cover) el.cover.src = data.coverUrl;
-            if (el.summary) el.summary.innerText = data.summary || "Sinopsis belum tersedia.";
+            if (elTitle) elTitle.innerText = data.title;
+            if (elGenre) elGenre.innerText = data.genre;
+            if (elCover) elCover.src = data.coverUrl || data.cover || PLACEHOLDER_IMAGE;
+            if (elSummary) elSummary.innerText = data.summary || "Sinopsis belum tersedia.";
 
             // Load Chapters
             const qCh = query(collection(db, "chapters"), where("comicId", "==", id), orderBy("createdAt", "desc"));
@@ -129,11 +138,11 @@ async function loadDetail(id) {
                 container.innerHTML = cSnap.empty ? "<p style='color:gray; padding:20px;'>Belum ada chapter.</p>" : "";
                 cSnap.forEach(c => {
                     const ch = c.data();
-                    const date = ch.createdAt?.toDate() ? ch.createdAt.toDate().toLocaleDateString('id-ID') : "Baru saja";
+                    const date = ch.createdAt?.toDate() ? ch.createdAt.toDate().toLocaleDateString('id-ID') : "Baru";
                     container.innerHTML += `
                         <a href="viewer.html?id=${id}&ch=${c.id}" class="chapter-item">
-                            <div>
-                                <span>${ch.chapterTitle}</span>
+                            <div class="ch-info">
+                                <span>${ch.chapterTitle || 'Chapter Baru'}</span>
                                 <small>${date}</small>
                             </div>
                             <span class="btn-read">BACA</span>
@@ -144,11 +153,13 @@ async function loadDetail(id) {
     } catch (e) { console.error("Error Detail:", e); }
 }
 
-// --- 5. LOAD VIEWER ---
+// --- 5. LOAD VIEWER (READER) ---
 async function loadViewer(id, chId) {
     const viewer = document.getElementById('manga-viewer');
     const titleDisplay = document.getElementById('chapter-title-display');
     if (!viewer || !chId) return;
+
+    viewer.innerHTML = "<p>Memuat halaman...</p>";
 
     try {
         const snap = await getDoc(doc(db, "chapters", chId));
@@ -157,15 +168,22 @@ async function loadViewer(id, chId) {
             if (titleDisplay) titleDisplay.innerText = data.chapterTitle;
 
             const images = data.images || [];
+            if (images.length === 0) {
+                viewer.innerHTML = "<p>Tidak ada gambar di chapter ini.</p>";
+                return;
+            }
+
             viewer.innerHTML = images.map(img => `
                 <img src="${img}" class="manga-page" loading="lazy" 
-                     onerror="this.src='https://via.placeholder.com/800x1200?text=Gagal+Memuat'">
+                     onerror="this.src='https://via.placeholder.com/800x1200?text=Gambar+Rusak'">
             `).join('');
             
-            // Auto scroll ke atas saat ganti chapter
             window.scrollTo(0,0);
         }
-    } catch (e) { console.error("Error Viewer:", e); }
+    } catch (e) { 
+        console.error("Error Viewer:", e);
+        viewer.innerHTML = "<p>Gagal memuat chapter.</p>";
+    }
 }
 
 // --- 6. LOAD PROFILE ---
@@ -175,26 +193,29 @@ async function loadProfile(uid) {
 
     try {
         const snap = await getDoc(doc(db, "users", uid));
-        if (!snap.exists()) return;
+        if (!snap.exists()) {
+            container.innerHTML = "<p>User tidak ditemukan.</p>";
+            return;
+        }
         
         const data = snap.data();
         const isOwner = auth.currentUser?.uid === uid;
 
         container.innerHTML = `
             <div class="profile-header">
-                <img src="${data.photoURL}" class="profile-avatar">
-                <h2>${data.displayName}</h2>
+                <img src="${data.photoURL || 'https://via.placeholder.com/100'}" class="profile-avatar">
+                <h2>${data.displayName || 'User'}</h2>
                 <p class="uid-tag">ID: ${uid.substring(0,8)}</p>
                 
                 <div class="bio-box">
                     <label>BIO</label>
-                    <p>${data.bio || "Belum ada bio."}</p>
+                    <p>${data.bio || "Halo! Saya pembaca di DebutCMC."}</p>
                 </div>
 
                 ${isOwner ? `
                     <div class="profile-actions">
-                        <button onclick="location.href='dashboard.html'" class="btn-dash">DASHBOARD KREATOR</button>
-                        <button onclick="auth.signOut().then(()=>location.href='index.html')" class="btn-logout">LOGOUT</button>
+                        <button onclick="location.href='dashboard.html'" class="btn-dash">DASHBOARD</button>
+                        <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">LOGOUT</button>
                     </div>
                 ` : ''}
             </div>`;
