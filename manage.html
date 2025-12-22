@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Series Manager | DebutCMC</title>
+    <title>Series Manager | DebutCMC</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -12,27 +12,25 @@
             --bg: #0b0e14; 
             --card: #161a21; 
             --border: #2d333b; 
-            --accent: #3d5afe; 
-            --danger: #ff4444; 
             --sidebar-w: 260px;
+            --danger: #ff4444;
         }
 
         body { 
             background: var(--bg); 
-            color: #e6edf3; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            display: flex; /* Untuk Sidebar Layout */
+            display: flex; 
+            color: #e6edf3;
+            margin: 0;
         }
 
-        /* --- SIDEBAR HAMBURGER --- */
+        /* --- SIDEBAR CUSTOMIZATION --- */
         .sidebar {
             width: var(--sidebar-w);
             background: var(--card);
             border-right: 1px solid var(--border);
             height: 100vh;
             position: fixed;
-            left: -260px; /* Hidden by default di mobile */
+            left: -260px;
             transition: 0.3s ease;
             z-index: 1000;
             display: flex;
@@ -42,7 +40,7 @@
         .sidebar.active { left: 0; }
 
         .sidebar-header {
-            padding: 25px;
+            padding: 20px;
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
@@ -55,8 +53,10 @@
             padding: 12px 15px; color: #8b949e;
             text-decoration: none; border-radius: 8px;
             margin-bottom: 5px; transition: 0.2s;
+            font-size: 14px;
+            font-weight: 600;
         }
-        .menu-item:hover, .menu-item.active { background: #ffffff05; color: var(--primary); }
+        .menu-item:hover, .menu-item.active { background: rgba(0, 255, 136, 0.05); color: var(--primary); }
 
         /* --- MAIN CONTENT AREA --- */
         .main-wrapper {
@@ -67,63 +67,69 @@
         }
 
         .top-nav { 
-            background: rgba(22, 26, 33, 0.9); 
+            background: rgba(22, 26, 33, 0.95); 
             backdrop-filter: blur(10px); 
             position: sticky; 
             top: 0; z-index: 900; 
-            padding: 12px 30px; 
+            padding: 12px 25px; 
             border-bottom: 1px solid var(--border); 
             display: flex; align-items: center; justify-content: space-between; 
         }
 
-        .hamburger {
-            font-size: 20px; cursor: pointer; color: var(--primary);
-            background: rgba(0, 255, 136, 0.1);
-            padding: 8px 12px; border-radius: 6px;
+        /* --- DASHBOARD ELEMENTS --- */
+        .manage-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 15px; 
+            margin-bottom: 30px; 
         }
-
-        /* --- CONTENT GRID --- */
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         
-        .main-grid { display: grid; grid-template-columns: 1fr 380px; gap: 25px; }
-        
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .stat-box { 
-            background: var(--card); border: 1px solid var(--border); 
-            padding: 15px; border-radius: 12px; text-align: center; 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            padding: 15px; 
+            border-radius: 12px; 
+            text-align: center; 
         }
-        .stat-value { display: block; font-size: 20px; font-weight: 800; color: white; }
-        .stat-label { font-size: 10px; color: #8b949e; text-transform: uppercase; }
+        .stat-value { display: block; font-size: 22px; font-weight: 800; color: #fff; }
+        .stat-label { font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Form Controls */
-        .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 25px; }
+        .card { 
+            background: var(--card); 
+            border: 1px solid var(--border); 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+        }
+
+        /* --- FORM CONTROLS --- */
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 11px; font-weight: 700; color: #8b949e; margin-bottom: 6px; text-transform: uppercase; }
-        input, select, textarea { 
-            width: 100%; padding: 10px; background: #0d1117; 
-            border: 1px solid var(--border); color: white; border-radius: 6px; 
-            font-size: 13px; box-sizing: border-box;
+        label { display: block; font-size: 11px; font-weight: 800; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; }
+        input, textarea { 
+            width: 100%; padding: 12px; background: #0b0e14; 
+            border: 1px solid var(--border); color: white; border-radius: 8px; 
+            font-size: 14px; transition: 0.3s;
         }
+        input:focus { border-color: var(--primary); outline: none; }
 
-        .btn { padding: 10px 18px; border-radius: 6px; font-weight: bold; cursor: pointer; border: none; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; }
-        .btn-primary { background: var(--primary); color: #0b0e14; }
-        .btn-accent { background: var(--accent); color: white; }
+        .btn-manage { 
+            padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; 
+            border: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+        }
+        .btn-save { background: var(--primary); color: #0b0e14; }
+        .btn-save:hover { opacity: 0.9; transform: translateY(-2px); }
 
-        /* Responsive */
+        /* Responsive Desktop */
         @media (min-width: 1100px) {
             .sidebar { left: 0; }
             .main-wrapper { margin-left: var(--sidebar-w); }
-            .hamburger { display: none; }
+            .hamburger-trigger { display: none; }
         }
 
-        @media (max-width: 1100px) {
-            .main-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        /* Overlay */
         .sidebar-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
             display: none; z-index: 950;
         }
         .sidebar-overlay.active { display: block; }
@@ -135,98 +141,100 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3 style="margin:0; color:var(--primary);">Debut<span>CMC</span></h3>
-            <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="cursor:pointer; display:block;" class="desktop-hide"></i>
+            <div class="logo-text" style="font-size: 20px;">DEBUT<span>CMC</span></div>
+            <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="cursor:pointer; color:#8b949e;" class="hamburger-trigger"></i>
         </div>
         <nav class="sidebar-menu">
-            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-house"></i> Dashboard</a>
-            <a href="#" class="menu-item active"><i class="fa-solid fa-pen-to-square"></i> Edit Series</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-chart-simple"></i> Analytics</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-comments"></i> Komentar</a>
+            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+            <a href="#" class="menu-item active"><i class="fa-solid fa-book"></i> Edit Series</a>
+            <a href="#" class="menu-item"><i class="fa-solid fa-chart-line"></i> Statistik</a>
             <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
-            <a href="#" class="menu-item" style="color:var(--danger);"><i class="fa-solid fa-power-off"></i> Keluar</a>
+            <a href="index.html" class="menu-item"><i class="fa-solid fa-arrow-left"></i> Kembali ke Home</a>
         </nav>
     </aside>
 
     <div class="main-wrapper">
         <header class="top-nav">
             <div style="display:flex; align-items:center; gap:15px;">
-                <div class="hamburger" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
-                <h2 id="display-title" style="margin:0; font-size: 18px;">Series Editor</h2>
+                <div class="hamburger-trigger" onclick="toggleSidebar()" style="cursor:pointer; color:var(--primary); font-size:20px;">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </div>
+                <h2 id="display-title" style="margin:0; font-size: 16px; font-weight: 800;">EDITOR SERIES</h2>
             </div>
-            <div style="display: flex; gap: 8px;">
-                <button class="btn btn-primary" id="btn-update-series"><i class="fa-solid fa-floppy-disk"></i> SIMPAN</button>
-            </div>
+            <button class="btn-manage btn-save" id="btn-update-series">
+                <i class="fa-solid fa-check-double"></i> SIMPAN PERUBAHAN
+            </button>
         </header>
 
-        <div class="container">
+        <div class="manage-container">
             <div class="stats-grid">
                 <div class="stat-box"><span class="stat-value" id="stat-views">0</span><span class="stat-label">Views</span></div>
-                <div class="stat-box"><span class="stat-value" id="stat-likes">0</span><span class="stat-label">Likes</span></div>
                 <div class="stat-box"><span class="stat-value" id="stat-subs">0</span><span class="stat-label">Subs</span></div>
-                <div class="stat-box"><span class="stat-value" id="stat-comments">0</span><span class="stat-label">Chat</span></div>
+                <div class="stat-box"><span class="stat-value" id="stat-ch">0</span><span class="stat-label">Chapters</span></div>
             </div>
 
-            <div class="main-grid">
-                <div class="left-col">
+            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 25px;" class="editor-layout">
+                <div class="editor-main">
                     <div class="card">
                         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                            <div class="cover-section">
-                                <label>Cover</label>
-                                <div style="position: relative; width: 140px; height: 190px; border: 2px solid var(--border); border-radius: 8px; overflow: hidden;">
-                                    <img id="cover-preview" src="img/placeholder.jpg" style="width:100%; height:100%; object-fit:cover;">
-                                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; cursor:pointer;" onclick="document.getElementById('edit-cover-file').click()">
-                                        <i class="fa-solid fa-camera"></i>
+                            <div class="cover-section" style="text-align: center;">
+                                <label>Cover Poster</label>
+                                <div style="position: relative; width: 140px; height: 190px; border: 2px solid var(--border); border-radius: 12px; overflow: hidden; background: #0b0e14;">
+                                    <img id="cover-preview" src="https://placehold.co/300x400/161a21/00ff88?text=Cover" style="width:100%; height:100%; object-fit:cover;">
+                                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:0.3s;" 
+                                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"
+                                         onclick="document.getElementById('edit-cover-file').click()">
+                                        <i class="fa-solid fa-camera fa-xl"></i>
                                     </div>
                                 </div>
-                                <input type="file" id="edit-cover-file" hidden>
+                                <input type="file" id="edit-cover-file" hidden accept="image/*">
                             </div>
-                            <div style="flex:1; min-width:250px;">
+
+                            <div style="flex:1; min-width:280px;">
                                 <div class="form-group">
                                     <label>Judul Series</label>
-                                    <input type="text" id="edit-title">
+                                    <input type="text" id="edit-title" placeholder="Masukkan judul komik...">
                                 </div>
                                 <div class="form-group">
-                                    <label>Sinopsis</label>
-                                    <textarea id="edit-summary" rows="4"></textarea>
+                                    <label>Sinopsis / Deskripsi</label>
+                                    <textarea id="edit-summary" rows="5" placeholder="Tulis cerita singkat..."></textarea>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <label style="margin-bottom:15px; display:block;">Kolaborasi Tim</label>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                            <input type="text" placeholder="Writer" id="edit-writer">
-                            <input type="text" placeholder="Artist" id="edit-artist">
                         </div>
                     </div>
 
                     <div class="card">
                         <label style="margin-bottom:15px; display:block;">Daftar Chapter</label>
-                        <div id="chapter-list">
-                            <p style="font-size:12px; color:var(--text-dim);">Belum ada chapter.</p>
+                        <div id="chapter-list" style="display: flex; flex-direction: column; gap: 10px;">
+                            <p style="font-size:12px; color:#8b949e; text-align: center; padding: 20px;">Memuat daftar chapter...</p>
                         </div>
                     </div>
                 </div>
 
-                <div class="right-col">
-                    <div class="card" style="border-left: 4px solid var(--accent);">
-                        <h4 style="margin:0 0 15px 0;">Publish Chapter</h4>
+                <div class="editor-side">
+                    <div class="card" style="border-top: 4px solid var(--primary);">
+                        <h4 style="margin:0 0 15px 0; font-size: 14px;">Upload Chapter Baru</h4>
                         <div class="form-group">
-                            <label>Nama Chapter</label>
-                            <input type="text" id="ch-title" placeholder="Contoh: Chapter 01">
+                            <label>Nomor / Judul Chapter</label>
+                            <input type="text" id="ch-title" placeholder="Contoh: Chapter 05">
                         </div>
-                        <div style="border: 2px dashed var(--border); padding: 20px; text-align: center; border-radius: 8px; cursor: pointer;" onclick="document.getElementById('ch-files').click()">
-                            <i class="fa-solid fa-images fa-lg" style="color:var(--primary);"></i>
-                            <p style="font-size:11px; margin-top:10px;">Upload Halaman</p>
-                            <input type="file" id="ch-files" multiple hidden>
+                        <div style="border: 2px dashed var(--border); padding: 30px 15px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s;" 
+                             onmouseover="this.style.borderColor='var(--primary)'"
+                             onmouseout="this.style.borderColor='var(--border)'"
+                             onclick="document.getElementById('ch-files').click()">
+                            <i class="fa-solid fa-cloud-arrow-up fa-2xl" style="color:var(--primary); margin-bottom:10px;"></i>
+                            <p style="font-size:11px; color:#8b949e;">Klik untuk upload gambar halaman (Multiple)</p>
+                            <input type="file" id="ch-files" multiple hidden accept="image/*">
                         </div>
-                        <button class="btn btn-accent" style="width:100%; margin-top:15px;" id="btn-upload-chapter">PUBLISH</button>
+                        <button class="btn-manage btn-save" style="width:100%; margin-top:15px; justify-content: center;" id="btn-upload-chapter">
+                            <i class="fa-solid fa-paper-plane"></i> PUBLISH CHAPTER
+                        </button>
                     </div>
 
-                    <div class="card" style="border: 1px solid #ff444433; background: #ff444405;">
-                        <button class="btn" style="color:var(--danger); font-size:11px; padding:0;" onclick="deleteSeries()">Hapus Series Permanen</button>
+                    <div class="card" style="border: 1px solid rgba(255, 68, 68, 0.2); background: rgba(255, 68, 68, 0.02);">
+                        <button class="btn-manage" style="color:var(--danger); font-size:12px; padding:0; background:none;" onclick="deleteSeries()">
+                            <i class="fa-solid fa-trash-can"></i> Hapus Series Permanen
+                        </button>
                     </div>
                 </div>
             </div>
@@ -239,10 +247,16 @@
             document.getElementById('overlay').classList.toggle('active');
         }
 
-        document.getElementById('edit-privacy').onchange = (e) => {
-            const box = document.getElementById('password-box');
-            if(box) box.style.display = (e.target.value === 'password') ? 'block' : 'none';
-        };
+        // Preview Cover saat upload
+        document.getElementById('edit-cover-file').addEventListener('change', function(e) {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(ex) {
+                    document.getElementById('cover-preview').src = ex.target.result;
+                }
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
     </script>
     <script type="module" src="js/manage.js"></script>
 </body>
