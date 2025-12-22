@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Style Tambahan khusus Dashboard yang tidak ada di style.css */
         :root { --primary: #00ff88; --card: #161a21; --border: #2d333b; }
 
         .tab-content { display: none; animation: fadeIn 0.4s ease; padding-top: 20px; }
@@ -30,7 +29,11 @@
             border-radius: 8px; color: white; font-family: inherit; transition: 0.3s;
         }
 
-        .form-group input:focus { border-color: var(--primary); outline: none; background: #11151c; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); outline: none; background: #11151c; }
+
+        /* Styling khusus untuk dropdown group */
+        optgroup { background: #161a21; color: var(--primary); font-style: normal; font-weight: bold; }
+        option { background: #0b0e14; color: white; }
 
         .btn-submit {
             background: var(--primary); color: black; border: none; padding: 15px;
@@ -41,7 +44,6 @@
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .stat-card { background: var(--card); padding: 30px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
         
-        /* Menu Mobile Fix */
         .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1500; }
     </style>
 </head>
@@ -83,23 +85,74 @@
                         <label>Judul Series</label>
                         <input type="text" id="comic-title" placeholder="Contoh: Petualangan Si Hebat" required>
                     </div>
+
                     <div class="form-group">
                         <label>Upload Cover (File Gambar)</label>
                         <input type="file" id="file-input" accept="image/*" required>
                     </div>
+
                     <div class="form-group">
-                        <label>Genre</label>
-                        <select id="comic-genre">
-                            <option value="Action">Action</option>
-                            <option value="Fantasy">Fantasy</option>
-                            <option value="Comedy">Comedy</option>
-                            <option value="Drama">Drama</option>
+                        <label>Genre Utama</label>
+                        <select id="comic-genre" required>
+                            <option value="" disabled selected>-- Pilih Genre Komik --</option>
+                            
+                            <optgroup label="Aksi & Petualangan">
+                                <option value="Action">Action</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Superhero">Superhero</option>
+                                <option value="Martial Arts">Martial Arts</option>
+                                <option value="Samurai">Samurai</option>
+                                <option value="Mecha">Mecha</option>
+                            </optgroup>
+
+                            <optgroup label="Fantasi & Dunia Lain">
+                                <option value="Fantasy">Fantasy</option>
+                                <option value="Isekai">Isekai (Dunia Lain)</option>
+                                <option value="Magic">Magic</option>
+                                <option value="Mythology">Mythology</option>
+                            </optgroup>
+
+                            <optgroup label="Romantis & Komedi">
+                                <option value="Romance">Romance</option>
+                                <option value="Romantic Comedy">RomCom</option>
+                                <option value="Comedy">Comedy</option>
+                                <option value="Gag Comic">Gag/Kocak</option>
+                            </optgroup>
+
+                            <optgroup label="Horor & Misteri">
+                                <option value="Horror">Horror</option>
+                                <option value="Thriller">Thriller</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Supernatural">Supernatural</option>
+                            </optgroup>
+
+                            <optgroup label="Kehidupan & Sekolah">
+                                <option value="Slice of Life">Slice of Life</option>
+                                <option value="School Life">School Life</option>
+                                <option value="Drama">Drama</option>
+                                <option value="Sports">Sports</option>
+                            </optgroup>
+
+                            <optgroup label="Target Pembaca">
+                                <option value="Shonen">Shonen (Remaja Laki-laki)</option>
+                                <option value="Shojo">Shojo (Remaja Perempuan)</option>
+                                <option value="Seinen">Seinen (Dewasa Laki-laki)</option>
+                                <option value="Josei">Josei (Dewasa Perempuan)</option>
+                            </optgroup>
+
+                            <optgroup label="Gaya Regional">
+                                <option value="Webtoon">Webtoon</option>
+                                <option value="Manga">Manga</option>
+                                <option value="Manhwa">Manhwa</option>
+                            </optgroup>
                         </select>
                     </div>
+
                     <div class="form-group">
                         <label>Sinopsis</label>
-                        <textarea id="comic-summary" rows="4" placeholder="Tulis deskripsi singkat..."></textarea>
+                        <textarea id="comic-summary" rows="4" placeholder="Tulis deskripsi singkat tentang ceritamu..."></textarea>
                     </div>
+
                     <button type="button" id="btn-create-series" class="btn-submit">PUBLIKASIKAN SEKARANG</button>
                 </form>
             </div>
