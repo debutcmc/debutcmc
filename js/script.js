@@ -20,10 +20,9 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// Gambar cadangan jika coverUrl di database kosong atau rusak
-const PLACEHOLDER_IMAGE = 'https://via.placeholder.com/300x400?text=No+Image';
+const PLACEHOLDER_IMAGE = 'https://placehold.co/300x400/161a21/00ff88?text=No+Cover';
 
-// --- 1. LOGIKA AUTH & SYNC ---
+// --- 1. LOGIKA AUTH ---
 window.loginGoogle = async () => {
     try { 
         const result = await signInWithPopup(auth, provider);
@@ -50,13 +49,13 @@ async function syncUserData(user) {
     }
 }
 
-// --- 2. ROUTING OTOMATIS ---
+// --- 2. ROUTING & OBSERVER ---
 onAuthStateChanged(auth, async (user) => {
     const section = document.getElementById('auth-section');
     if (section) {
         section.innerHTML = user ? 
             `<img src="${user.photoURL}" onclick="location.href='profile.html?uid=${user.uid}'" style="width:35px; height:35px; border-radius:50%; border:2px solid #00ff88; cursor:pointer; object-fit:cover;">` :
-            `<button onclick="loginGoogle()" class="btn-login">SIGN IN</button>`;
+            `<button onclick="loginGoogle()" class="btn-login" style="background:#00ff88; color:black; border:none; padding:5px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>`;
     }
 
     const path = window.location.pathname;
@@ -65,14 +64,19 @@ onAuthStateChanged(auth, async (user) => {
     const ch = urlParams.get('ch');
     const uid = urlParams.get('uid');
 
-    // Routing Logic
-    if (path === '/' || path.includes('index.html')) loadHome();
-    else if (path.includes('detail.html')) loadDetail(id);
-    else if (path.includes('viewer.html') || path.includes('reader.html')) loadViewer(id, ch);
-    else if (path.includes('profile.html')) loadProfile(uid || user?.uid);
+    // Mencegah pemanggilan ganda jika loadHome sudah terpanggil di HTML
+    if (path === '/' || path.endsWith('index.html')) {
+        loadHome();
+    } else if (path.includes('detail.html')) {
+        loadDetail(id);
+    } else if (path.includes('viewer.html') || path.includes('reader.html')) {
+        loadViewer(id, ch);
+    } else if (path.includes('profile.html')) {
+        loadProfile(uid || user?.uid);
+    }
 });
 
-// --- 3. LOAD HOME (DAFTAR KOMIK) ---
+// --- 3. LOAD HOME (DIPERBAIKI) ---
 async function loadHome() {
     const grid = document.getElementById('comic-list');
     if (!grid) return;
@@ -80,37 +84,43 @@ async function loadHome() {
     try {
         const q = query(collection(db, "comics"), orderBy("createdAt", "desc"));
         const snap = await getDocs(q);
+        
+        // Hapus data dummy statis dari HTML
         grid.innerHTML = "";
 
         if (snap.empty) {
-            grid.innerHTML = "<p class='empty-msg'>Belum ada komik tersedia.</p>";
+            grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center;'>Belum ada komik tersedia.</p>";
             return;
         }
 
         snap.forEach(d => {
             const data = d.data();
-            // Perbaikan: Cek field 'coverUrl' atau 'cover' agar tidak broken
             const coverImg = data.coverUrl || data.cover || PLACEHOLDER_IMAGE;
+            const title = data.title || "Untitled";
             
-            grid.innerHTML += `
-                <a href="detail.html?id=${d.id}" class="comic-card">
-                    <div class="img-container">
-                        <img src="${coverImg}" 
-                             loading="lazy" 
-                             onerror="this.src='${PLACEHOLDER_IMAGE}'">
-                        <span class="card-tag">${data.statusSeries || 'NEW'}</span>
-                    </div>
-                    <div class="comic-title">${data.title || 'Untitled'}</div>
-                    <div class="comic-meta">${data.genre || 'Action'}</div>
-                </a>`;
+            // Menggunakan element creator agar event listener aman
+            const card = document.createElement('a');
+            card.href = `detail.html?id=${d.id}`;
+            card.className = 'comic-card';
+            card.innerHTML = `
+                <div class="img-container">
+                    <img src="${coverImg}" loading="lazy" onerror="this.src='${PLACEHOLDER_IMAGE}'">
+                    <span class="card-tag">${data.statusSeries || 'NEW'}</span>
+                </div>
+                <div class="comic-info">
+                    <p class="comic-title">${title}</p>
+                    <span class="comic-genre">${data.genre || 'Manga'}</span>
+                </div>
+            `;
+            grid.appendChild(card);
         });
     } catch (e) { 
         console.error("Error Home:", e);
-        grid.innerHTML = `<p style="color:red;">Error: Gagal memuat data.</p>`;
+        grid.innerHTML = `<p style="grid-column: 1/-1; color:red; text-align:center;">Gagal memuat data: ${e.message}</p>`;
     }
 }
 
-// --- 4. LOAD DETAIL ---
+// --- 4. LOAD DETAIL (DIPERBAIKI) ---
 async function loadDetail(id) {
     if (!id) return;
     try {
@@ -153,13 +163,13 @@ async function loadDetail(id) {
     } catch (e) { console.error("Error Detail:", e); }
 }
 
-// --- 5. LOAD VIEWER (READER) ---
+// --- 5. LOAD VIEWER ---
 async function loadViewer(id, chId) {
     const viewer = document.getElementById('manga-viewer');
     const titleDisplay = document.getElementById('chapter-title-display');
     if (!viewer || !chId) return;
 
-    viewer.innerHTML = "<p>Memuat halaman...</p>";
+    viewer.innerHTML = "<p style='text-align:center; padding:50px;'>Memuat halaman...</p>";
 
     try {
         const snap = await getDoc(doc(db, "chapters", chId));
@@ -169,20 +179,22 @@ async function loadViewer(id, chId) {
 
             const images = data.images || [];
             if (images.length === 0) {
-                viewer.innerHTML = "<p>Tidak ada gambar di chapter ini.</p>";
+                viewer.innerHTML = "<p style='text-align:center;'>Tidak ada gambar di chapter ini.</p>";
                 return;
             }
 
+            // Gabungkan semua gambar menjadi satu string HTML untuk performa
             viewer.innerHTML = images.map(img => `
                 <img src="${img}" class="manga-page" loading="lazy" 
-                     onerror="this.src='https://via.placeholder.com/800x1200?text=Gambar+Rusak'">
+                     style="width:100%; display:block; margin-bottom:2px;"
+                     onerror="this.src='https://placehold.co/800x1200?text=Gambar+Rusak'">
             `).join('');
             
             window.scrollTo(0,0);
         }
     } catch (e) { 
         console.error("Error Viewer:", e);
-        viewer.innerHTML = "<p>Gagal memuat chapter.</p>";
+        viewer.innerHTML = "<p style='text-align:center; color:red;'>Gagal memuat chapter.</p>";
     }
 }
 
@@ -202,20 +214,18 @@ async function loadProfile(uid) {
         const isOwner = auth.currentUser?.uid === uid;
 
         container.innerHTML = `
-            <div class="profile-header">
-                <img src="${data.photoURL || 'https://via.placeholder.com/100'}" class="profile-avatar">
+            <div class="profile-header" style="text-align:center; padding:20px;">
+                <img src="${data.photoURL || 'https://via.placeholder.com/100'}" style="width:100px; height:100px; border-radius:50%; border:3px solid #00ff88;">
                 <h2>${data.displayName || 'User'}</h2>
-                <p class="uid-tag">ID: ${uid.substring(0,8)}</p>
-                
-                <div class="bio-box">
-                    <label>BIO</label>
+                <p>ID: ${uid.substring(0,8)}</p>
+                <div style="background:#161a21; padding:15px; border-radius:10px; margin:20px 0;">
+                    <label style="color:#00ff88; font-size:12px;">BIO</label>
                     <p>${data.bio || "Halo! Saya pembaca di DebutCMC."}</p>
                 </div>
-
                 ${isOwner ? `
                     <div class="profile-actions">
-                        <button onclick="location.href='dashboard.html'" class="btn-dash">DASHBOARD</button>
-                        <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout">LOGOUT</button>
+                        <button onclick="location.href='dashboard.html'" class="btn-dash" style="background:#00ff88; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">DASHBOARD</button>
+                        <button onclick="auth.signOut().then(()=>location.reload())" class="btn-logout" style="background:red; color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; margin-left:10px;">LOGOUT</button>
                     </div>
                 ` : ''}
             </div>`;
