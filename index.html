@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DebutCMC - Official Site</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    
     <style>
         :root {
             --primary: #00ff88;
@@ -73,10 +71,7 @@
             font-size: 13px;
             font-weight: 600;
             transition: 0.3s;
-            text-transform: uppercase;
         }
-
-        .nav-links a:hover { color: var(--primary); }
 
         /* --- MOBILE MENU --- */
         @media (max-width: 768px) {
@@ -88,29 +83,21 @@
                 width: 100%;
                 background: var(--card);
                 flex-direction: column;
-                padding: 0;
-                gap: 0;
-                border-bottom: 1px solid var(--border);
                 display: none;
-                overflow: hidden;
-                box-shadow: 0 10px 15px rgba(0,0,0,0.5);
             }
             .nav-links.active { display: flex; }
             .nav-links li { width: 100%; border-bottom: 1px solid var(--border); }
-            .nav-links a { display: block; padding: 15px 20px; width: 100%; }
-            #auth-section { padding: 15px 20px; }
+            .nav-links a { display: block; padding: 15px; }
         }
 
         /* --- COMIC GRID --- */
         .home-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .section-title { 
-            font-size: 1rem; 
-            margin: 25px 0 15px; 
-            letter-spacing: 1px; 
+            font-size: 1.1rem; 
+            margin: 20px 0; 
             border-left: 4px solid var(--primary); 
             padding-left: 10px; 
             text-transform: uppercase;
-            font-weight: 800;
         }
 
         .comic-grid {
@@ -120,57 +107,38 @@
         }
 
         @media (max-width: 1024px) { .comic-grid { grid-template-columns: repeat(4, 1fr); } }
-        @media (max-width: 768px) { .comic-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; } }
         @media (max-width: 480px) { .comic-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
 
-        /* Style Kartu Komik (Pastikan class ini sesuai dengan script.js) */
+        /* Style untuk Kartu yang dibuat Script */
         .comic-card {
             background: var(--card);
             border-radius: 8px;
             overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
             text-decoration: none;
             color: white;
-            display: block;
-            border: 1px solid transparent;
+            transition: 0.2s;
         }
 
-        .comic-card:hover { 
-            transform: translateY(-5px); 
-            border-color: var(--primary);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.1);
-        }
-
-        .img-container { position: relative; width: 100%; aspect-ratio: 3/4; background: #222; overflow: hidden; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; transition: 0.3s; }
-        .comic-card:hover img { transform: scale(1.05); }
-        
-        .card-tag {
-            position: absolute; top: 6px; right: 6px;
-            background: var(--primary); color: black;
-            font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px;
-            z-index: 10;
-        }
-
-        .comic-info { padding: 10px 8px; }
-        .comic-title {
-            font-size: 12px; font-weight: 600; margin: 0 0 4px 0;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            color: #fff;
-        }
-        .comic-meta { font-size: 10px; color: var(--text-dim); }
+        .comic-card:hover { transform: translateY(-5px); }
+        .img-container { width: 100%; aspect-ratio: 3/4; background: #222; position: relative; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        .card-tag { position: absolute; top: 5px; right: 5px; background: var(--primary); color: black; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
+        .comic-info { padding: 8px; }
+        .comic-title { font-size: 11px; font-weight: bold; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .comic-meta { font-size: 9px; color: var(--text-dim); }
 
         /* --- BANNER --- */
         .promo-banner {
             width: 100%;
-            min-height: 120px;
-            background: linear-gradient(135deg, #161a21 0%, #00ff8811 100%);
+            min-height: 100px;
+            background: linear-gradient(45deg, #161a21, #00ff8822);
             border: 1px solid var(--border);
             border-radius: 12px;
             display: flex;
             align-items: center;
-            padding: 25px;
-            margin-bottom: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-sizing: border-box;
         }
     </style>
 </head>
@@ -183,7 +151,7 @@
                 <h1 class="logo-text">Debut<span>CMC</span></h1>
             </a>
             
-            <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+            <button class="hamburger" id="hamburger-btn">
                 <i class="fa-solid fa-bars"></i>
             </button>
 
@@ -192,7 +160,7 @@
                 <li><a href="#">ORIGINALS</a></li>
                 <li><a href="#">GENRE</a></li>
                 <li id="auth-section">
-                    <button onclick="loginGoogle()" class="btn-login-nav" style="background:var(--primary); color:black; border:none; padding:6px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>
+                    <button onclick="window.loginGoogle()" style="background:var(--primary); color:black; border:none; padding:6px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>
                 </li>
             </ul>
         </div>
@@ -201,43 +169,32 @@
     <main class="home-container">
         <section class="promo-banner">
             <div class="promo-text">
-                <h2 style="margin:0 0 5px 0; color: var(--primary); font-size: 1.4rem;">Rilis Baru</h2>
-                <p style="font-size: 13px; color: var(--text-dim); margin: 0;">Update series terbaru setiap hari jam 20:00 WIB.</p>
+                <h2 style="margin:0; color: var(--primary);">Rilis Baru</h2>
+                <p style="font-size: 13px; color: #ccc; margin: 5px 0 0 0;">Jelajahi petualangan tanpa batas setiap hari.</p>
             </div>
         </section>
 
         <h2 class="section-title">Series Pilihan</h2>
         
         <div class="comic-grid" id="comic-list">
-            <div style="grid-column: 1/-1; text-align: center; padding: 80px 0;">
-                <i class="fas fa-circle-notch fa-spin" style="font-size: 2rem; color: var(--primary); margin-bottom: 15px;"></i>
-                <p style="color: var(--text-dim); font-size: 14px;">Menghubungkan ke server...</p>
-            </div>
+            <p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 50px 0;">
+                Memuat data dari Firebase...
+            </p>
         </div>
     </main>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="./js/script.js"></script>
 
     <script>
-        // Logika Hamburger Menu
+        // UI Logic - Menu Hamburger
         const hbBtn = document.getElementById('hamburger-btn');
         const navMenu = document.getElementById('nav-menu');
-        const icon = hbBtn.querySelector('i');
-
-        hbBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
+        
+        hbBtn.addEventListener('click', () => {
             navMenu.classList.toggle('active');
-            if(navMenu.classList.contains('active')) {
-                icon.classList.replace('fa-bars', 'fa-xmark');
-            } else {
-                icon.classList.replace('fa-xmark', 'fa-bars');
-            }
-        });
-
-        // Tutup menu saat klik di luar
-        document.addEventListener('click', () => {
-            navMenu.classList.remove('active');
-            icon.classList.replace('fa-xmark', 'fa-bars');
+            const icon = hbBtn.querySelector('i');
+            icon.classList.toggle('fa-bars');
+            icon.classList.toggle('fa-xmark');
         });
     </script>
 </body>
