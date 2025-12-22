@@ -4,150 +4,124 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Creator Center | DebutCMC</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { 
-            --primary: #00ff88; 
-            --bg: #0b0e14; 
-            --card: #161a21; 
-            --border: #2d333b; 
+        /* Style Tambahan khusus Dashboard yang tidak ada di style.css */
+        :root { --primary: #00ff88; --card: #161a21; --border: #2d333b; }
+
+        .tab-content { display: none; animation: fadeIn 0.4s ease; padding-top: 20px; }
+        .tab-content.active { display: block; }
+
+        .form-card { 
+            background: var(--card); 
+            padding: 30px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border);
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        /* Dashboard Specific Styles */
-        .tab-content { display: none; padding: 20px 0; animation: fadeIn 0.3s ease; }
-        .tab-content.active { display: block; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* Form Styling */
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 12px; color: var(--primary); font-weight: 800; margin-bottom: 8px; text-transform: uppercase; }
+        .form-group label { display: block; font-size: 11px; color: var(--primary); font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        
         .form-group input, .form-group textarea, .form-group select {
             width: 100%; padding: 12px; background: #0b0e14; border: 1px solid var(--border);
-            border-radius: 8px; color: white; font-family: inherit;
+            border-radius: 8px; color: white; font-family: inherit; transition: 0.3s;
         }
-        .form-group input:focus { border-color: var(--primary); outline: none; }
+
+        .form-group input:focus { border-color: var(--primary); outline: none; background: #11151c; }
 
         .btn-submit {
-            background: var(--primary); color: black; border: none; padding: 15px 30px;
-            border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s;
+            background: var(--primary); color: black; border: none; padding: 15px;
+            border-radius: 8px; font-weight: 900; cursor: pointer; width: 100%; 
+            transition: 0.3s; text-transform: uppercase;
         }
-        .btn-submit:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
 
-        /* Stats Card */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; }
-        .stat-card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
-        .stat-card h3 { font-size: 24px; color: var(--primary); margin: 0; }
-        .stat-card p { font-size: 12px; color: #8b949e; margin: 5px 0 0 0; }
-
-        /* Hamburger & Nav */
-        .hamburger { display: none; background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
-        @media (max-width: 768px) {
-            .nav-wrapper { display: none; }
-            .hamburger { display: block; }
-        }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card { background: var(--card); padding: 30px; border-radius: 16px; border: 1px solid var(--border); text-align: center; }
+        
+        /* Menu Mobile Fix */
+        .menu-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1500; }
     </style>
 </head>
 <body>
 
     <div class="menu-overlay" id="overlay" onclick="toggleMenu()"></div>
 
-    <div class="mobile-menu" id="mobileMenu" style="position: fixed; top: 0; right: -280px; width: 280px; height: 100%; background: #161a21; z-index: 2000; transition: 0.3s; padding: 20px; box-sizing: border-box; border-left: 1px solid #2d333b;">
-        <h2 style="color: var(--primary);">Menu</h2>
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 30px;">
-            <a href="#" class="mobile-tab" onclick="openTabDirect('tab-komikku')" style="color: white; text-decoration: none; padding: 15px; border-bottom: 1px solid #2d333b;"><i class="fa-solid fa-book"></i> KOMIKKU</a>
-            <a href="#" class="mobile-tab" onclick="openTabDirect('tab-buat')" style="color: white; text-decoration: none; padding: 15px; border-bottom: 1px solid #2d333b;"><i class="fa-solid fa-plus"></i> BUAT SERIES</a>
-            <a href="#" class="mobile-tab" onclick="openTabDirect('tab-stats')" style="color: white; text-decoration: none; padding: 15px; border-bottom: 1px solid #2d333b;"><i class="fa-solid fa-chart-line"></i> STATISTIK</a>
-            <button onclick="window.handleLogout()" class="btn-logout-small" style="margin-top: 20px; width: 100%; padding: 15px; border-radius: 8px;">LOGOUT</button>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="index.html" class="logo-area">
+                <div class="logo-text">DEBUT<span>CMC</span></div>
+            </a>
+            
+            <div class="nav-links nav-wrapper">
+                <a href="#" class="nav-tab active" onclick="openTab(event, 'tab-komikku')">KARYA</a>
+                <a href="#" class="nav-tab" onclick="openTab(event, 'tab-buat')">BUAT SERIES</a>
+                <a href="#" class="nav-tab" onclick="openTab(event, 'tab-stats')">STATS</a>
+                <button onclick="auth.signOut().then(()=>location.href='index.html')" class="btn-login" style="background:#2d333b; color:#ff4444; margin-left:10px;">LOGOUT</button>
+            </div>
+
+            <button class="hamburger" onclick="toggleMenu()">
+                <i class="fa-solid fa-bars" id="menuIcon"></i>
+            </button>
         </div>
-    </div>
+    </nav>
 
-    <div id="dashboard-ui">
-        <nav class="navbar">
-            <div class="nav-content">
-                <a href="index.html" class="logo-area">
-                    <img src="https://i.ibb.co.com/3qkWwbb/Gemini-Generated-Image-d1gyk6d1gyk6d1gy.png" class="nav-logo">
-                    <h1 class="logo-text">DEBUT<span>CMC</span></h1>
-                </a>
-                
-                <div class="nav-wrapper">
-                    <div class="nav-tab active" onclick="openTab(event, 'tab-komikku')">KOMIKKU</div>
-                    <div class="nav-tab" onclick="openTab(event, 'tab-buat')">BUAT</div>
-                    <div class="nav-tab" onclick="openTab(event, 'tab-stats')">STATS</div>
-                    <button onclick="window.handleLogout()" class="btn-logout-small">Logout</button>
+    <main class="home-container">
+        <div id="tab-komikku" class="tab-content active">
+            <h2 class="section-title">Karya Saya</h2>
+            <div class="comic-grid" id="my-comic-list">
                 </div>
+        </div>
 
-                <button class="hamburger" onclick="toggleMenu()">
-                    <i class="fa-solid fa-bars" id="menuIcon"></i>
-                </button>
-            </div>
-        </nav>
-
-        <main class="home-container">
-            <div id="tab-komikku" class="tab-content active">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                    <h2 class="section-title">Karya Saya</h2>
-                </div>
-                <div class="comic-grid" id="my-comic-list">
-                    <p style="color: #8b949e;">Memuat karya...</p>
-                </div>
-            </div>
-
-            <div id="tab-buat" class="tab-content">
-                <h2 class="section-title">Buat Series Baru</h2>
-                <div style="max-width: 600px; margin: 0 auto; background: var(--card); padding: 30px; border-radius: 16px; border: 1px solid var(--border);">
-                    <form id="form-buat-komik">
-                        <div class="form-group">
-                            <label>Judul Series</label>
-                            <input type="text" id="manga-title" placeholder="Masukkan judul..." required>
-                        </div>
-                        <div class="form-group">
-                            <label>URL Cover (Image Address)</label>
-                            <input type="url" id="manga-cover" placeholder="https://link-gambar.jpg" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Genre Utama</label>
-                            <select id="manga-genre">
-                                <option value="Action">Action</option>
-                                <option value="Fantasy">Fantasy</option>
-                                <option value="Romance">Romance</option>
-                                <option value="Comedy">Comedy</option>
-                                <option value="Drama">Drama</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>Sinopsis</label>
-                            <textarea id="manga-summary" rows="5" placeholder="Ceritakan tentang apa komik ini..."></textarea>
-                        </div>
-                        <button type="submit" class="btn-submit">PUBLIKASIKAN SERIES</button>
-                    </form>
-                </div>
-            </div>
-
-            <div id="tab-stats" class="tab-content">
-                <h2 class="section-title">Statistik Kreator</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h3 id="stat-series">0</h3>
-                        <p>Total Series</p>
+        <div id="tab-buat" class="tab-content">
+            <h2 class="section-title">Terbitkan Series Baru</h2>
+            <div class="form-card">
+                <form id="form-buat-komik">
+                    <div class="form-group">
+                        <label>Judul Series</label>
+                        <input type="text" id="manga-title" placeholder="Contoh: Petualangan Si Hebat" required>
                     </div>
-                    <div class="stat-card">
-                        <h3 id="stat-chapters">0</h3>
-                        <p>Total Chapter</p>
+                    <div class="form-group">
+                        <label>URL Cover (Link Gambar)</label>
+                        <input type="url" id="manga-cover" placeholder="https://imgur.com/link-gambar.jpg" required>
                     </div>
-                    <div class="stat-card">
-                        <h3>Coming Soon</h3>
-                        <p>Total Views</p>
+                    <div class="form-group">
+                        <label>Genre</label>
+                        <select id="manga-genre">
+                            <option value="Action">Action</option>
+                            <option value="Fantasy">Fantasy</option>
+                            <option value="Comedy">Comedy</option>
+                            <option value="Drama">Drama</option>
+                        </select>
                     </div>
+                    <div class="form-group">
+                        <label>Sinopsis</label>
+                        <textarea id="manga-summary" rows="4" placeholder="Tulis deskripsi singkat..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-submit">PUBLIKASIKAN SEKARANG</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="tab-stats" class="tab-content">
+            <h2 class="section-title">Statistik Kreator</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="stat-series">0</h3>
+                    <p>TOTAL SERIES</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="stat-chapters">0</h3>
+                    <p>TOTAL CHAPTER</p>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
     <script type="module" src="js/script.js"></script>
     <script>
-        // UI Logic - Tab Switching
         function openTab(evt, tabName) {
             const contents = document.getElementsByClassName("tab-content");
             for (let content of contents) content.classList.remove("active");
@@ -159,37 +133,14 @@
             evt.currentTarget.classList.add("active");
         }
 
-        // Shortcut untuk mobile menu
-        function openTabDirect(tabName) {
-            toggleMenu();
-            const contents = document.getElementsByClassName("tab-content");
-            for (let content of contents) content.classList.remove("active");
-            document.getElementById(tabName).classList.add("active");
-        }
-
-        // Toggle Mobile Menu
         function toggleMenu() {
-            const menu = document.getElementById('mobileMenu');
+            const nav = document.querySelector('.nav-links');
             const icon = document.getElementById('menuIcon');
-            const overlay = document.getElementById('overlay');
-            
-            if(menu.style.right === "0px") {
-                menu.style.right = "-280px";
-                overlay.style.display = "none";
-                icon.className = "fa-solid fa-bars";
-            } else {
-                menu.style.right = "0px";
-                overlay.style.display = "block";
+            nav.classList.toggle('active');
+            if(nav.classList.contains('active')) {
                 icon.className = "fa-solid fa-xmark";
-            }
-        }
-
-        // Global Logout Handler (dihubungkan ke Firebase di script.js)
-        window.handleLogout = () => {
-            if(confirm("Apakah Anda ingin logout?")) {
-                localStorage.clear();
-                // trigger firebase logout in script.js
-                window.dispatchEvent(new Event('firebaseLogout'));
+            } else {
+                icon.className = "fa-solid fa-bars";
             }
         }
     </script>
