@@ -24,12 +24,10 @@ const IMGBB_KEY = 'daa2bcb021279c96cebd854f8650d77e';
 window.selectedFilesArray = [];
 
 // ==========================================
-// FITUR AUTO-SAVE & DRAFT (FIXED)
+// FITUR AUTO-SAVE & DRAFT
 // ==========================================
 function simpanDraftKeLocal() {
-    // Jika ada comicId = edit mode, jika tidak = buat baru mode
     const storageKey = comicId ? `draft_series_${comicId}` : `draft_new_series`;
-    
     const draftData = {
         title: document.getElementById('comic-title')?.value || "",
         genre: document.getElementById('comic-genre')?.value || "",
@@ -52,7 +50,6 @@ function muatDraftDariLocal() {
     }
 }
 
-// Pasang Listener Input untuk Auto-Save
 document.addEventListener('input', (e) => {
     const fields = ['comic-title', 'comic-genre', 'comic-summary'];
     if (fields.includes(e.target.id)) {
@@ -82,7 +79,6 @@ onAuthStateChanged(auth, (user) => {
         muatKomikSaya(user.uid);
     }
     
-    // Selalu coba muat draft jika ada
     muatDraftDariLocal();
     muatDataProfil(user);
     muatStatistikGlobal(user.uid);
@@ -199,7 +195,7 @@ async function muatKomikSaya(uid) {
 }
 
 // ==========================================
-// 5. BUAT SERIES BARU
+// 5. BUAT SERIES BARU (FIXED VALIDATION)
 // ==========================================
 document.getElementById('btn-create-series')?.addEventListener('click', async () => {
     const btn = document.getElementById('btn-create-series');
@@ -210,6 +206,7 @@ document.getElementById('btn-create-series')?.addEventListener('click', async ()
     const file = fileInput ? fileInput.files[0] : null;
 
     if (!title || !file) return alert("Judul dan Cover wajib diisi!");
+    if (!genre || genre === "") return alert("Pilih genre terlebih dahulu!");
 
     btn.disabled = true;
     btn.innerText = "Menerbitkan...";
@@ -229,9 +226,7 @@ document.getElementById('btn-create-series')?.addEventListener('click', async ()
             createdAt: serverTimestamp()
         });
 
-        // Hapus Draft setelah sukses
         localStorage.removeItem(`draft_new_series`);
-        
         alert("Series Berhasil Dibuat!");
         location.reload();
     } catch (e) {
@@ -335,6 +330,8 @@ if (btnUploadCh) {
                 const resJson = await res.json();
                 if (resJson.success) imageUrls.push(resJson.data.url);
             }
+
+            if (imageUrls.length === 0) throw new Error("Gagal mengunggah gambar.");
 
             await addDoc(collection(db, "chapters"), {
                 comicId: comicId,
