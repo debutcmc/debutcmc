@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profil Member | DebutCMC</title>
+    <title>Edit Profil | DebutCMC</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
@@ -12,12 +12,13 @@
             --card: #161a21; 
             --border: #2d333b; 
             --text-dim: #8b949e; 
+            --text-main: #e6edf3;
         }
 
         body { 
             background: var(--bg); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
+            color: var(--text-main); 
+            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; 
             margin: 0; 
             display: flex;
             justify-content: center;
@@ -28,21 +29,21 @@
         .profile-card {
             background: var(--card);
             border: 1px solid var(--border);
-            width: 100%;
-            max-width: 450px;
+            width: 90%;
+            max-width: 420px;
             border-radius: 20px;
-            padding: 30px;
+            padding: 40px 30px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+            position: relative;
         }
 
         /* Avatar Section */
         .avatar-wrapper {
             position: relative;
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
+            width: 110px;
+            height: 110px;
+            margin: 0 auto 25px;
         }
 
         #profile-img {
@@ -51,111 +52,118 @@
             border-radius: 50%;
             object-fit: cover;
             border: 3px solid var(--primary);
-            padding: 3px;
+            background: var(--bg);
         }
 
         .edit-avatar-btn {
             position: absolute;
-            bottom: 5px;
-            right: 5px;
+            bottom: 2px;
+            right: 2px;
             background: var(--primary);
-            color: black;
-            width: 32px;
-            height: 32px;
+            color: #0b0e14;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 2px solid var(--bg);
-            font-size: 14px;
+            border: 3px solid var(--card);
+            font-size: 12px;
+            transition: 0.2s;
         }
+
+        .edit-avatar-btn:hover { transform: scale(1.1); }
 
         /* Form Styling */
         .info-group {
             text-align: left;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         label {
             display: block;
-            font-size: 11px;
-            color: var(--text-dim);
+            font-size: 10px;
+            color: var(--primary);
             text-transform: uppercase;
-            font-weight: bold;
-            margin-bottom: 5px;
-            margin-left: 5px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
         }
 
         input, textarea {
             width: 100%;
-            padding: 12px 15px;
-            background: #0d1117;
+            padding: 12px 16px;
+            background: rgba(11, 14, 20, 0.5);
             border: 1px solid var(--border);
             color: white;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 14px;
             box-sizing: border-box;
-            transition: 0.3s;
+            transition: all 0.3s ease;
         }
 
         input:focus, textarea:focus {
             outline: none;
             border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(0, 255, 136, 0.1);
+            background: rgba(11, 14, 20, 0.8);
         }
 
-        textarea { resize: none; height: 80px; }
+        textarea { resize: none; height: 90px; }
 
         .btn-save {
             width: 100%;
-            padding: 15px;
+            padding: 14px;
             background: var(--primary);
             color: #0b0e14;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: 800;
+            font-size: 14px;
             cursor: pointer;
-            margin-top: 20px;
-            transition: 0.3s;
+            margin-top: 10px;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .btn-save:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+            filter: brightness(1.1);
+            box-shadow: 0 8px 20px rgba(0, 255, 136, 0.2);
         }
 
         .back-link {
-            display: inline-block;
-            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 25px;
             color: var(--text-dim);
             text-decoration: none;
-            font-size: 13px;
+            font-size: 12px;
+            transition: 0.2s;
         }
 
-        .back-link:hover { color: white; }
+        .back-link:hover { color: var(--primary); }
 
-        /* Badge Status */
         .badge {
             display: inline-block;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: bold;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 9px;
+            font-weight: 900;
             margin-bottom: 15px;
             background: rgba(0, 255, 136, 0.1);
             color: var(--primary);
-            border: 1px solid var(--primary);
+            border: 1px solid rgba(0, 255, 136, 0.3);
         }
     </style>
 </head>
 <body>
 
     <div class="profile-card">
-        <div class="badge">CREATOR MEMBER</div>
+        <div id="role-badge" class="badge">READER MEMBER</div>
         
         <div class="avatar-wrapper">
-            <img id="profile-img" src="https://via.placeholder.com/150" alt="User Avatar">
+            <img id="profile-img" src="https://placehold.co/150x150/161a21/00ff88?text=..." alt="Avatar">
             <label for="avatar-input" class="edit-avatar-btn">
                 <i class="fa-solid fa-camera"></i>
             </label>
@@ -163,26 +171,31 @@
         </div>
 
         <div class="info-group">
-            <label>Nama Pena / Username</label>
-            <input type="text" id="username" placeholder="Masukkan nama pena...">
+            <label>Display Name</label>
+            <input type="text" id="username" placeholder="Nama Anda...">
         </div>
 
         <div class="info-group">
-            <label>Bio Singkat</label>
-            <textarea id="bio" placeholder="Tuliskan sesuatu tentang dirimu..."></textarea>
+            <label>Biografi Singkat</label>
+            <textarea id="bio" placeholder="Ceritakan sedikit tentang dirimu..."></textarea>
         </div>
 
         <div class="info-group">
-            <label>Email Terdaftar</label>
-            <input type="text" id="email" readonly style="color: var(--text-dim); cursor: not-allowed; background: #0b0e14;">
+            <label>Email (Read Only)</label>
+            <input type="text" id="email" readonly style="color: var(--text-dim); cursor: not-allowed; opacity: 0.7;">
         </div>
 
-        <button class="btn-save" id="save-profile">SIMPAN PERUBAHAN</button>
+        <button class="btn-save" id="save-profile">
+            <i class="fa-solid fa-floppy-disk"></i> SIMPAN PERUBAHAN
+        </button>
         
-        <a href="dashboard.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard</a>
+        <a href="index.html" class="back-link">
+            <i class="fa-solid fa-house"></i> Kembali ke Beranda
+        </a>
     </div>
 
     <script>
+        // Logika sederhana Preview Gambar sebelum Upload ke Storage
         const avatarInput = document.getElementById('avatar-input');
         const profileImg = document.getElementById('profile-img');
 
@@ -193,6 +206,7 @@
             }
         };
     </script>
+    
     <script type="module" src="js/script.js"></script>
 </body>
 </html>
