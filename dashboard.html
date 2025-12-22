@@ -59,7 +59,7 @@
                 <a href="#" class="nav-tab active" onclick="openTab(event, 'tab-komikku')">KARYA</a>
                 <a href="#" class="nav-tab" onclick="openTab(event, 'tab-buat')">BUAT SERIES</a>
                 <a href="#" class="nav-tab" onclick="openTab(event, 'tab-stats')">STATS</a>
-                <button onclick="auth.signOut().then(()=>location.href='index.html')" class="btn-login" style="background:#2d333b; color:#ff4444; margin-left:10px;">LOGOUT</button>
+                <button id="btn-logout" class="btn-login" style="background:#2d333b; color:#ff4444; margin-left:10px;">LOGOUT</button>
             </div>
 
             <button class="hamburger" onclick="toggleMenu()">
@@ -78,18 +78,18 @@
         <div id="tab-buat" class="tab-content">
             <h2 class="section-title">Terbitkan Series Baru</h2>
             <div class="form-card">
-                <form id="form-buat-komik">
+                <form id="form-buat-komik" onsubmit="return false;">
                     <div class="form-group">
                         <label>Judul Series</label>
-                        <input type="text" id="manga-title" placeholder="Contoh: Petualangan Si Hebat" required>
+                        <input type="text" id="comic-title" placeholder="Contoh: Petualangan Si Hebat" required>
                     </div>
                     <div class="form-group">
-                        <label>URL Cover (Link Gambar)</label>
-                        <input type="url" id="manga-cover" placeholder="https://imgur.com/link-gambar.jpg" required>
+                        <label>Upload Cover (File Gambar)</label>
+                        <input type="file" id="file-input" accept="image/*" required>
                     </div>
                     <div class="form-group">
                         <label>Genre</label>
-                        <select id="manga-genre">
+                        <select id="comic-genre">
                             <option value="Action">Action</option>
                             <option value="Fantasy">Fantasy</option>
                             <option value="Comedy">Comedy</option>
@@ -98,9 +98,9 @@
                     </div>
                     <div class="form-group">
                         <label>Sinopsis</label>
-                        <textarea id="manga-summary" rows="4" placeholder="Tulis deskripsi singkat..."></textarea>
+                        <textarea id="comic-summary" rows="4" placeholder="Tulis deskripsi singkat..."></textarea>
                     </div>
-                    <button type="submit" class="btn-submit">PUBLIKASIKAN SEKARANG</button>
+                    <button type="button" id="btn-create-series" class="btn-submit">PUBLIKASIKAN SEKARANG</button>
                 </form>
             </div>
         </div>
@@ -109,18 +109,18 @@
             <h2 class="section-title">Statistik Kreator</h2>
             <div class="stats-grid">
                 <div class="stat-card">
-                    <h3 id="stat-series">0</h3>
-                    <p>TOTAL SERIES</p>
+                    <h3 id="total-views">0</h3>
+                    <p>TOTAL VIEWS</p>
                 </div>
                 <div class="stat-card">
-                    <h3 id="stat-chapters">0</h3>
-                    <p>TOTAL CHAPTER</p>
+                    <h3 id="total-likes">0</h3>
+                    <p>TOTAL LIKES</p>
                 </div>
             </div>
         </div>
     </main>
 
-    <script type="module" src="js/script.js"></script>
+    <script type="module" src="js/manage.js"></script>
     <script>
         function openTab(evt, tabName) {
             const contents = document.getElementsByClassName("tab-content");
