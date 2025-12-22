@@ -24,23 +24,26 @@ const IMGBB_KEY = 'daa2bcb021279c96cebd854f8650d77e';
 window.selectedFilesArray = [];
 
 // ==========================================
-// FITUR AUTO-SAVE & DRAFT (PENAMBAHAN BARU)
+// FITUR AUTO-SAVE & DRAFT (FIXED)
 // ==========================================
 function simpanDraftKeLocal() {
-    if (!comicId) return;
+    // Jika ada comicId = edit mode, jika tidak = buat baru mode
+    const storageKey = comicId ? `draft_series_${comicId}` : `draft_new_series`;
+    
     const draftData = {
         title: document.getElementById('comic-title')?.value || "",
         genre: document.getElementById('comic-genre')?.value || "",
         summary: document.getElementById('comic-summary')?.value || ""
     };
-    localStorage.setItem(`draft_series_${comicId}`, JSON.stringify(draftData));
+    localStorage.setItem(storageKey, JSON.stringify(draftData));
 }
 
 function muatDraftDariLocal() {
-    const dataMentah = localStorage.getItem(`draft_series_${comicId}`);
+    const storageKey = comicId ? `draft_series_${comicId}` : `draft_new_series`;
+    const dataMentah = localStorage.getItem(storageKey);
+    
     if (dataMentah) {
         const data = JSON.parse(dataMentah);
-        // Menggunakan setTimeout dikit agar memastikan element sudah siap di DOM
         setTimeout(() => {
             if (document.getElementById('comic-title')) document.getElementById('comic-title').value = data.title;
             if (document.getElementById('comic-genre')) document.getElementById('comic-genre').value = data.genre;
@@ -49,9 +52,10 @@ function muatDraftDariLocal() {
     }
 }
 
-// Pasang Listener Otomatis
+// Pasang Listener Input untuk Auto-Save
 document.addEventListener('input', (e) => {
-    if (['comic-title', 'comic-genre', 'comic-summary'].includes(e.target.id)) {
+    const fields = ['comic-title', 'comic-genre', 'comic-summary'];
+    if (fields.includes(e.target.id)) {
         simpanDraftKeLocal();
     }
 });
@@ -73,13 +77,13 @@ onAuthStateChanged(auth, (user) => {
     if (dashboardUI) dashboardUI.style.display = 'block';
 
     if (comicId) {
-        // muatDataSeries(); // Asumsi fungsi ini ada di HTML/global
         muatDaftarChapter();
-        muatDraftDariLocal(); // Panggil Auto-fill saat login berhasil
     } else {
         muatKomikSaya(user.uid);
     }
-
+    
+    // Selalu coba muat draft jika ada
+    muatDraftDariLocal();
     muatDataProfil(user);
     muatStatistikGlobal(user.uid);
 });
@@ -88,24 +92,24 @@ onAuthStateChanged(auth, (user) => {
 // 2. FITUR PROFIL
 // ==========================================
 async function muatDataProfil(user) {
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    const dispEmail = document.getElementById('user-display-email');
-    const dispName = document.getElementById('user-display-name');
-    const inputName = document.getElementById('profile-name');
-    const inputBio = document.getElementById('profile-bio');
-    const inputLink = document.getElementById('profile-link');
-    const avatarPrev = document.getElementById('avatar-preview');
+    try {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const dispEmail = document.getElementById('user-display-email');
+        const dispName = document.getElementById('user-display-name');
+        
+        if (dispEmail) dispEmail.innerText = user.email;
 
-    if (dispEmail) dispEmail.innerText = user.email;
-
-    if (userDoc.exists()) {
-        const d = userDoc.data();
-        if (dispName) dispName.innerText = d.displayName || "Kreator Baru";
-        if (inputName) inputName.value = d.displayName || "";
-        if (inputBio) inputBio.value = d.bio || "";
-        if (inputLink) inputLink.value = d.socialLink || "";
-        if (avatarPrev && d.photoURL) avatarPrev.src = d.photoURL;
-    }
+        if (userDoc.exists()) {
+            const d = userDoc.data();
+            if (dispName) dispName.innerText = d.displayName || "Kreator Baru";
+            if (document.getElementById('profile-name')) document.getElementById('profile-name').value = d.displayName || "";
+            if (document.getElementById('profile-bio')) document.getElementById('profile-bio').value = d.bio || "";
+            if (document.getElementById('profile-link')) document.getElementById('profile-link').value = d.socialLink || "";
+            if (document.getElementById('avatar-preview') && d.photoURL) {
+                document.getElementById('avatar-preview').src = d.photoURL;
+            }
+        }
+    } catch (err) { console.error("Profil error:", err); }
 }
 
 document.getElementById('btn-update-profile')?.addEventListener('click', async () => {
@@ -117,7 +121,7 @@ document.getElementById('btn-update-profile')?.addEventListener('click', async (
         let photoURL = document.getElementById('avatar-preview').src;
         const fileInput = document.getElementById('avatar-input');
         
-        if (fileInput.files[0]) {
+        if (fileInput && fileInput.files[0]) {
             const formData = new FormData();
             formData.append('image', fileInput.files[0]);
             const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: formData });
@@ -174,7 +178,7 @@ async function muatKomikSaya(uid) {
         list.innerHTML = "";
 
         if (snap.empty) {
-            list.innerHTML = "<p>Belum ada karya.</p>";
+            list.innerHTML = "<p style='color:gray; text-align:center; grid-column:1/-1;'>Belum ada karya. Mulai buat sekarang!</p>";
             return;
         }
 
@@ -182,12 +186,12 @@ async function muatKomikSaya(uid) {
             const d = doc.data();
             const div = document.createElement('div');
             div.className = "card"; 
-            div.style = "padding: 15px; display: flex; flex-direction: column; gap: 10px;";
+            div.style = "padding: 15px; display: flex; flex-direction: column; gap: 10px; background:#161a21; border-radius:12px; border:1px solid #2d333b;";
             div.innerHTML = `
                 <img src="${d.coverUrl || 'https://via.placeholder.com/150'}" style="width:100%; height:200px; object-fit:cover; border-radius:8px;">
-                <h4 style="margin:0;">${d.title}</h4>
-                <div style="font-size:12px; color:gray;">👁️ ${d.views || 0} | ❤️ ${d.likes || 0}</div>
-                <button onclick="location.href='manage.html?id=${doc.id}'" class="btn-main" style="padding:8px; font-size:12px;">KELOLA</button>
+                <h4 style="margin:0; color:white;">${d.title || "Tanpa Judul"}</h4>
+                <div style="font-size:12px; color:gray;">👁️ ${d.views || 0} | ❤️ ${d.likes || 0} | ${d.genre || 'No Genre'}</div>
+                <button onclick="location.href='manage.html?id=${doc.id}'" class="btn-submit" style="padding:8px; font-size:12px; margin-top:5px;">KELOLA</button>
             `;
             list.appendChild(div);
         });
@@ -202,7 +206,8 @@ document.getElementById('btn-create-series')?.addEventListener('click', async ()
     const title = document.getElementById('comic-title').value;
     const genre = document.getElementById('comic-genre').value;
     const summary = document.getElementById('comic-summary').value;
-    const file = document.getElementById('file-input').files[0];
+    const fileInput = document.getElementById('file-input');
+    const file = fileInput ? fileInput.files[0] : null;
 
     if (!title || !file) return alert("Judul dan Cover wajib diisi!");
 
@@ -224,18 +229,24 @@ document.getElementById('btn-create-series')?.addEventListener('click', async ()
             createdAt: serverTimestamp()
         });
 
+        // Hapus Draft setelah sukses
+        localStorage.removeItem(`draft_new_series`);
+        
         alert("Series Berhasil Dibuat!");
         location.reload();
     } catch (e) {
         alert("Gagal: " + e.message);
-    } finally { btn.disabled = false; }
+    } finally { 
+        btn.disabled = false; 
+        btn.innerText = "PUBLIKASIKAN SEKARANG";
+    }
 });
 
 // ==========================================
 // 6. LOGOUT
 // ==========================================
 document.getElementById('btn-logout')?.addEventListener('click', async () => {
-    if (confirm("Logout?")) {
+    if (confirm("Logout dari Creator Center?")) {
         await signOut(auth);
         location.href = 'index.html';
     }
@@ -294,7 +305,7 @@ window.moveFile = (index, direction) => {
 };
 
 // ==========================================
-// 8. UPLOAD CHAPTER BARU (DIPERBAIKI AGAR TIDAK HILANG)
+// 8. UPLOAD CHAPTER BARU
 // ==========================================
 const btnUploadCh = document.getElementById('btn-upload-chapter');
 if (btnUploadCh) {
@@ -336,19 +347,14 @@ if (btnUploadCh) {
             });
 
             alert("🚀 Chapter Berhasil Dipublikasikan!");
-            
-            // PERBAIKAN: Jangan reload, cukup bersihkan field chapter
             window.selectedFilesArray = [];
             renderFilePreview();
             titleInput.value = "";
             if (progressBox) progressBox.style.display = 'none';
-            
-            // Muat ulang daftar chapter agar muncul yang baru
             muatDaftarChapter();
-            btnUploadCh.disabled = false;
-
         } catch (e) {
             alert("Gagal upload chapter: " + e.message);
+        } finally {
             btnUploadCh.disabled = false;
         }
     };
@@ -388,10 +394,10 @@ async function muatDaftarChapter() {
 }
 
 window.hapusChapter = async (id) => {
-    if (confirm("⚠️ Hapus chapter ini?")) {
+    if (confirm("⚠️ Hapus chapter ini secara permanen?")) {
         try {
             await deleteDoc(doc(db, "chapters", id));
-            muatDaftarChapter(); // Muat ulang daftar saja
+            muatDaftarChapter();
         } catch (e) { alert("Gagal menghapus."); }
     }
 };
@@ -404,7 +410,6 @@ window.deleteSeries = async () => {
         const konfirmasi = prompt("Ketik 'HAPUS PERMANEN' untuk melanjutkan:");
         if (konfirmasi === 'HAPUS PERMANEN') {
             try {
-                // Hapus draft lokal juga kalau series dihapus
                 localStorage.removeItem(`draft_series_${comicId}`);
                 await deleteDoc(doc(db, "comics", comicId));
                 alert("Series berhasil dihapus.");
