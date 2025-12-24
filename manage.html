@@ -3,266 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Detail Comic | DebutCMC</title>
+<title>Manage Comic | DebutCMC</title>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-<style>
-:root{
-    --primary:#00ff88;
-    --bg:#0b0e14;
-    --card:#161a21;
-    --border:#2d333b;
-    --sidebar-w:260px;
-}
-body{
-    margin:0;
-    background:var(--bg);
-    color:#e6edf3;
-    display:flex;
-    font-family:Arial, Helvetica, sans-serif;
-}
-.sidebar{
-    width:var(--sidebar-w);
-    background:var(--card);
-    height:100vh;
-    position:fixed;
-    border-right:1px solid var(--border);
-}
-.sidebar a{
-    display:flex;
-    gap:10px;
-    padding:12px 18px;
-    color:#8b949e;
-    text-decoration:none;
-    font-size:14px;
-}
-.sidebar a.active,
-.sidebar a:hover{
-    background:rgba(0,255,136,.08);
-    color:var(--primary);
-}
-.main{
-    margin-left:var(--sidebar-w);
-    width:100%;
-}
-.topbar{
-    padding:15px 25px;
-    border-bottom:1px solid var(--border);
-    background:#161a21;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-}
-.container{
-    max-width:1100px;
-    margin:30px auto;
-    padding:0 20px;
-}
-.card{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:20px;
-    margin-bottom:20px;
-}
-label{
-    font-size:11px;
-    text-transform:uppercase;
-    font-weight:700;
-    color:var(--primary);
-    margin-bottom:6px;
-    display:block;
-}
-input,textarea,select{
-    width:100%;
-    padding:12px;
-    border-radius:8px;
-    border:1px solid var(--border);
-    background:#0b0e14;
-    color:white;
-    font-size:14px;
-}
-input[disabled], textarea[disabled]{
-    opacity:.6;
-}
-.grid-2{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
-}
-.btn{
-    background:#2d333b;
-    color:#8b949e;
-    border:none;
-    padding:12px 20px;
-    border-radius:8px;
-    font-weight:800;
-    cursor:not-allowed;
-}
-.btn.active{
-    background:var(--primary);
-    color:#0b0e14;
-    cursor:pointer;
-}
-.checklist label{
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    font-size:13px;
-    text-transform:none;
-    font-weight:400;
-    color:#e6edf3;
-}
-</style>
+<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
 
 <!-- SIDEBAR -->
-<div class="sidebar">
+<aside class="sidebar">
+    <h2 class="logo">DebutCMC</h2>
     <a href="dashboard.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-    <a class="active"><i class="fa-solid fa-book"></i> Detail Comic</a>
-</div>
+    <a class="active"><i class="fa-solid fa-gear"></i> Manage Comic</a>
+</aside>
 
 <!-- MAIN -->
-<div class="main">
+<main class="main">
 
-<div class="topbar">
-    <h3>DETAIL COMIC</h3>
-    <button id="saveBtn" class="btn">SIMPAN DETAIL</button>
-</div>
+<header class="topbar">
+    <h3>Manage Comic</h3>
+    <button id="saveBtn" class="btn disabled">Simpan & Lanjut</button>
+</header>
 
-<div class="container">
+<section class="container">
 
-<!-- DATA DASHBOARD -->
+<!-- STEP 1 -->
 <div class="card">
-    <h4>Data Utama (Dari Dashboard)</h4>
-
-    <label>Judul Comic</label>
-    <input type="text" id="comic-title" disabled>
-
-    <label>Genre</label>
-    <input type="text" id="comic-genre" disabled>
-
-    <label>Sinopsis</label>
-    <textarea rows="4" id="comic-sinopsis" disabled></textarea>
+    <h4>Informasi Dasar</h4>
+    <input disabled id="comic-title">
+    <input disabled id="comic-genre">
+    <textarea disabled id="comic-sinopsis"></textarea>
 </div>
 
-<!-- DETAIL PRODUKSI -->
+<!-- STEP 2 -->
 <div class="card">
-    <h4>Detail Produksi Comic <span style="color:#ff5f56">(Wajib)</span></h4>
-
-    <div class="grid-2">
-        <div>
-            <label>Writer *</label>
-            <input required>
-        </div>
-        <div>
-            <label>Artist / Ilustrator *</label>
-            <input required>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div>
-            <label>Line Art *</label>
-            <input required>
-        </div>
-        <div>
-            <label>Coloring *</label>
-            <input required>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div>
-            <label>Lettering *</label>
-            <input required>
-        </div>
-        <div>
-            <label>Editor (Opsional)</label>
-            <input>
-        </div>
-    </div>
-
-    <div class="grid-2">
-        <div>
-            <label>Bahasa *</label>
-            <select required>
-                <option value="">-- Pilih --</option>
-                <option>Indonesia</option>
-                <option>English</option>
-            </select>
-        </div>
-        <div>
-            <label>Format Comic *</label>
-            <select required>
-                <option value="">-- Pilih --</option>
-                <option>Webtoon (Vertical)</option>
-                <option>Manga</option>
-                <option>Comic Page</option>
-            </select>
-        </div>
+    <h4>Tim Produksi</h4>
+    <div class="grid">
+        <input required placeholder="Writer">
+        <input required placeholder="Artist">
+        <input required placeholder="Line Art">
+        <input required placeholder="Colorist">
+        <input required placeholder="Lettering">
+        <input placeholder="Editor (Opsional)">
     </div>
 </div>
 
-<!-- STANDAR & PERSETUJUAN -->
+<!-- STEP 3 -->
+<div class="card">
+    <h4>Spesifikasi Comic</h4>
+    <div class="grid">
+        <select required>
+            <option value="">Bahasa</option>
+            <option>ID</option>
+            <option>EN</option>
+        </select>
+        <select required>
+            <option value="">Format</option>
+            <option>Webtoon</option>
+            <option>Manga</option>
+        </select>
+    </div>
+</div>
+
+<!-- STEP 4 -->
+<div class="card">
+    <button class="toggle-btn" onclick="toggleSetting()">
+        <i class="fa-solid fa-sliders"></i> Pengaturan Konten Comic
+    </button>
+
+    <div id="settingPanel" class="hidden">
+        <label><input type="checkbox"> Mengandung kekerasan ringan</label>
+        <label><input type="checkbox"> Tema dewasa</label>
+        <label>
+            Privasi:
+            <select>
+                <option>Public</option>
+                <option>Private</option>
+            </select>
+        </label>
+        <label><input type="checkbox"> Izinkan komentar</label>
+    </div>
+</div>
+
+<!-- STEP 5 -->
 <div class="card checklist">
-    <h4>Standar Kualitas & Persetujuan <span style="color:#ff5f56">(Wajib)</span></h4>
-
-    <label><input type="checkbox" class="req-check"> Cerita memiliki alur yang jelas</label>
-    <label><input type="checkbox" class="req-check"> Ilustrasi layak dan tidak pecah</label>
-    <label><input type="checkbox" class="req-check"> Tidak mengandung plagiarisme</label>
-    <label><input type="checkbox" class="req-check"> Dialog & lettering mudah dibaca</label>
-    <label><input type="checkbox" class="req-check"> Konten sesuai rating umur</label>
-
-    <hr style="border:1px solid var(--border); margin:15px 0;">
-
-    <label><input type="checkbox" class="req-check"> Saya pemilik sah comic ini</label>
-    <label><input type="checkbox" class="req-check"> Saya menyetujui syarat & ketentuan DebutCMC</label>
+    <h4>Persetujuan</h4>
+    <label><input type="checkbox" class="req-check"> Saya pemilik sah comic</label>
+    <label><input type="checkbox" class="req-check"> Tidak melanggar hak cipta</label>
+    <label><input type="checkbox" class="req-check"> Setuju syarat platform</label>
 </div>
 
-</div>
-</div>
+</section>
+</main>
 
-<script>
-// DATA DARI DASHBOARD
-const dashboardData = {
-    title: "Judul Comic Dari Dashboard",
-    genre: "Action, Fantasy",
-    sinopsis: "Ini sinopsis yang sudah dibuat dari dashboard."
-};
-
-comic-title.value = dashboardData.title;
-comic-genre.value = dashboardData.genre;
-comic-sinopsis.value = dashboardData.sinopsis;
-
-// VALIDASI
-const saveBtn = document.getElementById("saveBtn");
-const requiredInputs = document.querySelectorAll("[required]");
-const checks = document.querySelectorAll(".req-check");
-
-function validate(){
-    const inputsValid = [...requiredInputs].every(i => i.value.trim() !== "");
-    const checksValid = [...checks].every(c => c.checked);
-
-    if(inputsValid && checksValid){
-        saveBtn.classList.add("active");
-        saveBtn.disabled = false;
-    }else{
-        saveBtn.classList.remove("active");
-        saveBtn.disabled = true;
-    }
-}
-
-document.addEventListener("input", validate);
-document.addEventListener("change", validate);
-
-saveBtn.addEventListener("click",()=>{
-    alert("Detail comic berhasil disimpan. Siap lanjut publish.");
-});
-</script>
-
+<script src="js/manage.js"></script>
 </body>
 </html>
