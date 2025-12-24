@@ -1,155 +1,81 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Komik | DebutCMC</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Penyesuaian khusus untuk halaman Detail agar sinkron dengan CSS Utama */
-        .detail-header {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 40px;
-            margin-top: 40px;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Detail Komik | DebutCMC</title>
 
-        .cover-wrapper img {
-            width: 100%;
-            border-radius: 16px;
-            border: 1px solid #2d333b;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .info-wrapper h1 {
-            font-size: 2.5rem;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-
-        .genre-badge {
-            background: rgba(0, 255, 136, 0.1);
-            color: #00ff88;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-
-        .summary-box {
-            color: #8b949e;
-            line-height: 1.8;
-            margin-bottom: 30px;
-            font-size: 15px;
-        }
-
-        /* Chapter List Styling */
-        .chapter-list {
-            margin-top: 50px;
-            background: #161a21;
-            border-radius: 16px;
-            border: 1px solid #2d333b;
-            overflow: hidden;
-        }
-
-        .chapter-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 25px;
-            border-bottom: 1px solid #2d333b;
-            text-decoration: none;
-            transition: 0.3s;
-        }
-
-        .chapter-item:last-child { border-bottom: none; }
-
-        .chapter-item:hover {
-            background: rgba(0, 255, 136, 0.05);
-        }
-
-        .ch-info span { color: #e6edf3; font-weight: 600; }
-        .ch-info small { color: #8b949e; display: block; font-size: 12px; }
-
-        .btn-read {
-            background: #00ff88;
-            color: #0b0e14;
-            padding: 6px 20px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 12px;
-        }
-
-        @media (max-width: 768px) {
-            .detail-header { grid-template-columns: 1fr; text-align: center; gap: 20px; }
-            .cover-wrapper { width: 200px; margin: 0 auto; }
-            .info-wrapper h1 { font-size: 1.8rem; }
-        }
-    </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="index.html" class="logo-area">
-                <div class="logo-text">DEBUT<span>CMC</span></div>
-            </a>
-            
-            <div class="nav-links">
-                <a href="index.html">HOME</a>
-                <a href="#">GENRE</a>
-                <a href="#">TERBARU</a>
-                <div id="auth-section">
-                    </div>
-            </div>
-        </div>
-    </nav>
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+  <div class="nav-content">
+    <a href="index.html" class="logo-area">
+      <div class="logo-text">DEBUT<span>CMC</span></div>
+    </a>
 
-    <main class="home-container">
-        
-        <section class="detail-header">
-            <div class="cover-wrapper">
-                <img id="comic-cover" src="" alt="Cover">
-            </div>
-            
-            <div class="info-wrapper">
-                <div id="comic-genre" class="genre-badge">Memuat Genre...</div>
-                <h1 id="comic-title">Memuat Judul...</h1>
-                
-                <div class="summary-box">
-                    <h3 style="color:white; margin-bottom:10px;">Sinopsis</h3>
-                    <p id="comic-summary">Sedang memuat sinopsis komik...</p>
-                </div>
+    <div class="nav-links">
+      <a href="index.html">HOME</a>
+      <a href="#">GENRE</a>
+      <a href="#">TERBARU</a>
+    </div>
+  </div>
+</nav>
 
-                <div class="detail-actions">
-                    <button class="btn-login" style="background:#00ff88; color:black; padding:12px 30px; border-radius:8px;">
-                        <i class="fa-solid fa-bookmark"></i> FAVORIT
-                    </button>
-                </div>
-            </div>
-        </section>
+<!-- ================= MAIN ================= -->
+<main class="home-container">
 
-        <h2 class="section-title">Daftar Chapter</h2>
-        <div class="chapter-list" id="chapters-container">
-            <p style="color: #8b949e; padding: 40px; text-align: center;">Memuat daftar chapter...</p>
-        </div>
+  <!-- HEADER DETAIL -->
+  <section class="detail-header">
+    <div class="cover-wrapper">
+      <!-- 🔑 DIPAKAI script.js -->
+      <img id="comic-cover" alt="Cover Comic">
+    </div>
 
-    </main>
+    <div class="info-wrapper">
+      <!-- 🔑 -->
+      <div id="comic-genre" class="genre-badge">Loading...</div>
+      <h1 id="comic-title">Loading...</h1>
 
-    <footer class="footer-pro">
-        <div class="logo-text">DEBUT<span>CMC</span></div>
-        <div class="social-icons">
-            <a href="#"><i class="fab fa-instagram"></i></a>
-            <a href="#"><i class="fab fa-discord"></i></a>
-            <a href="#"><i class="fab fa-twitter"></i></a>
-        </div>
-        <p class="copyright">&copy; 2024 DebutCMC Team. All rights reserved.</p>
-    </footer>
+      <div class="summary-box">
+        <h3>Sinopsis</h3>
+        <!-- 🔑 -->
+        <p id="comic-summary">Memuat sinopsis...</p>
+      </div>
 
-    <script type="module" src="js/script.js"></script>
+      <button class="btn-login">
+        <i class="fa-solid fa-bookmark"></i> FAVORIT
+      </button>
+    </div>
+  </section>
 
+  <!-- ================= CHAPTER LIST ================= -->
+  <h2 class="section-title">Daftar Chapter</h2>
+
+  <!-- 🔑 container WAJIB -->
+  <div id="chapters-container" class="chapter-list">
+    <p class="empty">Memuat chapter...</p>
+  </div>
+
+</main>
+
+<!-- ================= FOOTER ================= -->
+<footer class="footer-pro">
+  <div class="logo-text">DEBUT<span>CMC</span></div>
+  <div class="social-icons">
+    <a href="#"><i class="fab fa-instagram"></i></a>
+    <a href="#"><i class="fab fa-discord"></i></a>
+    <a href="#"><i class="fab fa-twitter"></i></a>
+  </div>
+  <p class="copyright">
+    &copy; 2024 DebutCMC Team. All rights reserved.
+  </p>
+</footer>
+
+<!-- ================= SCRIPT ================= -->
+<script type="module" src="js/script.js"></script>
 </body>
 </html>
