@@ -9,7 +9,6 @@ import {
   collection,
   query,
   where,
-  orderBy,
   getDocs,
   addDoc,
   serverTimestamp
@@ -32,35 +31,105 @@ function initDashboard(user) {
 }
 
 // ================================
-// AUTHOR INFO
+// AUTHOR INFO (STEP 1)
 // ================================
 function loadAuthorInfo(user) {
-  // TODO:
-  // - render nama author
-  // - validasi role (author)
+  const nameEl = document.getElementById('author-name')
+  const emailEl = document.getElementById('author-email')
+
+  if (nameEl) {
+    nameEl.innerText = user.displayName || 'Author'
+  }
+
+  if (emailEl) {
+    emailEl.innerText = user.email
+  }
 }
 
 // ================================
-// LOAD COMIC LIST
+// LOAD COMIC LIST (STEP 2)
 // ================================
 async function loadMyComics(uid) {
-  // TODO:
-  // - query comics by authorId
-  // - render card comic
-  // - hitung statistik
+  const listEl = document.getElementById('my-comic-list')
+  if (!listEl) return
+
+  listEl.innerHTML = 'Loading...'
+
+  try {
+    const q = query(
+      collection(db, 'comics'),
+      where('authorId', '==', uid)
+    )
+
+    const snap = await getDocs(q)
+
+    listEl.innerHTML = ''
+
+    if (snap.empty) {
+      listEl.innerHTML = `
+        <p style="color:#888;text-align:center">
+          Kamu belum punya comic.
+        </p>
+      `
+      renderStats({
+        total: 0,
+        draft: 0,
+        published: 0
+      })
+      return
+    }
+
+    let total = 0
+    let draft = 0
+    let published = 0
+
+    snap.forEach(docSnap => {
+      total++
+      const data = docSnap.data()
+
+      if (data.status === 'published') {
+        published++
+      } else {
+        draft++
+      }
+
+      const card = renderComicCard(docSnap.id, data)
+      listEl.appendChild(card)
+    })
+
+    renderStats({ total, draft, published })
+
+  } catch (err) {
+    console.error(err)
+    listEl.innerHTML = 'Gagal memuat comic.'
+  }
 }
 
 // ================================
-// CREATE SERIES
+// CREATE SERIES (DRAFT ONLY)
 // ================================
 function bindCreateSeries(uid) {
   const btn = document.getElementById('btn-create-series')
   if (!btn) return
 
   btn.onclick = async () => {
-    // TODO:
-    // - create comic (draft)
-    // - redirect ke manage.html?id=
+    btn.disabled = true
+
+    try {
+      const docRef = await addDoc(collection(db, 'comics'), {
+        title: 'Untitled Comic',
+        authorId: uid,
+        status: 'draft',
+        createdAt: serverTimestamp()
+      })
+
+      window.location.href = `manage.html?id=${docRef.id}`
+
+    } catch (err) {
+      alert('Gagal membuat series')
+      console.error(err)
+      btn.disabled = false
+    }
   }
 }
 
@@ -68,13 +137,25 @@ function bindCreateSeries(uid) {
 // RENDER HELPERS
 // ================================
 function renderComicCard(comicId, data) {
-  // TODO:
-  // - template card comic
+  const div = document.createElement('div')
+  div.className = 'comic-card'
+
+  div.innerHTML = `
+    <h4>${data.title || 'Untitled'}</h4>
+    <p>Status: <strong>${data.status || 'draft'}</strong></p>
+    <button onclick="location.href='manage.html?id=${comicId}'">
+      Kelola
+    </button>
+  `
+  return div
 }
 
 function renderStats(stats) {
-  // TODO:
-  // - total comic
-  // - draft
-  // - published
+  const totalEl = document.getElementById('stat-total')
+  const draftEl = document.getElementById('stat-draft')
+  const pubEl = document.getElementById('stat-published')
+
+  if (totalEl) totalEl.innerText = stats.total
+  if (draftEl) draftEl.innerText = stats.draft
+  if (pubEl) pubEl.innerText = stats.published
 }
