@@ -85,7 +85,6 @@ input,textarea,select{
 }
 input[disabled], textarea[disabled]{
     opacity:.6;
-    cursor:not-allowed;
 }
 .grid-2{
     display:grid;
@@ -93,13 +92,27 @@ input[disabled], textarea[disabled]{
     gap:15px;
 }
 .btn{
-    background:var(--primary);
-    color:#0b0e14;
+    background:#2d333b;
+    color:#8b949e;
     border:none;
     padding:12px 20px;
     border-radius:8px;
     font-weight:800;
+    cursor:not-allowed;
+}
+.btn.active{
+    background:var(--primary);
+    color:#0b0e14;
     cursor:pointer;
+}
+.checklist label{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    font-size:13px;
+    text-transform:none;
+    font-weight:400;
+    color:#e6edf3;
 }
 </style>
 </head>
@@ -117,12 +130,12 @@ input[disabled], textarea[disabled]{
 
 <div class="topbar">
     <h3>DETAIL COMIC</h3>
-    <button class="btn">SIMPAN DETAIL</button>
+    <button id="saveBtn" class="btn">SIMPAN DETAIL</button>
 </div>
 
 <div class="container">
 
-<!-- DATA DARI DASHBOARD -->
+<!-- DATA DASHBOARD -->
 <div class="card">
     <h4>Data Utama (Dari Dashboard)</h4>
 
@@ -136,66 +149,119 @@ input[disabled], textarea[disabled]{
     <textarea rows="4" id="comic-sinopsis" disabled></textarea>
 </div>
 
-<!-- DETAIL TAMBAHAN -->
+<!-- DETAIL PRODUKSI -->
 <div class="card">
-    <h4>Detail Comic</h4>
+    <h4>Detail Produksi Comic <span style="color:#ff5f56">(Wajib)</span></h4>
 
     <div class="grid-2">
         <div>
-            <label>Penulis</label>
-            <input type="text" placeholder="Nama penulis">
+            <label>Writer *</label>
+            <input required>
         </div>
         <div>
-            <label>Artist</label>
-            <input type="text" placeholder="Nama artist">
+            <label>Artist / Ilustrator *</label>
+            <input required>
         </div>
     </div>
 
     <div class="grid-2">
         <div>
-            <label>Collaboration</label>
-            <input type="text" placeholder="Studio / Partner (opsional)">
+            <label>Line Art *</label>
+            <input required>
         </div>
         <div>
-            <label>Status Series</label>
-            <select>
-                <option>Ongoing</option>
-                <option>Tamat</option>
-                <option>Hiatus</option>
+            <label>Coloring *</label>
+            <input required>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div>
+            <label>Lettering *</label>
+            <input required>
+        </div>
+        <div>
+            <label>Editor (Opsional)</label>
+            <input>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <div>
+            <label>Bahasa *</label>
+            <select required>
+                <option value="">-- Pilih --</option>
+                <option>Indonesia</option>
+                <option>English</option>
+            </select>
+        </div>
+        <div>
+            <label>Format Comic *</label>
+            <select required>
+                <option value="">-- Pilih --</option>
+                <option>Webtoon (Vertical)</option>
+                <option>Manga</option>
+                <option>Comic Page</option>
             </select>
         </div>
     </div>
+</div>
 
-    <div class="grid-2">
-        <div>
-            <label>Tahun Rilis</label>
-            <input type="number" placeholder="2025">
-        </div>
-        <div>
-            <label>Rating Umur</label>
-            <select>
-                <option>Semua Umur</option>
-                <option>13+</option>
-                <option>17+</option>
-            </select>
-        </div>
-    </div>
+<!-- STANDAR & PERSETUJUAN -->
+<div class="card checklist">
+    <h4>Standar Kualitas & Persetujuan <span style="color:#ff5f56">(Wajib)</span></h4>
+
+    <label><input type="checkbox" class="req-check"> Cerita memiliki alur yang jelas</label>
+    <label><input type="checkbox" class="req-check"> Ilustrasi layak dan tidak pecah</label>
+    <label><input type="checkbox" class="req-check"> Tidak mengandung plagiarisme</label>
+    <label><input type="checkbox" class="req-check"> Dialog & lettering mudah dibaca</label>
+    <label><input type="checkbox" class="req-check"> Konten sesuai rating umur</label>
+
+    <hr style="border:1px solid var(--border); margin:15px 0;">
+
+    <label><input type="checkbox" class="req-check"> Saya pemilik sah comic ini</label>
+    <label><input type="checkbox" class="req-check"> Saya menyetujui syarat & ketentuan DebutCMC</label>
 </div>
 
 </div>
 </div>
 
 <script>
-// SIMULASI DATA DARI DASHBOARD
+// DATA DARI DASHBOARD
 const dashboardData = {
     title: "Judul Comic Dari Dashboard",
     genre: "Action, Fantasy",
     sinopsis: "Ini sinopsis yang sudah dibuat dari dashboard."
 };
 
-document.getElementById("comic-title").value = dashboardData.title;
-document.getElementById("comic-genre").value = dashboardData.genre;
-document.getElementById("comic-sinopsis").value = dashboardData.sinopsis;
+comic-title.value = dashboardData.title;
+comic-genre.value = dashboardData.genre;
+comic-sinopsis.value = dashboardData.sinopsis;
+
+// VALIDASI
+const saveBtn = document.getElementById("saveBtn");
+const requiredInputs = document.querySelectorAll("[required]");
+const checks = document.querySelectorAll(".req-check");
+
+function validate(){
+    const inputsValid = [...requiredInputs].every(i => i.value.trim() !== "");
+    const checksValid = [...checks].every(c => c.checked);
+
+    if(inputsValid && checksValid){
+        saveBtn.classList.add("active");
+        saveBtn.disabled = false;
+    }else{
+        saveBtn.classList.remove("active");
+        saveBtn.disabled = true;
+    }
+}
+
+document.addEventListener("input", validate);
+document.addEventListener("change", validate);
+
+saveBtn.addEventListener("click",()=>{
+    alert("Detail comic berhasil disimpan. Siap lanjut publish.");
+});
 </script>
 
 </body>
