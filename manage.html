@@ -1,303 +1,202 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Series Manager | DebutCMC</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { 
-            --primary: #00ff88; 
-            --bg: #0b0e14; 
-            --card: #161a21; 
-            --border: #2d333b; 
-            --sidebar-w: 260px;
-            --danger: #ff4444;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Comic | DebutCMC</title>
 
-        body { 
-            background: var(--bg); 
-            display: flex; 
-            color: #e6edf3;
-            margin: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        /* --- SIDEBAR CUSTOMIZATION --- */
-        .sidebar {
-            width: var(--sidebar-w);
-            background: var(--card);
-            border-right: 1px solid var(--border);
-            height: 100vh;
-            position: fixed;
-            left: -260px;
-            transition: 0.3s ease;
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .sidebar.active { left: 0; }
-
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .logo-text span { color: var(--primary); font-weight: 800; }
-
-        .sidebar-menu { padding: 15px; flex: 1; }
-        .menu-item {
-            display: flex; align-items: center; gap: 12px;
-            padding: 12px 15px; color: #8b949e;
-            text-decoration: none; border-radius: 8px;
-            margin-bottom: 5px; transition: 0.2s;
-            font-size: 14px;
-            font-weight: 600;
-        }
-        .menu-item:hover, .menu-item.active { background: rgba(0, 255, 136, 0.05); color: var(--primary); }
-
-        /* --- MAIN CONTENT AREA --- */
-        .main-wrapper {
-            flex: 1;
-            margin-left: 0;
-            transition: 0.3s;
-            min-width: 0;
-        }
-
-        .top-nav { 
-            background: rgba(22, 26, 33, 0.95); 
-            backdrop-filter: blur(10px); 
-            position: sticky; 
-            top: 0; z-index: 900; 
-            padding: 12px 25px; 
-            border-bottom: 1px solid var(--border); 
-            display: flex; align-items: center; justify-content: space-between; 
-        }
-
-        /* --- DASHBOARD ELEMENTS --- */
-        .manage-container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
-        
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 15px; 
-            margin-bottom: 30px; 
-        }
-        
-        .stat-box { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            padding: 15px; 
-            border-radius: 12px; 
-            text-align: center; 
-        }
-        .stat-value { display: block; font-size: 22px; font-weight: 800; color: #fff; }
-        .stat-label { font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px; }
-
-        .card { 
-            background: var(--card); 
-            border: 1px solid var(--border); 
-            border-radius: 12px; 
-            padding: 20px; 
-            margin-bottom: 20px; 
-        }
-
-        /* --- FORM CONTROLS --- */
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 11px; font-weight: 800; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; }
-        
-        input, textarea, select { 
-            width: 100%; padding: 12px; background: #0b0e14; 
-            border: 1px solid var(--border); color: white; border-radius: 8px; 
-            font-size: 14px; transition: 0.3s; box-sizing: border-box;
-        }
-        input:focus, textarea:focus, select:focus { border-color: var(--primary); outline: none; }
-        
-        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238b949e'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; }
-
-        .btn-manage { 
-            padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; 
-            border: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
-        }
-        .btn-save { background: var(--primary); color: #0b0e14; }
-        .btn-save:hover { opacity: 0.9; transform: translateY(-2px); }
-
-        /* Responsive Desktop */
-        @media (min-width: 1100px) {
-            .sidebar { left: 0; }
-            .main-wrapper { margin-left: var(--sidebar-w); }
-            .hamburger-trigger { display: none; }
-        }
-
-        .sidebar-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.8);
-            display: none; z-index: 950;
-        }
-        .sidebar-overlay.active { display: block; }
-
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    </style>
+<style>
+:root{
+    --primary:#00ff88;
+    --bg:#0b0e14;
+    --card:#161a21;
+    --border:#2d333b;
+    --sidebar-w:260px;
+}
+body{
+    margin:0;
+    background:var(--bg);
+    color:#e6edf3;
+    display:flex;
+    font-family:Arial, Helvetica, sans-serif;
+}
+.sidebar{
+    width:var(--sidebar-w);
+    background:var(--card);
+    height:100vh;
+    position:fixed;
+    border-right:1px solid var(--border);
+}
+.sidebar a{
+    display:flex;
+    gap:10px;
+    padding:12px 18px;
+    color:#8b949e;
+    text-decoration:none;
+    font-size:14px;
+}
+.sidebar a.active,
+.sidebar a:hover{
+    background:rgba(0,255,136,.08);
+    color:var(--primary);
+}
+.main{
+    margin-left:var(--sidebar-w);
+    width:100%;
+}
+.topbar{
+    padding:15px 25px;
+    border-bottom:1px solid var(--border);
+    background:#161a21;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.container{
+    max-width:1100px;
+    margin:30px auto;
+    padding:0 20px;
+}
+.card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    margin-bottom:20px;
+}
+label{
+    font-size:11px;
+    text-transform:uppercase;
+    font-weight:700;
+    color:var(--primary);
+    margin-bottom:6px;
+    display:block;
+}
+input,textarea,select{
+    width:100%;
+    padding:12px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:#0b0e14;
+    color:white;
+    font-size:14px;
+}
+input[disabled], textarea[disabled]{
+    opacity:.6;
+    cursor:not-allowed;
+}
+.grid-2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+.btn{
+    background:var(--primary);
+    color:#0b0e14;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    font-weight:800;
+    cursor:pointer;
+}
+</style>
 </head>
+
 <body>
 
-    <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <a href="dashboard.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
+    <a class="active"><i class="fa-solid fa-book"></i> Detail Comic</a>
+</div>
 
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="logo-text" style="font-size: 20px; font-weight: 800;">DEBUT<span>CMC</span></div>
-            <i class="fa-solid fa-xmark hamburger-trigger" onclick="toggleSidebar()" style="cursor:pointer; color:#8b949e;"></i>
+<!-- MAIN -->
+<div class="main">
+
+<div class="topbar">
+    <h3>DETAIL COMIC</h3>
+    <button class="btn">SIMPAN DETAIL</button>
+</div>
+
+<div class="container">
+
+<!-- DATA DARI DASHBOARD -->
+<div class="card">
+    <h4>Data Utama (Dari Dashboard)</h4>
+
+    <label>Judul Comic</label>
+    <input type="text" id="comic-title" disabled>
+
+    <label>Genre</label>
+    <input type="text" id="comic-genre" disabled>
+
+    <label>Sinopsis</label>
+    <textarea rows="4" id="comic-sinopsis" disabled></textarea>
+</div>
+
+<!-- DETAIL TAMBAHAN -->
+<div class="card">
+    <h4>Detail Comic</h4>
+
+    <div class="grid-2">
+        <div>
+            <label>Penulis</label>
+            <input type="text" placeholder="Nama penulis">
         </div>
-        <nav class="sidebar-menu">
-            <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-            <a href="#" class="menu-item active"><i class="fa-solid fa-book"></i> Edit Series</a>
-            <a href="#" class="menu-item"><i class="fa-solid fa-chart-line"></i> Statistik</a>
-            <hr style="border:0; border-top:1px solid var(--border); margin:15px 0;">
-            <a href="index.html" class="menu-item"><i class="fa-solid fa-arrow-left"></i> Kembali ke Home</a>
-        </nav>
-    </aside>
-
-    <div class="main-wrapper">
-        <header class="top-nav">
-            <div style="display:flex; align-items:center; gap:15px;">
-                <div class="hamburger-trigger" onclick="toggleSidebar()" style="cursor:pointer; color:var(--primary); font-size:20px;">
-                    <i class="fa-solid fa-bars-staggered"></i>
-                </div>
-                <h2 id="display-title" style="margin:0; font-size: 16px; font-weight: 800;">EDITOR SERIES</h2>
-            </div>
-            <button class="btn-manage btn-save" id="btn-update-series">
-                <i class="fa-solid fa-check-double"></i> SIMPAN PERUBAHAN
-            </button>
-        </header>
-
-        <div class="manage-container">
-            <div class="stats-grid">
-                <div class="stat-box"><span class="stat-value" id="stat-views">0</span><span class="stat-label">Views</span></div>
-                <div class="stat-box"><span class="stat-value" id="stat-subs">0</span><span class="stat-label">Subs</span></div>
-                <div class="stat-box"><span class="stat-value" id="stat-ch">0</span><span class="stat-label">Chapters</span></div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 320px; gap: 25px;" class="editor-layout">
-                <div class="editor-main">
-                    <div class="card">
-                        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                            <div class="cover-section" style="text-align: center;">
-                                <label>Cover Poster</label>
-                                <div style="position: relative; width: 140px; height: 190px; border: 2px solid var(--border); border-radius: 12px; overflow: hidden; background: #0b0e14;">
-                                    <img id="cover-preview" src="https://placehold.co/300x400/161a21/00ff88?text=Cover" style="width:100%; height:100%; object-fit:cover;">
-                                    <div style="position:absolute; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transition:0.3s;" 
-                                         onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0"
-                                         onclick="document.getElementById('edit-cover-file').click()">
-                                        <i class="fa-solid fa-camera fa-xl"></i>
-                                    </div>
-                                </div>
-                                <input type="file" id="edit-cover-file" hidden accept="image/*">
-                            </div>
-
-                            <div style="flex:1; min-width:280px;">
-                                <div class="form-group">
-                                    <label>Judul Series</label>
-                                    <input type="text" id="edit-title" placeholder="Masukkan judul komik...">
-                                </div>
-                                
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label>Nama Penulis / Creator</label>
-                                        <input type="text" id="edit-author" placeholder="Nama pena...">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Target Umur</label>
-                                        <select id="edit-age">
-                                            <option value="All">Semua Umur</option>
-                                            <option value="13+">Remaja (13+)</option>
-                                            <option value="17+">Dewasa (17+)</option>
-                                            <option value="21+">Eksklusif (21+)</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Sinopsis / Deskripsi</label>
-                                    <textarea id="edit-summary" rows="4" placeholder="Tulis cerita singkat..."></textarea>
-                                </div>
-
-                                <div class="grid-2">
-                                    <div class="form-group">
-                                        <label>Status Rilis</label>
-                                        <select id="edit-status">
-                                            <option value="Draft">🚧 Draft Mode</option>
-                                            <option value="Published">🚀 Published</option>
-                                            <option value="Private">🔒 Private</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Genre / Tags</label>
-                                        <input type="text" id="edit-genre" placeholder="Action, Fantasy, dll...">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <label style="margin-bottom:15px; display:block;">Daftar Chapter</label>
-                        <div id="chapter-list" style="display: flex; flex-direction: column; gap: 10px;">
-                            <p style="font-size:12px; color:#8b949e; text-align: center; padding: 20px;">Memuat daftar chapter...</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="editor-side">
-                    <div class="card" style="border-top: 4px solid var(--primary);">
-                        <h4 style="margin:0 0 15px 0; font-size: 14px;">Upload Chapter Baru</h4>
-                        <div class="form-group">
-                            <label>Nomor / Judul Chapter</label>
-                            <input type="text" id="ch-title" placeholder="Contoh: Chapter 05">
-                        </div>
-                        <div style="border: 2px dashed var(--border); padding: 30px 15px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s;" 
-                             onmouseover="this.style.borderColor='var(--primary)'"
-                             onmouseout="this.style.borderColor='var(--border)'"
-                             onclick="document.getElementById('ch-files').click()">
-                            <i class="fa-solid fa-cloud-arrow-up fa-2xl" style="color:var(--primary); margin-bottom:10px;"></i>
-                            <p style="font-size:11px; color:#8b949e;">Klik untuk upload gambar halaman (Multiple)</p>
-                            <input type="file" id="ch-files" multiple hidden accept="image/*">
-                        </div>
-                        <button class="btn-manage btn-save" style="width:100%; margin-top:15px; justify-content: center;" id="btn-upload-chapter">
-                            <i class="fa-solid fa-paper-plane"></i> PUBLISH CHAPTER
-                        </button>
-                    </div>
-
-                    <div class="card" style="border: 1px solid rgba(255, 68, 68, 0.2); background: rgba(255, 68, 68, 0.02);">
-                        <button class="btn-manage" style="color:var(--danger); font-size:12px; padding:0; background:none; width: 100%; justify-content: flex-start;" onclick="deleteSeries()">
-                            <i class="fa-solid fa-trash-can"></i> Hapus Series Permanen
-                        </button>
-                    </div>
-                </div>
-            </div>
+        <div>
+            <label>Artist</label>
+            <input type="text" placeholder="Nama artist">
         </div>
     </div>
 
-    <script>
-        function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
-            document.getElementById('overlay').classList.toggle('active');
-        }
+    <div class="grid-2">
+        <div>
+            <label>Collaboration</label>
+            <input type="text" placeholder="Studio / Partner (opsional)">
+        </div>
+        <div>
+            <label>Status Series</label>
+            <select>
+                <option>Ongoing</option>
+                <option>Tamat</option>
+                <option>Hiatus</option>
+            </select>
+        </div>
+    </div>
 
-        // Preview Cover saat upload
-        document.getElementById('edit-cover-file').addEventListener('change', function(e) {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(ex) {
-                    document.getElementById('cover-preview').src = ex.target.result;
-                }
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    </script>
-    <script type="module" src="js/manage.js"></script>
+    <div class="grid-2">
+        <div>
+            <label>Tahun Rilis</label>
+            <input type="number" placeholder="2025">
+        </div>
+        <div>
+            <label>Rating Umur</label>
+            <select>
+                <option>Semua Umur</option>
+                <option>13+</option>
+                <option>17+</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+// SIMULASI DATA DARI DASHBOARD
+const dashboardData = {
+    title: "Judul Comic Dari Dashboard",
+    genre: "Action, Fantasy",
+    sinopsis: "Ini sinopsis yang sudah dibuat dari dashboard."
+};
+
+document.getElementById("comic-title").value = dashboardData.title;
+document.getElementById("comic-genre").value = dashboardData.genre;
+document.getElementById("comic-sinopsis").value = dashboardData.sinopsis;
+</script>
+
 </body>
 </html>
