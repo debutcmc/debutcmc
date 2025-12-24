@@ -19,9 +19,11 @@ export async function loadHome() {
   const grid = document.getElementById("comic-list");
   if (!grid) return;
 
-  grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#8b949e;padding:40px;">
-    Memuat komik...
-  </p>`;
+  grid.innerHTML = `
+    <p style="grid-column:1/-1;text-align:center;color:#8b949e;padding:40px;">
+      Memuat komik...
+    </p>
+  `;
 
   try {
     const q = query(
@@ -34,9 +36,11 @@ export async function loadHome() {
     grid.innerHTML = "";
 
     if (snap.empty) {
-      grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#8b949e;padding:40px;">
-        Belum ada komik dipublish
-      </p>`;
+      grid.innerHTML = `
+        <p style="grid-column:1/-1;text-align:center;color:#8b949e;padding:40px;">
+          Belum ada komik dipublish
+        </p>
+      `;
       return;
     }
 
@@ -49,7 +53,7 @@ export async function loadHome() {
       const lastChapter = comic.lastChapter || "-";
 
       const card = document.createElement("a");
-      card.href = `detail.html?id=${docSnap.id}`;
+      card.href = `detail.html?comic=${docSnap.id}`;
       card.className = "comic-card";
       card.style.textDecoration = "none";
 
@@ -74,7 +78,7 @@ export async function loadHome() {
             padding:2px 6px;
             border-radius:4px;
           ">
-            ${comic.seriesStatus || "ONGOING"}
+            ${comic.status?.toUpperCase() || "PUBLISHED"}
           </span>
         </div>
 
@@ -104,11 +108,13 @@ export async function loadHome() {
     });
   } catch (err) {
     console.error("Load home error:", err);
-    grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:#ff4444;padding:40px;">
-      Gagal memuat data
-    </p>`;
+    grid.innerHTML = `
+      <p style="grid-column:1/-1;text-align:center;color:#ff4444;padding:40px;">
+        Gagal memuat data
+      </p>
+    `;
   }
 }
 
-// AUTO RUN (optional)
+// AUTO RUN
 document.addEventListener("DOMContentLoaded", loadHome);
