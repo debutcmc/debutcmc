@@ -1,85 +1,59 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Membaca Komik | DebutCMC</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Membaca Komik | DebutCMC</title>
 
-<link rel="stylesheet" href="css/style.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 
 <body>
 
 <!-- ================= HEADER ================= -->
 <header class="viewer-header" id="main-header">
-    <a href="javascript:history.back()" class="back-btn">
-        <i class="fa-solid fa-arrow-left"></i>
-    </a>
+  <a href="javascript:history.back()" class="back-btn">
+    <i class="fa-solid fa-arrow-left"></i>
+  </a>
 
-    <!-- 🔑 HARUS SAMA DENGAN reader.js -->
-    <div class="chapter-title" id="chapter-title">
-        MEMUAT CHAPTER...
-    </div>
+  <!-- 🔑 DIPAKAI reader.js -->
+  <div class="chapter-title" id="chapter-title">
+    MEMUAT CHAPTER...
+  </div>
 
-    <button id="btn-fullscreen" class="icon-btn">
-        <i class="fa-solid fa-expand"></i>
-    </button>
+  <!-- 🔑 -->
+  <button id="btn-fullscreen" class="icon-btn">
+    <i class="fa-solid fa-expand"></i>
+  </button>
 </header>
 
 <!-- ================= READER ================= -->
 <main class="reader-container" id="page-container">
-    <div id="loader">
-        <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
-        <p>MEMUAT HALAMAN...</p>
-    </div>
+  <div id="loader">
+    <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+    <p>MEMUAT HALAMAN...</p>
+  </div>
 </main>
 
 <!-- ================= FOOTER ================= -->
 <div class="chapter-footer" id="reader-footer" style="display:none">
-    <p>Terima kasih telah membaca</p>
-    <a href="index.html" class="btn-next">KEMBALI KE HOME</a>
+  <p>Terima kasih telah membaca</p>
+  <a href="index.html" class="btn-next">KEMBALI KE HOME</a>
 </div>
 
 <!-- ================= NAV FLOAT ================= -->
 <nav class="mobile-nav" id="bottom-nav">
-    <a href="index.html"><i class="fa-solid fa-house"></i></a>
-    <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
-        <i class="fa-solid fa-chevron-up"></i>
-    </button>
-    <button onclick="location.reload()">
-        <i class="fa-solid fa-rotate-right"></i>
-    </button>
+  <a href="index.html"><i class="fa-solid fa-house"></i></a>
+  <button id="btn-scroll-top">
+    <i class="fa-solid fa-chevron-up"></i>
+  </button>
+  <button id="btn-reload">
+    <i class="fa-solid fa-rotate-right"></i>
+  </button>
 </nav>
 
-<!-- ================= UX SCRIPT ================= -->
-<script>
-let lastScroll = 0
-const header = document.getElementById('main-header')
-const nav = document.getElementById('bottom-nav')
-
-window.addEventListener('scroll', () => {
-    const now = window.scrollY
-    if (now > lastScroll && now > 120) {
-        header.classList.add('hide')
-        nav.classList.add('low-opacity')
-    } else {
-        header.classList.remove('hide')
-        nav.classList.remove('low-opacity')
-    }
-    lastScroll = now
-},{ passive:true })
-
-document.getElementById('btn-fullscreen').onclick = () => {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen()
-    } else {
-        document.exitFullscreen()
-    }
-}
-</script>
-
-<!-- 🔑 PAKAI reader.js -->
+<!-- 🔑 SATU-SATUNYA JS -->
 <script type="module" src="js/reader.js"></script>
 </body>
 </html>
