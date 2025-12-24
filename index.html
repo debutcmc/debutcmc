@@ -1,201 +1,55 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DebutCMC - Official Site</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #00ff88;
-            --bg: #0b0e14;
-            --card: #161a21;
-            --border: #2d333b;
-            --text-dim: #8b949e;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DebutCMC - Official Site</title>
 
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            overflow-x: hidden;
-        }
-
-        /* --- NAVBAR --- */
-        .navbar {
-            background: rgba(22, 26, 33, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 2000;
-            padding: 10px 0;
-        }
-
-        .nav-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 15px;
-        }
-
-        .logo-area { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; }
-        .nav-logo { width: 35px; height: 35px; object-fit: contain; border-radius: 5px; }
-        .logo-text { font-size: 1.2rem; margin: 0; color: var(--primary); font-weight: 800; }
-        .logo-text span { color: white; }
-
-        .hamburger {
-            display: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: white;
-            background: none;
-            border: none;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 20px;
-            margin: 0;
-            padding: 0;
-            align-items: center;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: white;
-            font-size: 13px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-
-        /* --- MOBILE MENU --- */
-        @media (max-width: 768px) {
-            .hamburger { display: block; }
-            .nav-links {
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background: var(--card);
-                flex-direction: column;
-                display: none;
-            }
-            .nav-links.active { display: flex; }
-            .nav-links li { width: 100%; border-bottom: 1px solid var(--border); }
-            .nav-links a { display: block; padding: 15px; }
-        }
-
-        /* --- COMIC GRID --- */
-        .home-container { max-width: 1200px; margin: 0 auto; padding: 15px; }
-        .section-title { 
-            font-size: 1.1rem; 
-            margin: 20px 0; 
-            border-left: 4px solid var(--primary); 
-            padding-left: 10px; 
-            text-transform: uppercase;
-        }
-
-        .comic-grid {
-            display: grid;
-            grid-template-columns: repeat(6, 1fr); 
-            gap: 15px;
-        }
-
-        @media (max-width: 1024px) { .comic-grid { grid-template-columns: repeat(4, 1fr); } }
-        @media (max-width: 480px) { .comic-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; } }
-
-        /* Style untuk Kartu yang dibuat Script */
-        .comic-card {
-            background: var(--card);
-            border-radius: 8px;
-            overflow: hidden;
-            text-decoration: none;
-            color: white;
-            transition: 0.2s;
-        }
-
-        .comic-card:hover { transform: translateY(-5px); }
-        .img-container { width: 100%; aspect-ratio: 3/4; background: #222; position: relative; }
-        .img-container img { width: 100%; height: 100%; object-fit: cover; }
-        .card-tag { position: absolute; top: 5px; right: 5px; background: var(--primary); color: black; font-size: 9px; padding: 2px 5px; border-radius: 3px; font-weight: bold; }
-        .comic-info { padding: 8px; }
-        .comic-title { font-size: 11px; font-weight: bold; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .comic-meta { font-size: 9px; color: var(--text-dim); }
-
-        /* --- BANNER --- */
-        .promo-banner {
-            width: 100%;
-            min-height: 100px;
-            background: linear-gradient(45deg, #161a21, #00ff8822);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            padding: 20px;
-            margin-bottom: 25px;
-            box-sizing: border-box;
-        }
-    </style>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="nav-content">
-            <a href="index.html" class="logo-area">
-                <img src="https://i.ibb.co.com/3qkWwbb/Gemini-Generated-Image-d1gyk6d1gyk6d1gy.png" alt="Logo" class="nav-logo">
-                <h1 class="logo-text">Debut<span>CMC</span></h1>
-            </a>
-            
-            <button class="hamburger" id="hamburger-btn">
-                <i class="fa-solid fa-bars"></i>
-            </button>
+<!-- ================= NAVBAR ================= -->
+<nav class="navbar">
+  <div class="nav-content">
+    <a href="index.html" class="logo-area">
+      <div class="logo-text">DEBUT<span>CMC</span></div>
+    </a>
 
-            <ul class="nav-links" id="nav-menu">
-                <li><a href="index.html">HOME</a></li>
-                <li><a href="#">ORIGINALS</a></li>
-                <li><a href="#">GENRE</a></li>
-                <li id="auth-section">
-                    <button onclick="window.loginGoogle()" style="background:var(--primary); color:black; border:none; padding:6px 15px; border-radius:5px; font-weight:bold; cursor:pointer;">SIGN IN</button>
-                </li>
-            </ul>
-        </div>
-    </nav>
+    <div class="nav-links">
+      <a href="index.html">HOME</a>
+      <a href="#">ORIGINALS</a>
+      <a href="#">GENRE</a>
+      <a href="login.html" class="btn">SIGN IN</a>
+    </div>
+  </div>
+</nav>
 
-    <main class="home-container">
-        <section class="promo-banner">
-            <div class="promo-text">
-                <h2 style="margin:0; color: var(--primary);">Rilis Baru</h2>
-                <p style="font-size: 13px; color: #ccc; margin: 5px 0 0 0;">Jelajahi petualangan tanpa batas setiap hari.</p>
-            </div>
-        </section>
+<!-- ================= MAIN ================= -->
+<main class="home-container">
 
-        <h2 class="section-title">Series Pilihan</h2>
-        
-        <div class="comic-grid" id="comic-list">
-            <p style="grid-column: 1/-1; text-align: center; color: var(--text-dim); padding: 50px 0;">
-                Memuat data dari Firebase...
-            </p>
-        </div>
-    </main>
+  <section class="promo-banner">
+    <div>
+      <h2 style="margin:0;color:#00ff88;">Rilis Baru</h2>
+      <p style="font-size:13px;color:#8b949e;">
+        Jelajahi komik terbaru dari kreator Indonesia
+      </p>
+    </div>
+  </section>
 
-    <script type="module" src="./js/script.js"></script>
+  <h2 class="section-title">Series Pilihan</h2>
 
-    <script>
-        // UI Logic - Menu Hamburger
-        const hbBtn = document.getElementById('hamburger-btn');
-        const navMenu = document.getElementById('nav-menu');
-        
-        hbBtn.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            const icon = hbBtn.querySelector('i');
-            icon.classList.toggle('fa-bars');
-            icon.classList.toggle('fa-xmark');
-        });
-    </script>
+  <!-- 🔑 WAJIB: dipakai home.js -->
+  <div id="comic-list" class="comic-grid">
+    <p style="grid-column:1/-1;text-align:center;color:#8b949e;padding:40px;">
+      Memuat komik...
+    </p>
+  </div>
+
+</main>
+
+<!-- ================= SCRIPT ================= -->
+<script type="module" src="js/home.js"></script>
 </body>
 </html>
