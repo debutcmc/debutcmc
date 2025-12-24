@@ -9,26 +9,36 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ambil comic id
+// ================================
+// PARAM
+// ================================
 const params = new URLSearchParams(window.location.search);
-const comicId = params.get("comic");
+const comicId = params.get("id");
 
+// ================================
+// ELEMENT
+// ================================
 const titleEl = document.getElementById("comic-title");
 const genreEl = document.getElementById("comic-genre");
 const summaryEl = document.getElementById("comic-summary");
 const coverEl = document.getElementById("comic-cover");
-const chapterListEl = document.getElementById("chapter-list");
+const chapterListEl = document.getElementById("chapters-container");
 
+// ================================
+// GUARD
+// ================================
 if (!comicId) {
-  if (titleEl) titleEl.innerText = "Komik tidak ditemukan";
+  titleEl.innerText = "Komik tidak ditemukan";
   throw new Error("Missing comic id");
 }
 
+// ================================
+// LOAD DETAIL
+// ================================
 async function loadDetail() {
   try {
-    // --- ambil data komik ---
-    const comicRef = doc(db, "comics", comicId);
-    const comicSnap = await getDoc(comicRef);
+    // --- COMIC ---
+    const comicSnap = await getDoc(doc(db, "comics", comicId));
 
     if (!comicSnap.exists()) {
       titleEl.innerText = "Komik tidak ada";
@@ -44,9 +54,9 @@ async function loadDetail() {
       comic.coverUrl ||
       "https://placehold.co/300x400/161a21/00ff88?text=No+Cover";
 
-    // --- ambil chapter ---
+    // --- CHAPTER ---
     chapterListEl.innerHTML =
-      "<p style='color:#8b949e;'>Memuat chapter...</p>";
+      `<p class="empty">Memuat chapter...</p>`;
 
     const q = query(
       collection(db, "comics", comicId, "chapters"),
@@ -57,12 +67,13 @@ async function loadDetail() {
 
     if (snap.empty) {
       chapterListEl.innerHTML =
-        "<p style='color:#8b949e;'>Belum ada chapter</p>";
+        `<p class="empty">Belum ada chapter</p>`;
       return;
     }
 
     chapterListEl.innerHTML = "";
-    snap.forEach((docSnap) => {
+
+    snap.forEach(docSnap => {
       const ch = docSnap.data();
 
       const a = document.createElement("a");
@@ -70,17 +81,18 @@ async function loadDetail() {
       a.className = "chapter-item";
       a.innerHTML = `
         <span>${ch.title || "Chapter Baru"}</span>
-        <small style="opacity:.6;">
+        <small>
           ${ch.createdAt?.toDate()?.toLocaleDateString("id-ID") || ""}
         </small>
       `;
 
       chapterListEl.appendChild(a);
     });
+
   } catch (err) {
     console.error("Detail error:", err);
     chapterListEl.innerHTML =
-      "<p style='color:red;'>Gagal memuat data</p>";
+      `<p class="empty" style="color:red;">Gagal memuat data</p>`;
   }
 }
 
