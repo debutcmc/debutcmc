@@ -287,3 +287,26 @@ html, body {
     opacity: 0.4;
     pointer-events: none;
 }
+
+/* ================= READER ================= */
+
+.reader-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.reader-page {
+    width: 100%;
+    background: #161a21;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #2d333b;
+}
+
+.reader-page img {
+    width: 100%;
+    display: block;
+}
