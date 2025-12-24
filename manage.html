@@ -11,95 +11,101 @@
 
 <body>
 
-<!-- SIDEBAR -->
+<!-- ================= SIDEBAR ================= -->
 <aside class="sidebar">
-    <h2 class="logo">DebutCMC</h2>
-    <a href="dashboard.html"><i class="fa-solid fa-gauge"></i> Dashboard</a>
-    <a class="active"><i class="fa-solid fa-gear"></i> Manage Comic</a>
+  <h2 class="logo">DebutCMC</h2>
+  <a href="dashboard.html">
+    <i class="fa-solid fa-gauge"></i> Dashboard
+  </a>
+  <a class="active">
+    <i class="fa-solid fa-gear"></i> Manage Comic
+  </a>
 </aside>
 
-<!-- MAIN -->
+<!-- ================= MAIN ================= -->
 <main class="main">
 
 <header class="topbar">
-    <h3>Manage Comic</h3>
-    <button id="saveBtn" class="btn">Simpan Perubahan</button>
+  <h3>Manage Comic</h3>
+  <button id="saveBtn" class="btn">Simpan Perubahan</button>
 </header>
 
 <section class="container">
 
 <!-- ================= INFO DASAR ================= -->
 <div class="card">
-    <h4>Informasi Dasar</h4>
-    <input id="comic-title" placeholder="Judul Comic">
-    <input id="comic-genre" placeholder="Genre">
-    <textarea id="comic-summary" placeholder="Sinopsis"></textarea>
+  <h4>Informasi Dasar</h4>
+  <input id="comic-title" placeholder="Judul Comic" disabled>
+  <input id="comic-genre" placeholder="Genre" disabled>
+  <textarea id="comic-summary" placeholder="Sinopsis" disabled></textarea>
 </div>
 
 <!-- ================= TIM (UI ONLY) ================= -->
 <div class="card">
-    <h4>Tim Produksi</h4>
-    <div class="grid">
-        <input placeholder="Writer">
-        <input placeholder="Artist">
-        <input placeholder="Line Art">
-        <input placeholder="Colorist">
-        <input placeholder="Lettering">
-        <input placeholder="Editor (Opsional)">
-    </div>
+  <h4>Tim Produksi</h4>
+  <div class="grid">
+    <input placeholder="Writer" disabled>
+    <input placeholder="Artist" disabled>
+    <input placeholder="Line Art" disabled>
+    <input placeholder="Colorist" disabled>
+    <input placeholder="Lettering" disabled>
+    <input placeholder="Editor (Opsional)" disabled>
+  </div>
 </div>
 
 <!-- ================= SPESIFIKASI (UI ONLY) ================= -->
 <div class="card">
-    <h4>Spesifikasi Comic</h4>
-    <div class="grid">
-        <select>
-            <option value="">Bahasa</option>
-            <option>ID</option>
-            <option>EN</option>
-        </select>
-        <select>
-            <option value="">Format</option>
-            <option>Webtoon</option>
-            <option>Manga</option>
-        </select>
-    </div>
+  <h4>Spesifikasi Comic</h4>
+  <div class="grid">
+    <select disabled>
+      <option value="">Bahasa</option>
+      <option>ID</option>
+      <option>EN</option>
+    </select>
+    <select disabled>
+      <option value="">Format</option>
+      <option>Webtoon</option>
+      <option>Manga</option>
+    </select>
+  </div>
 </div>
 
-<!-- ================= SETTING ================= -->
+<!-- ================= SETTING (UI ONLY) ================= -->
 <div class="card">
-    <button class="toggle-btn" onclick="toggleSetting()">
-        <i class="fa-solid fa-sliders"></i> Pengaturan Konten Comic
-    </button>
+  <button class="toggle-btn" onclick="toggleSetting()">
+    <i class="fa-solid fa-sliders"></i> Pengaturan Konten Comic
+  </button>
 
-    <div id="settingPanel" class="hidden">
-        <label><input type="checkbox"> Kekerasan ringan</label>
-        <label><input type="checkbox"> Tema dewasa</label>
-        <label>
-            Privasi:
-            <select>
-                <option>Public</option>
-                <option>Private</option>
-            </select>
-        </label>
-        <label><input type="checkbox"> Izinkan komentar</label>
-    </div>
+  <div id="settingPanel" class="hidden">
+    <label><input type="checkbox" disabled> Kekerasan ringan</label>
+    <label><input type="checkbox" disabled> Tema dewasa</label>
+    <label>
+      Privasi:
+      <select disabled>
+        <option>Public</option>
+        <option>Private</option>
+      </select>
+    </label>
+    <label><input type="checkbox" disabled> Izinkan komentar</label>
+  </div>
 </div>
 
 <!-- ================= CHAPTER ================= -->
 <div class="card">
-    <h4>Chapter</h4>
+  <h4>Chapter</h4>
 
-    <input id="ch-title" placeholder="Judul Chapter">
-    <input id="ch-file" type="file" accept="image/*,.zip,.pdf">
+  <input id="ch-title" placeholder="Judul Chapter">
+  <!-- 🔑 MULTIPLE WAJIB -->
+  <input id="ch-file" type="file" multiple accept="image/*">
 
-    <progress id="upload-progress" value="0" max="100"></progress>
+  <progress id="upload-progress" value="0" max="100"></progress>
 
-    <button id="btn-upload-chapter" class="btn">
-        Upload Chapter
-    </button>
+  <button id="btn-upload-chapter" class="btn">
+    Upload Chapter
+  </button>
 
-    <div id="chapter-list"></div>
+  <!-- 🔑 dipakai manage.js -->
+  <div id="chapter-list"></div>
 </div>
 
 </section>
@@ -107,7 +113,7 @@
 
 <script>
 function toggleSetting(){
-    document.getElementById('settingPanel')?.classList.toggle('hidden')
+  document.getElementById('settingPanel')?.classList.toggle('hidden')
 }
 </script>
 
