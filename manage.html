@@ -19,11 +19,12 @@
 </aside>
 
 <!-- MAIN -->
-<main class="main" id="dashboard-ui">
+<main class="main">
 
 <header class="topbar">
     <h3>Manage Comic</h3>
-    <button id="saveBtn" class="btn disabled">Simpan & Lanjut</button>
+    <!-- 🔑 ID HARUS btn-save-comic -->
+    <button id="btn-save-comic" class="btn">Simpan Perubahan</button>
 </header>
 
 <section class="container">
@@ -31,35 +32,36 @@
 <!-- STEP 1 -->
 <div class="card">
     <h4>Informasi Dasar</h4>
-    <input disabled id="comic-title" placeholder="Judul Comic">
-    <input disabled id="comic-genre" placeholder="Genre">
-    <!-- FIX KRITIS: ID HARUS comic-summary -->
-    <textarea disabled id="comic-summary" placeholder="Sinopsis"></textarea>
+
+    <!-- 🔑 JANGAN disabled -->
+    <input id="comic-title" placeholder="Judul Comic">
+    <input id="comic-genre" placeholder="Genre">
+    <textarea id="comic-summary" placeholder="Sinopsis"></textarea>
 </div>
 
-<!-- STEP 2 -->
+<!-- STEP 2 (UI SAJA, BELUM DISIMPAN) -->
 <div class="card">
     <h4>Tim Produksi</h4>
     <div class="grid">
-        <input required placeholder="Writer">
-        <input required placeholder="Artist">
-        <input required placeholder="Line Art">
-        <input required placeholder="Colorist">
-        <input required placeholder="Lettering">
+        <input placeholder="Writer">
+        <input placeholder="Artist">
+        <input placeholder="Line Art">
+        <input placeholder="Colorist">
+        <input placeholder="Lettering">
         <input placeholder="Editor (Opsional)">
     </div>
 </div>
 
-<!-- STEP 3 -->
+<!-- STEP 3 (UI SAJA) -->
 <div class="card">
     <h4>Spesifikasi Comic</h4>
     <div class="grid">
-        <select required>
+        <select>
             <option value="">Bahasa</option>
             <option>ID</option>
             <option>EN</option>
         </select>
-        <select required>
+        <select>
             <option value="">Format</option>
             <option>Webtoon</option>
             <option>Manga</option>
@@ -74,7 +76,7 @@
     </button>
 
     <div id="settingPanel" class="hidden">
-        <label><input type="checkbox"> Mengandung kekerasan ringan</label>
+        <label><input type="checkbox"> Kekerasan ringan</label>
         <label><input type="checkbox"> Tema dewasa</label>
         <label>
             Privasi:
@@ -88,51 +90,24 @@
 </div>
 
 <!-- STEP 5 -->
-<div class="card checklist">
-    <h4>Persetujuan</h4>
-    <label><input type="checkbox" class="req-check"> Saya pemilik sah comic</label>
-    <label><input type="checkbox" class="req-check"> Tidak melanggar hak cipta</label>
-    <label><input type="checkbox" class="req-check"> Setuju syarat platform</label>
+<div class="card">
+    <h4>Chapter</h4>
+
+    <!-- 🔑 DIPAKAI manage.js -->
+    <input id="chapter-title" placeholder="Judul Chapter">
+    <button id="btn-create-chapter" class="btn">
+        Tambah Chapter (Dummy)
+    </button>
+
+    <div id="chapter-list"></div>
 </div>
 
 </section>
 </main>
 
-<!-- ================================================= -->
-<!-- REQUIRED ELEMENTS FOR manage.js (DO NOT DELETE) -->
-<!-- ================================================= -->
-<section style="display:none">
-
-    <!-- CREATE SERIES -->
-    <input id="file-input" type="file">
-    <button id="btn-create-series"></button>
-
-    <!-- DASHBOARD -->
-    <div id="my-comic-list"></div>
-
-    <!-- CHAPTER -->
-    <input id="ch-title">
-    <input id="ch-files" type="file" multiple>
-    <button id="btn-upload-chapter"></button>
-
-    <div id="file-preview-container"></div>
-    <div id="upload-status"></div>
-
-    <div id="upload-progress-box" style="display:none">
-        <div id="bar-fill"></div>
-        <span id="bar-text"></span>
-    </div>
-
-    <div id="chapter-list"></div>
-
-    <!-- AUTH -->
-    <div id="auth-overlay"></div>
-
-</section>
-
 <script>
 function toggleSetting(){
-    document.getElementById('settingPanel')?.classList.toggle('hidden');
+    document.getElementById('settingPanel')?.classList.toggle('hidden')
 }
 </script>
 
