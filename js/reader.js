@@ -2,7 +2,7 @@ import { db } from './firebase.js'
 import {
   doc,
   getDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"
 
 // ambil parameter
 const params = new URLSearchParams(window.location.search)
