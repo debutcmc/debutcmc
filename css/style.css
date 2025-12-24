@@ -310,3 +310,123 @@ html, body {
     width: 100%;
     display: block;
 }
+
+/* =========================================
+   8. DETAIL PAGE (Comic Detail)
+   ========================================= */
+
+.detail-header {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 40px;
+    margin-top: 40px;
+    align-items: flex-start;
+}
+
+.cover-wrapper img {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid #2d333b;
+    background: #161a21;
+}
+
+.info-wrapper h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: white;
+}
+
+.genre-badge {
+    display: inline-block;
+    margin-bottom: 14px;
+    background: rgba(0, 255, 136, 0.15);
+    color: #00ff88;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.summary-box {
+    margin-top: 20px;
+    color: #8b949e;
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.summary-box h3 {
+    color: white;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+/* ================= CHAPTER LIST ================= */
+
+.chapter-list {
+    margin-top: 30px;
+    background: #161a21;
+    border: 1px solid #2d333b;
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.chapter-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    border-bottom: 1px solid #2d333b;
+    transition: background 0.2s;
+}
+
+.chapter-item:last-child {
+    border-bottom: none;
+}
+
+.chapter-item:hover {
+    background: rgba(0, 255, 136, 0.05);
+}
+
+.chapter-item .ch-info span {
+    color: #e6edf3;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.chapter-item .ch-info small {
+    display: block;
+    font-size: 12px;
+    color: #8b949e;
+}
+
+.btn-read {
+    background: #00ff88;
+    color: #0b0e14;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+    .detail-header {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        text-align: center;
+    }
+
+    .cover-wrapper {
+        max-width: 200px;
+        margin: 0 auto;
+    }
+
+    .info-wrapper h1 {
+        font-size: 1.6rem;
+    }
+}
