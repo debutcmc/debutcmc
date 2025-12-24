@@ -19,7 +19,7 @@
 </aside>
 
 <!-- MAIN -->
-<main class="main">
+<main class="main" id="dashboard-ui">
 
 <header class="topbar">
     <h3>Manage Comic</h3>
@@ -31,9 +31,10 @@
 <!-- STEP 1 -->
 <div class="card">
     <h4>Informasi Dasar</h4>
-    <input disabled id="comic-title">
-    <input disabled id="comic-genre">
-    <textarea disabled id="comic-sinopsis"></textarea>
+    <input disabled id="comic-title" placeholder="Judul Comic">
+    <input disabled id="comic-genre" placeholder="Genre">
+    <!-- FIX KRITIS: ID HARUS comic-summary -->
+    <textarea disabled id="comic-summary" placeholder="Sinopsis"></textarea>
 </div>
 
 <!-- STEP 2 -->
@@ -97,6 +98,44 @@
 </section>
 </main>
 
-<script src="js/manage.js"></script>
+<!-- ================================================= -->
+<!-- REQUIRED ELEMENTS FOR manage.js (DO NOT DELETE) -->
+<!-- ================================================= -->
+<section style="display:none">
+
+    <!-- CREATE SERIES -->
+    <input id="file-input" type="file">
+    <button id="btn-create-series"></button>
+
+    <!-- DASHBOARD -->
+    <div id="my-comic-list"></div>
+
+    <!-- CHAPTER -->
+    <input id="ch-title">
+    <input id="ch-files" type="file" multiple>
+    <button id="btn-upload-chapter"></button>
+
+    <div id="file-preview-container"></div>
+    <div id="upload-status"></div>
+
+    <div id="upload-progress-box" style="display:none">
+        <div id="bar-fill"></div>
+        <span id="bar-text"></span>
+    </div>
+
+    <div id="chapter-list"></div>
+
+    <!-- AUTH -->
+    <div id="auth-overlay"></div>
+
+</section>
+
+<script>
+function toggleSetting(){
+    document.getElementById('settingPanel')?.classList.toggle('hidden');
+}
+</script>
+
+<script type="module" src="js/manage.js"></script>
 </body>
 </html>
