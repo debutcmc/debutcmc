@@ -1,200 +1,85 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Membaca Komik | DebutCMC</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-    <style>
-        /* SINKRONISASI DENGAN CSS UTAMA */
-        :root { 
-            --primary: #00ff88; 
-            --bg: #0b0e14; 
-            --nav-bg: rgba(22, 26, 33, 0.95); 
-            --border: #2d333b;
-        }
-        
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body { 
-            background-color: var(--bg); 
-            color: #e6edf3;
-            font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-            overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Membaca Komik | DebutCMC</title>
 
-        /* Header Viewer */
-        .viewer-header {
-            position: fixed; top: 0; width: 100%;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            display: flex; align-items: center; justify-content: space-between;
-            z-index: 1000;
-            border-bottom: 1px solid var(--border);
-            transition: transform 0.3s ease;
-        }
-        .viewer-header.hide { transform: translateY(-100%); }
-
-        .back-btn {
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            padding: 5px;
-            transition: 0.3s;
-        }
-        .back-btn:hover { color: var(--primary); }
-
-        .chapter-title {
-            font-size: 14px; font-weight: 700; color: var(--primary);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            max-width: 60%;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        /* Container Pembaca */
-        .reader-container {
-            width: 100%;
-            max-width: 800px; /* Lebar optimal baca manga */
-            margin: 0 auto;
-            padding-top: 60px; /* Jarak untuk header */
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        /* Styling gambar manga agar tidak ada celah */
-        .manga-page {
-            width: 100%;
-            display: block;
-            height: auto;
-            margin: 0;
-            border: none;
-            background: #161a21; /* Placeholder warna saat loading */
-        }
-
-        /* Navigasi Melayang (Floating) */
-        .mobile-nav {
-            position: fixed; bottom: 25px; left: 50%;
-            transform: translateX(-50%);
-            display: flex; gap: 25px;
-            background: var(--nav-bg);
-            padding: 12px 30px;
-            border-radius: 50px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-            z-index: 1000;
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        .mobile-nav.low-opacity { opacity: 0.2; }
-        .mobile-nav:hover { opacity: 1; transform: translateX(-50%) scale(1.05); }
-
-        .mobile-nav button, .mobile-nav a {
-            color: #8b949e; background: none; border: none; 
-            font-size: 18px; cursor: pointer; text-decoration: none;
-            transition: 0.2s;
-        }
-        .mobile-nav i:hover { color: var(--primary); }
-
-        /* Area Akhir Chapter */
-        .chapter-footer {
-            padding: 60px 20px 120px;
-            text-align: center;
-            border-top: 1px solid var(--border);
-            background: #0d1117;
-        }
-        
-        .btn-next {
-            background: var(--primary);
-            color: #0b0e14;
-            padding: 14px 35px;
-            border-radius: 12px;
-            font-weight: 800;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 20px;
-            font-size: 14px;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
-        }
-        .btn-next:hover { transform: translateY(-3px); filter: brightness(1.1); }
-
-        #loader { 
-            padding: 150px 0; 
-            text-align: center; 
-            color: var(--primary); 
-            font-weight: 800;
-            font-size: 12px;
-            letter-spacing: 2px;
-        }
-    </style>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
+
 <body>
 
-    <header class="viewer-header" id="main-header">
-        <a href="javascript:history.back()" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
-        <div class="chapter-title" id="chapter-title-display">MEMUAT CHAPTER...</div>
-        <button onclick="toggleFullscreen()" style="background:none; border:none; color:white; cursor:pointer;">
-            <i class="fa-solid fa-expand"></i>
-        </button>
-    </header>
+<!-- ================= HEADER ================= -->
+<header class="viewer-header" id="main-header">
+    <a href="javascript:history.back()" class="back-btn">
+        <i class="fa-solid fa-arrow-left"></i>
+    </a>
 
-    <main class="reader-container" id="manga-viewer">
-        <div id="loader">
-            <i class="fa-solid fa-spinner fa-spin fa-3x"></i>
-            <p style="margin-top: 20px;">INITIALIZING READER...</p>
-        </div>
-    </main>
-
-    <div class="chapter-footer" id="next-chapter-area" style="display:none;">
-        <p style="color: #8b949e; font-size: 14px;">Terima kasih telah membaca!</p>
-        <a href="index.html" class="btn-next">KEMBALI KE HOME</a>
+    <!-- 🔑 HARUS SAMA DENGAN reader.js -->
+    <div class="chapter-title" id="chapter-title">
+        MEMUAT CHAPTER...
     </div>
 
-    <nav class="mobile-nav" id="bottom-nav">
-        <a href="index.html" title="Beranda"><i class="fa-solid fa-house"></i></a>
-        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" title="Ke Atas">
-            <i class="fa-solid fa-chevron-up"></i>
-        </button>
-        <button onclick="location.reload()" title="Refresh">
-            <i class="fa-solid fa-rotate-right"></i>
-        </button>
-    </nav>
+    <button id="btn-fullscreen" class="icon-btn">
+        <i class="fa-solid fa-expand"></i>
+    </button>
+</header>
 
-    <script>
-        // --- UI INTERAKTIF (UX) ---
-        let lastScrollTop = 0;
-        const header = document.getElementById('main-header');
-        const bottomNav = document.getElementById('bottom-nav');
+<!-- ================= READER ================= -->
+<main class="reader-container" id="page-container">
+    <div id="loader">
+        <i class="fa-solid fa-spinner fa-spin fa-2x"></i>
+        <p>MEMUAT HALAMAN...</p>
+    </div>
+</main>
 
-        // Sembunyikan Header saat Scroll ke Bawah (Mode Baca Bersih)
-        window.addEventListener('scroll', () => {
-            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            
-            if (scrollTop > lastScrollTop && scrollTop > 100) {
-                header.classList.add('hide');
-                bottomNav.classList.add('low-opacity');
-            } else {
-                header.classList.remove('hide');
-                bottomNav.classList.remove('low-opacity');
-            }
-            lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; 
-        }, { passive: true });
+<!-- ================= FOOTER ================= -->
+<div class="chapter-footer" id="reader-footer" style="display:none">
+    <p>Terima kasih telah membaca</p>
+    <a href="index.html" class="btn-next">KEMBALI KE HOME</a>
+</div>
 
-        // Fungsi Fullscreen untuk pengalaman baca maksimal
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log(`Error: ${err.message}`);
-                });
-            } else {
-                if (document.exitFullscreen) { document.exitFullscreen(); }
-            }
-        }
-    </script>
+<!-- ================= NAV FLOAT ================= -->
+<nav class="mobile-nav" id="bottom-nav">
+    <a href="index.html"><i class="fa-solid fa-house"></i></a>
+    <button onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+    <button onclick="location.reload()">
+        <i class="fa-solid fa-rotate-right"></i>
+    </button>
+</nav>
 
-    <script type="module" src="js/script.js"></script>
+<!-- ================= UX SCRIPT ================= -->
+<script>
+let lastScroll = 0
+const header = document.getElementById('main-header')
+const nav = document.getElementById('bottom-nav')
+
+window.addEventListener('scroll', () => {
+    const now = window.scrollY
+    if (now > lastScroll && now > 120) {
+        header.classList.add('hide')
+        nav.classList.add('low-opacity')
+    } else {
+        header.classList.remove('hide')
+        nav.classList.remove('low-opacity')
+    }
+    lastScroll = now
+},{ passive:true })
+
+document.getElementById('btn-fullscreen').onclick = () => {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen()
+    } else {
+        document.exitFullscreen()
+    }
+}
+</script>
+
+<!-- 🔑 PAKAI reader.js -->
+<script type="module" src="js/reader.js"></script>
 </body>
 </html>
