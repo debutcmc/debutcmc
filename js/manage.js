@@ -1,6 +1,6 @@
 // ================================
 // manage.js
-// Manage Comic & Chapter
+// Manage Comic & Chapter (FINAL)
 // ================================
 
 import { db } from './firebase.js'
@@ -18,6 +18,15 @@ import {
   orderBy,
   serverTimestamp
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+
+import {
+  getStorage,
+  ref,
+  uploadBytesResumable,
+  getDownloadURL
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js'
+
+const storage = getStorage()
 
 // ================================
 // ENTRY
@@ -37,16 +46,11 @@ requireAuth(async (user) => {
 })
 
 // ================================
-// LOAD COMIC DATA
+// LOAD COMIC
 // ================================
 async function loadComic(comicId, uid) {
-  const ref = doc(db, 'comics', comicId)
-  const snap = await getDoc(ref)
-
-  if (!snap.exists()) {
-    alert('Comic tidak ditemukan')
-    return
-  }
+  const snap = await getDoc(doc(db, 'comics', comicId))
+  if (!snap.exists()) return alert('Comic tidak ada')
 
   const data = snap.data()
   if (data.authorId !== uid) {
@@ -55,11 +59,10 @@ async function loadComic(comicId, uid) {
     return
   }
 
-  // isi form
-  enableInputs()
   setVal('comic-title', data.title)
   setVal('comic-genre', data.genre)
   setVal('comic-summary', data.summary)
+  enableInputs()
 }
 
 // ================================
@@ -68,8 +71,6 @@ async function loadComic(comicId, uid) {
 function bindSaveComic(comicId) {
   const btn = document.getElementById('saveBtn')
   if (!btn) return
-
-  btn.classList.remove('disabled')
 
   btn.onclick = async () => {
     btn.innerText = 'Menyimpan...'
@@ -87,26 +88,49 @@ function bindSaveComic(comicId) {
 }
 
 // ================================
-// CHAPTER UPLOAD (METADATA)
+// UPLOAD CHAPTER + FILE
 // ================================
 function bindUploadChapter(comicId) {
   const btn = document.getElementById('btn-upload-chapter')
+  const fileInput = document.getElementById('ch-file')
+  const progress = document.getElementById('upload-progress')
+
   if (!btn) return
 
   btn.onclick = async () => {
     const title = getVal('ch-title')
-    if (!title) {
-      alert('Judul chapter wajib')
+    const file = fileInput.files[0]
+
+    if (!title || !file) {
+      alert('Judul & file wajib')
       return
     }
+
+    const fileRef = ref(
+      storage,
+      `chapters/${comicId}/${Date.now()}-${file.name}`
+    )
+
+    const task = uploadBytesResumable(fileRef, file)
+
+    task.on('state_changed', snap => {
+      progress.value = (snap.bytesTransferred / snap.totalBytes) * 100
+    })
+
+    await task
+    const fileUrl = await getDownloadURL(fileRef)
 
     await addDoc(collection(db, 'chapters'), {
       comicId,
       title,
+      fileUrl,
       createdAt: serverTimestamp()
     })
 
     setVal('ch-title', '')
+    fileInput.value = ''
+    progress.value = 0
+
     loadChapters(comicId)
   }
 }
@@ -127,12 +151,14 @@ async function loadChapters(comicId) {
 
   const snap = await getDocs(q)
 
-  snap.forEach((docSnap, i) => {
+  snap.forEach((d, i) => {
+    const c = d.data()
     const div = document.createElement('div')
     div.className = 'card'
     div.innerHTML = `
       <strong>Chapter ${i + 1}</strong>
-      <p>${docSnap.data().title}</p>
+      <p>${c.title}</p>
+      <a href="${c.fileUrl}" target="_blank">Lihat File</a>
     `
     list.appendChild(div)
   })
