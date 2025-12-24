@@ -21,6 +21,7 @@
             display: flex; 
             color: #e6edf3;
             margin: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         /* --- SIDEBAR CUSTOMIZATION --- */
@@ -46,6 +47,8 @@
             align-items: center;
             justify-content: space-between;
         }
+
+        .logo-text span { color: var(--primary); font-weight: 800; }
 
         .sidebar-menu { padding: 15px; flex: 1; }
         .menu-item {
@@ -107,12 +110,15 @@
         /* --- FORM CONTROLS --- */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-size: 11px; font-weight: 800; color: var(--primary); margin-bottom: 8px; text-transform: uppercase; }
-        input, textarea { 
+        
+        input, textarea, select { 
             width: 100%; padding: 12px; background: #0b0e14; 
             border: 1px solid var(--border); color: white; border-radius: 8px; 
-            font-size: 14px; transition: 0.3s;
+            font-size: 14px; transition: 0.3s; box-sizing: border-box;
         }
-        input:focus { border-color: var(--primary); outline: none; }
+        input:focus, textarea:focus, select:focus { border-color: var(--primary); outline: none; }
+        
+        select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%238b949e'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; }
 
         .btn-manage { 
             padding: 10px 20px; border-radius: 8px; font-weight: 700; cursor: pointer; 
@@ -133,6 +139,8 @@
             display: none; z-index: 950;
         }
         .sidebar-overlay.active { display: block; }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     </style>
 </head>
 <body>
@@ -141,8 +149,8 @@
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <div class="logo-text" style="font-size: 20px;">DEBUT<span>CMC</span></div>
-            <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="cursor:pointer; color:#8b949e;" class="hamburger-trigger"></i>
+            <div class="logo-text" style="font-size: 20px; font-weight: 800;">DEBUT<span>CMC</span></div>
+            <i class="fa-solid fa-xmark hamburger-trigger" onclick="toggleSidebar()" style="cursor:pointer; color:#8b949e;"></i>
         </div>
         <nav class="sidebar-menu">
             <a href="dashboard.html" class="menu-item"><i class="fa-solid fa-gauge"></i> Dashboard</a>
@@ -195,9 +203,41 @@
                                     <label>Judul Series</label>
                                     <input type="text" id="edit-title" placeholder="Masukkan judul komik...">
                                 </div>
+                                
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label>Nama Penulis / Creator</label>
+                                        <input type="text" id="edit-author" placeholder="Nama pena...">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Target Umur</label>
+                                        <select id="edit-age">
+                                            <option value="All">Semua Umur</option>
+                                            <option value="13+">Remaja (13+)</option>
+                                            <option value="17+">Dewasa (17+)</option>
+                                            <option value="21+">Eksklusif (21+)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
                                     <label>Sinopsis / Deskripsi</label>
-                                    <textarea id="edit-summary" rows="5" placeholder="Tulis cerita singkat..."></textarea>
+                                    <textarea id="edit-summary" rows="4" placeholder="Tulis cerita singkat..."></textarea>
+                                </div>
+
+                                <div class="grid-2">
+                                    <div class="form-group">
+                                        <label>Status Rilis</label>
+                                        <select id="edit-status">
+                                            <option value="Draft">🚧 Draft Mode</option>
+                                            <option value="Published">🚀 Published</option>
+                                            <option value="Private">🔒 Private</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Genre / Tags</label>
+                                        <input type="text" id="edit-genre" placeholder="Action, Fantasy, dll...">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -232,7 +272,7 @@
                     </div>
 
                     <div class="card" style="border: 1px solid rgba(255, 68, 68, 0.2); background: rgba(255, 68, 68, 0.02);">
-                        <button class="btn-manage" style="color:var(--danger); font-size:12px; padding:0; background:none;" onclick="deleteSeries()">
+                        <button class="btn-manage" style="color:var(--danger); font-size:12px; padding:0; background:none; width: 100%; justify-content: flex-start;" onclick="deleteSeries()">
                             <i class="fa-solid fa-trash-can"></i> Hapus Series Permanen
                         </button>
                     </div>
