@@ -23,23 +23,20 @@
 
 <header class="topbar">
     <h3>Manage Comic</h3>
-    <!-- 🔑 ID HARUS btn-save-comic -->
-    <button id="btn-save-comic" class="btn">Simpan Perubahan</button>
+    <button id="saveBtn" class="btn">Simpan Perubahan</button>
 </header>
 
 <section class="container">
 
-<!-- STEP 1 -->
+<!-- ================= INFO DASAR ================= -->
 <div class="card">
     <h4>Informasi Dasar</h4>
-
-    <!-- 🔑 JANGAN disabled -->
     <input id="comic-title" placeholder="Judul Comic">
     <input id="comic-genre" placeholder="Genre">
     <textarea id="comic-summary" placeholder="Sinopsis"></textarea>
 </div>
 
-<!-- STEP 2 (UI SAJA, BELUM DISIMPAN) -->
+<!-- ================= TIM (UI ONLY) ================= -->
 <div class="card">
     <h4>Tim Produksi</h4>
     <div class="grid">
@@ -52,7 +49,7 @@
     </div>
 </div>
 
-<!-- STEP 3 (UI SAJA) -->
+<!-- ================= SPESIFIKASI (UI ONLY) ================= -->
 <div class="card">
     <h4>Spesifikasi Comic</h4>
     <div class="grid">
@@ -69,7 +66,7 @@
     </div>
 </div>
 
-<!-- STEP 4 -->
+<!-- ================= SETTING ================= -->
 <div class="card">
     <button class="toggle-btn" onclick="toggleSetting()">
         <i class="fa-solid fa-sliders"></i> Pengaturan Konten Comic
@@ -89,14 +86,17 @@
     </div>
 </div>
 
-<!-- STEP 5 -->
+<!-- ================= CHAPTER ================= -->
 <div class="card">
     <h4>Chapter</h4>
 
-    <!-- 🔑 DIPAKAI manage.js -->
-    <input id="chapter-title" placeholder="Judul Chapter">
-    <button id="btn-create-chapter" class="btn">
-        Tambah Chapter (Dummy)
+    <input id="ch-title" placeholder="Judul Chapter">
+    <input id="ch-file" type="file" accept="image/*,.zip,.pdf">
+
+    <progress id="upload-progress" value="0" max="100"></progress>
+
+    <button id="btn-upload-chapter" class="btn">
+        Upload Chapter
     </button>
 
     <div id="chapter-list"></div>
