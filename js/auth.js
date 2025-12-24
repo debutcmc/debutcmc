@@ -24,7 +24,7 @@ export function requireAuth(callback) {
 export async function logout() {
   try {
     await signOut(auth);
-    window.location.href = "index.html";
+    window.location.href = "login.html";
   } catch (err) {
     console.error("Logout error:", err);
   }
