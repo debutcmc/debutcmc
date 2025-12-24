@@ -1,6 +1,5 @@
 // ================================
-// manage.js
-// Manage Comic & Chapter (FINAL)
+// manage.js (FINAL FIXED)
 // ================================
 
 import { db } from './firebase.js'
@@ -14,17 +13,16 @@ import {
   addDoc,
   getDocs,
   query,
-  where,
   orderBy,
   serverTimestamp
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js'
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js'
 
 import {
   getStorage,
   ref,
   uploadBytesResumable,
   getDownloadURL
-} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js'
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js'
 
 const storage = getStorage()
 
@@ -88,50 +86,77 @@ function bindSaveComic(comicId) {
 }
 
 // ================================
-// UPLOAD CHAPTER + FILE
+// UPLOAD CHAPTER (MULTI IMAGE)
 // ================================
 function bindUploadChapter(comicId) {
   const btn = document.getElementById('btn-upload-chapter')
-  const fileInput = document.getElementById('ch-file')
+  const fileInput = document.getElementById('ch-file') // multiple
   const progress = document.getElementById('upload-progress')
 
   if (!btn) return
 
   btn.onclick = async () => {
     const title = getVal('ch-title')
-    const file = fileInput.files[0]
+    const files = [...fileInput.files]
 
-    if (!title || !file) {
-      alert('Judul & file wajib')
+    if (!title || files.length === 0) {
+      alert('Judul & halaman wajib')
       return
     }
 
-    const fileRef = ref(
-      storage,
-      `chapters/${comicId}/${Date.now()}-${file.name}`
-    )
-
-    const task = uploadBytesResumable(fileRef, file)
-
-    task.on('state_changed', snap => {
-      progress.value = (snap.bytesTransferred / snap.totalBytes) * 100
-    })
-
-    await task
-    const fileUrl = await getDownloadURL(fileRef)
-
-    await addDoc(collection(db, 'chapters'), {
-      comicId,
-      title,
-      fileUrl,
-      createdAt: serverTimestamp()
-    })
-
-    setVal('ch-title', '')
-    fileInput.value = ''
+    btn.disabled = true
     progress.value = 0
 
-    loadChapters(comicId)
+    try {
+      const pages = []
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i]
+        const fileRef = ref(
+          storage,
+          `chapters/${comicId}/${Date.now()}-${file.name}`
+        )
+
+        const task = uploadBytesResumable(fileRef, file)
+
+        await new Promise((resolve, reject) => {
+          task.on(
+            'state_changed',
+            snap => {
+              progress.value =
+                ((i + snap.bytesTransferred / snap.totalBytes) /
+                  files.length) *
+                100
+            },
+            reject,
+            resolve
+          )
+        })
+
+        const url = await getDownloadURL(fileRef)
+        pages.push(url)
+      }
+
+      await addDoc(
+        collection(db, 'comics', comicId, 'chapters'),
+        {
+          title,
+          pages,
+          createdAt: serverTimestamp()
+        }
+      )
+
+      setVal('ch-title', '')
+      fileInput.value = ''
+      progress.value = 0
+
+      loadChapters(comicId)
+    } catch (err) {
+      console.error(err)
+      alert('Gagal upload chapter')
+    } finally {
+      btn.disabled = false
+    }
   }
 }
 
@@ -141,15 +166,20 @@ function bindUploadChapter(comicId) {
 async function loadChapters(comicId) {
   const list = document.getElementById('chapter-list')
   if (!list) return
+
   list.innerHTML = ''
 
   const q = query(
-    collection(db, 'chapters'),
-    where('comicId', '==', comicId),
+    collection(db, 'comics', comicId, 'chapters'),
     orderBy('createdAt', 'asc')
   )
 
   const snap = await getDocs(q)
+
+  if (snap.empty) {
+    list.innerHTML = `<p style="color:#888">Belum ada chapter</p>`
+    return
+  }
 
   snap.forEach((d, i) => {
     const c = d.data()
@@ -158,7 +188,7 @@ async function loadChapters(comicId) {
     div.innerHTML = `
       <strong>Chapter ${i + 1}</strong>
       <p>${c.title}</p>
-      <a href="${c.fileUrl}" target="_blank">Lihat File</a>
+      <small>${c.pages?.length || 0} halaman</small>
     `
     list.appendChild(div)
   })
